@@ -3,147 +3,361 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>恒構企業社｜3D列印・產品設計・自動化服務</title>
-  <link rel="stylesheet" href="css/style.css">
+
+  <title>HengGou AI Platform｜AI Agent・AOI・LINE Bot・企業流程自動化</title>
+  <meta name="description" content="HengGou AI Platform 協助企業把重複工作交給 AI，提供 AI Agent、AOI 視覺檢測、LINE Bot、Google Apps Script、網站客製與 AI Cloud Beta。" />
+  <meta name="theme-color" content="#111827" />
+
+  <meta property="og:title" content="HengGou AI Platform｜把重複工作交給 AI" />
+  <meta property="og:description" content="AI Agent、AOI 視覺檢測、LINE Bot、Workflow Automation、網站客製與 AI Cloud Beta。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="zh_TW" />
+
+  <link rel="stylesheet" href="css/style.css" />
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "HengGou AI Platform",
+  "alternateName": "恒構企業社",
+  "url": "https://hengo1125tw.github.io/https-hengou-tw.github.io/",
+  "email": "hengo1125.tw@gmail.com",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+886-978-353-910",
+    "contactType": "customer service",
+    "areaServed": "TW",
+    "availableLanguage": [
+      "zh-TW"
+    ]
+  },
+  "sameAs": [
+    "https://line.me/R/ti/p/@749ivaeq"
+  ]
+}
+  </script>
 </head>
+
 <body>
+  <header class="site-header" id="top">
+    <a class="logo" href="#home" aria-label="HengGou AI Platform 首頁">
+      <span class="logo-mark">HG</span>
+      <span>HengGou AI</span>
+    </a>
 
-<header>
- <div class="logo">恒構企業社</div>
-<nav>
-  <a href="#products">產品與服務</a>
-  <a href="pages/cases.html">案例展示</a>
-  <a href="#about">關於我們</a>
-  <a href="#contact">聯絡我們</a>
-</nav>
-</header>
+    <button class="nav-toggle" type="button" aria-label="開啟選單" aria-expanded="false">
+      ☰
+    </button>
 
-<div class="hero">
-  <h1>3D列印開發｜紙箱緩衝包材｜AOI自動化｜軟體客製</h1>
-  <p>
-   協助企業與個人完成產品開發、客製零件、
-包裝優化與進出口採購需求。
-  </p>
-  <a class="btn" href="#contact">立即聯絡詢問</a>
-</div>
- <section id="products">
+    <nav class="site-nav" aria-label="主選單">
+      <a href="#home">首頁</a>
+      <a href="#pain-points">痛點</a>
+      <a href="#approach">解法</a>
+      <a href="#solutions">AI 解決方案</a>
+      <a href="#ai-cloud">AI Cloud</a>
+      <a href="#waiting-list">Beta 申請</a>
+      <a href="#cases">案例</a>
+      <a href="#contact">聯絡</a>
+    </nav>
+  </header>
 
-<h3>紙箱緩衝包材</h3>
-<div class="carousel">
-  <button class="carousel-btn prev" onclick="changeSlide(-1)">‹</button>
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <span class="eyebrow">HengGou AI Platform</span>
+          <h1>把重複工作交給 AI，讓員工專注更有價值的事。</h1>
+          <p>
+            協助企業導入 AI Agent、AOI 視覺檢測、LINE Bot、網站客製與流程自動化，
+            讓詢價、表單、資料整理與檢測紀錄不再只靠人工硬撐。
+          </p>
 
-  <img id="carousel-image"
-       src="images/products/paper-cushion/06.jpg"
-       alt="紙箱緩衝包材">
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://line.me/R/ti/p/@749ivaeq" target="_blank" rel="noopener">
+              立即預約免費諮詢
+            </a>
+            <a class="btn btn-secondary" href="#waiting-list">申請 AI Cloud Beta</a>
+          </div>
 
-  <button class="carousel-btn next" onclick="changeSlide(1)">›</button>
-</div>
-<p>
-  將回收紙箱加工成緩衝包材，適合電商出貨、3D列印成品、工具零件與易碎物品包裝。
-  相比一次性塑膠填充物，紙箱緩衝材更容易取得、成本可控，也能提升紙箱再利用價值。
-</p>
+          <div class="hero-stats" aria-label="服務特色">
+            <div><strong>AI</strong><span>企業助理</span></div>
+            <div><strong>AOI</strong><span>視覺檢測</span></div>
+            <div><strong>LINE</strong><span>自動化整合</span></div>
+          </div>
+        </div>
 
-<div class="feature-grid">
-  <div class="feature-box">
-    <h4>降低包材成本</h4>
-    <p>利用回收紙箱加工，減少額外購買填充包材的支出。</p>
-  </div>
+        <div class="hero-panel" aria-label="AI 平台功能預覽">
+          <div class="panel-top">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="panel-body">
+            <div class="terminal-line">HengGou AI / Workflow Console</div>
+            <div class="ai-card active">LINE 詢價 → Google Sheets → Gmail 通知</div>
+            <div class="ai-card">AOI 檢測 → Excel 紀錄 → 異常追蹤</div>
+            <div class="ai-card">文件資料 → AI Agent → 自動整理摘要</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  <div class="feature-box">
-    <h4>適合小量測試</h4>
-    <p>可先少量試用，確認緩衝效果與包裝方式後再大量訂購。</p>
-  </div>
+    <section class="section" id="pain-points">
+      <div class="section-heading">
+        <span class="eyebrow">Business Pain Points</span>
+        <h2>企業常見痛點</h2>
+        <p>真正需要解決的不是「有沒有 AI」，而是每天被人工流程消耗的時間。</p>
+      </div>
 
-  <div class="feature-box">
-    <h4>環保再利用</h4>
-    <p>將廢紙箱轉換成實用包材，減少浪費與塑膠填充物使用。</p>
-  </div>
-</div>
+      <div class="grid four">
+        <article class="card pain-card">
+          <h3>Excel 人工整理太耗時</h3>
+          <p>資料每天都要複製、貼上、整理、彙總，錯一格就要重查。</p>
+        </article>
+        <article class="card pain-card">
+          <h3>LINE 訊息容易漏接</h3>
+          <p>客戶詢價分散在聊天紀錄中，沒有自動建檔與後續追蹤。</p>
+        </article>
+        <article class="card pain-card">
+          <h3>AOI 與測試資料難管理</h3>
+          <p>檢測結果、SN、圖片與異常紀錄分散，無法快速回溯。</p>
+        </article>
+        <article class="card pain-card">
+          <h3>流程太依賴個人經驗</h3>
+          <p>只要負責人請假或離職，流程就斷線，交接成本很高。</p>
+        </article>
+      </div>
+    </section>
 
-<ul class="product-specs">
-  <li>適用：電商出貨、3D列印成品、易碎物品、精密零件包裝</li>
-  <li>特色：回收紙箱再利用、可減少塑膠包材、可依需求裁切</li>
-  <li>供應方式：可少量測試、可依重量或箱數報價</li>
-</ul>
+    <section class="section approach-section" id="approach">
+      <div class="section-heading">
+        <span class="eyebrow">How We Solve</span>
+        <h2>我們如何解決</h2>
+        <p>不是單點工具，而是把資料、溝通、檢測與通知串成可維護的流程。</p>
+      </div>
 
-<div class="faq">
-  <h4>常見問題</h4>
+      <div class="process-grid">
+        <article class="process-card">
+          <span>01</span>
+          <h3>流程盤點</h3>
+          <p>先確認目前人工卡點、資料來源、通知對象與交付格式。</p>
+        </article>
+        <article class="process-card">
+          <span>02</span>
+          <h3>建立 MVP</h3>
+          <p>先做能驗證效益的小版本，例如表單、自動回覆或資料匯出。</p>
+        </article>
+        <article class="process-card">
+          <span>03</span>
+          <h3>串接系統</h3>
+          <p>整合 LINE、Google Workspace、網站、AOI、AI Agent 與通知流程。</p>
+        </article>
+        <article class="process-card">
+          <span>04</span>
+          <h3>維護優化</h3>
+          <p>依照實際使用狀況持續調整功能、提示詞、表單與報表。</p>
+        </article>
+      </div>
+    </section>
 
-  <p><strong>Q：可以少量購買測試嗎？</strong><br>
-  A：可以，建議先少量測試實際包裝效果，再決定後續用量。</p>
+    <section class="section" id="solutions">
+      <div class="section-heading">
+        <span class="eyebrow">AI Solutions</span>
+        <h2>AI 解決方案</h2>
+        <p>針對中小企業、製造業、電商與服務業常見流程，建立可維護的 AI 與自動化系統。</p>
+      </div>
 
-  <p><strong>Q：尺寸可以客製嗎？</strong><br>
-  A：可依實際紙箱、商品大小與出貨方式討論裁切形式。</p>
+      <div class="grid four">
+        <article class="card solution-card">
+          <div class="icon">🤖</div>
+          <h3>AI Agent</h3>
+          <p>建立企業 AI 助理，協助資料整理、客服回覆、文件生成與任務執行。</p>
+        </article>
 
-  <p><strong>Q：如何報價？</strong><br>
-  A：可依重量、箱數、加工需求與取貨／寄送方式評估報價。</p>
-</div>
+        <article class="card solution-card">
+          <div class="icon">📷</div>
+          <h3>AOI Vision</h3>
+          <p>AOI 視覺檢測、測試資料記錄、Excel 自動整理與品質追蹤。</p>
+        </article>
 
-<a class="btn" href="https://line.me/R/ti/p/@749ivaeq" target="_blank">
-  LINE 詢價
-</a>
-<div class="carousel-dots">
-  <span onclick="setSlide(0)" class="dot active"></span>
-  <span onclick="setSlide(1)" class="dot"></span>
-  <span onclick="setSlide(2)" class="dot"></span>
-  <span onclick="setSlide(3)" class="dot"></span>
-  <span onclick="setSlide(4)" class="dot"></span>
-  <span onclick="setSlide(5)" class="dot"></span>
-  <span onclick="setSlide(6)" class="dot"></span>
-</div>
-</section>
-<section id="about">
-  <div class="about">
-    <h2>關於恒構企業社</h2>
-    <p>
-      我們專注於協助客戶處理「小量、客製、需要快速驗證」的產品與流程需求。
-      從 3D列印打樣、產品結構討論、工具配件設計，到表單流程、自動化檢測與進出口協助，
-      以務實、清楚、可執行為原則，降低溝通成本與試錯時間。
-    </p>
-  </div>
-</section>
- <section id="services">
-  <h2>服務項目</h2>
-<div class="service-card">
-    <h3>3D列印與產品開發</h3>
-    <p>產品設計、打樣驗證、客製零件與小量生產。</p>
-</div>
+        <article class="card solution-card">
+          <div class="icon">⚙️</div>
+          <h3>Workflow Automation</h3>
+          <p>整合 Google Apps Script、Gmail、Sheets、Forms 與 LINE 通知。</p>
+        </article>
 
-<div class="service-card">
-    <h3>紙箱緩衝包材</h3>
-    <p>回收紙箱加工製作緩衝包材，降低包材成本並兼顧環保。</p>
-</div>
+        <article class="card solution-card">
+          <div class="icon">🌐</div>
+          <h3>Website Development</h3>
+          <p>企業網站、Landing Page、GitHub Pages 與詢價轉換流程建置。</p>
+        </article>
+      </div>
+    </section>
 
-<div class="service-card">
-    <h3>AOI與軟體客製</h3>
-    <p>AOI檢測系統、資料記錄系統、網站與流程自動化開發。</p>
-</div>
+    <section class="section ai-cloud" id="ai-cloud">
+      <div class="section-heading">
+        <span class="eyebrow">Beta Recruiting</span>
+        <h2>AI Cloud Beta</h2>
+        <p>企業 AI 工作站規劃中，先開放 Waiting List，蒐集第一批測試需求。</p>
+      </div>
 
-<div class="service-card">
-    <h3>五金工具與電子材料</h3>
-    <p>工具、電子材料、工業耗材與客製化採購協助。</p>
-</div>
+      <div class="cloud-layout">
+        <div class="cloud-copy">
+          <h3>企業 AI 工作平台，Beta 招募中。</h3>
+          <p>
+            預計整合 AI Agent、Ollama、ComfyUI、VS Code Server、Jupyter Notebook
+            與 GPU Workspace，讓企業能以較低門檻測試 AI 導入。
+          </p>
+          <a class="btn btn-primary" href="#waiting-list">加入 Beta Waiting List</a>
+        </div>
 
-<div class="service-card">
-    <h3>越南代購與進出口</h3>
-    <p>代購、報關、物流與企業採購協助。</p>
-</div>
-  </div>
-</section>
+        <div class="grid three compact">
+          <div class="mini-card">AI Agent</div>
+          <div class="mini-card">Ollama</div>
+          <div class="mini-card">ComfyUI</div>
+          <div class="mini-card">VS Code Server</div>
+          <div class="mini-card">Jupyter</div>
+          <div class="mini-card">GPU Workspace</div>
+        </div>
+      </div>
+    </section>
 
-<section id="contact">
-  <div class="contact">
-    <h2>聯絡我們</h2>
-    <p>聯絡人：宋先生</p>
-    <p>電話：0978-353-910</p>
-    <p>Email：<a href="mailto:hengo1125.tw@gmail.com">hengo1125.tw@gmail.com</a></p>
-    <p>LINE：<a href="https://line.me/R/ti/p/@749ivaeq">@749ivaeq</a></p>
-  </div>
-</section>
 
-<footer>
-  © 2026 恒構企業社 Heng Gou CO. All Rights Reserved.
-</footer>
-<script src="js/script.js"></script>
+    <section class="section waiting-list" id="waiting-list">
+      <div class="section-heading">
+        <span class="eyebrow">AI Cloud Beta</span>
+        <h2>加入 AI Cloud Beta Waiting List</h2>
+        <p>留下基本資料與想導入的功能，我們會優先通知 Beta 測試與顧問諮詢名額。</p>
+      </div>
+
+      <div class="waiting-layout">
+        <div class="waiting-copy">
+          <h3>適合正在評估 AI 導入的企業</h3>
+          <ul>
+            <li>想用 AI Agent 協助整理資料與自動回覆。</li>
+            <li>想把 LINE、Google Sheets、Gmail 串成流程。</li>
+            <li>想測試 Ollama、ComfyUI、Jupyter 或 GPU 工作站。</li>
+          </ul>
+        </div>
+
+        <form class="lead-form" action="https://docs.google.com/forms/d/e/REPLACE_WITH_YOUR_FORM_ID/formResponse" method="POST" target="_blank">
+          <label>公司名稱<input type="text" name="entry.company" placeholder="請輸入公司名稱"></label>
+          <label>姓名<input type="text" name="entry.name" placeholder="請輸入姓名"></label>
+          <label>Email<input type="email" name="entry.email" placeholder="name@example.com"></label>
+          <label>LINE ID<input type="text" name="entry.line" placeholder="@ 或個人 LINE ID"></label>
+          <label>想導入的 AI 功能
+            <select name="entry.needs">
+              <option>AI Agent</option>
+              <option>AI Cloud / GPU Workspace</option>
+              <option>AOI 視覺檢測</option>
+              <option>LINE Bot / LINE OA</option>
+              <option>Google Workspace 自動化</option>
+              <option>網站客製</option>
+            </select>
+          </label>
+          <label>備註<textarea name="entry.note" rows="4" placeholder="請簡述目前想解決的流程或問題"></textarea></label>
+          <button class="btn btn-primary form-button" type="submit">送出 Beta 申請</button>
+          <p class="form-note">目前表單為預留版。取得正式 Google Form entry ID 後即可啟用自動收件。</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="section" id="cases">
+      <div class="section-heading">
+        <span class="eyebrow">Case Study</span>
+        <h2>案例展示</h2>
+        <p>持續整理實際專案，讓客戶快速理解導入後可獲得的效益。</p>
+      </div>
+
+      <div class="grid four">
+        <article class="card">
+          <h3>AOI 軟體</h3>
+          <p>影像檢測、SN 掃碼、資料紀錄與 Excel 自動匯出。</p>
+        </article>
+        <article class="card">
+          <h3>LINE Bot</h3>
+          <p>官方帳號、自動回覆、Google Sheets 與表單流程整合。</p>
+        </article>
+        <article class="card">
+          <h3>AI Agent</h3>
+          <p>Hermes、OpenRouter、工作流程與自動化助理環境建置。</p>
+        </article>
+        <article class="card">
+          <h3>GitHub Website</h3>
+          <p>GitHub Pages、SEO、版本管理與企業 Landing Page 開發。</p>
+        </article>
+      </div>
+      <div class="section-cta"><a class="btn btn-primary" href="pages/cases.html">查看完整案例</a></div>
+    </section>
+
+    <section class="section" id="products">
+      <div class="section-heading">
+        <span class="eyebrow">Additional Services</span>
+        <h2>包材服務</h2>
+        <p>保留現有服務入口，作為工程與供應鏈服務的一部分。</p>
+      </div>
+
+      <h3 class="center">紙箱緩衝包材</h3>
+      <div class="carousel">
+        <button class="carousel-btn prev" onclick="changeSlide(-1)" aria-label="上一張">‹</button>
+        <img id="carousel-image" src="images/products/paper-cushion/06.jpg" alt="紙箱緩衝包材">
+        <button class="carousel-btn next" onclick="changeSlide(1)" aria-label="下一張">›</button>
+      </div>
+
+      <p class="product-copy">
+        將回收紙箱加工成緩衝包材，適合電商出貨、3D列印成品、工具零件與易碎物品包裝。
+      </p>
+
+      <div class="feature-grid">
+        <div class="feature-box">
+          <h4>降低包材成本</h4>
+          <p>利用回收紙箱加工，減少額外購買填充包材的支出。</p>
+        </div>
+        <div class="feature-box">
+          <h4>適合小量測試</h4>
+          <p>可先少量試用，確認緩衝效果與包裝方式後再大量訂購。</p>
+        </div>
+        <div class="feature-box">
+          <h4>環保再利用</h4>
+          <p>將廢紙箱轉換成實用包材，減少浪費與塑膠填充物使用。</p>
+        </div>
+      </div>
+
+      <div class="carousel-dots">
+        <span onclick="setSlide(0)" class="dot active"></span>
+        <span onclick="setSlide(1)" class="dot"></span>
+        <span onclick="setSlide(2)" class="dot"></span>
+        <span onclick="setSlide(3)" class="dot"></span>
+        <span onclick="setSlide(4)" class="dot"></span>
+        <span onclick="setSlide(5)" class="dot"></span>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="about">
+        <h2>關於 HengGou AI Platform</h2>
+        <p>
+          HengGou AI Platform 由恒構企業社營運，專注於協助企業導入 AI、自動化、網站客製、
+          AOI 視覺檢測、LINE 官方帳號整合與產品開發服務。
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="contact">
+        <h2>聯絡我們</h2>
+        <p>聯絡人：宋先生</p>
+        <p>電話：0978-353-910</p>
+        <p>Email：<a href="mailto:hengo1125.tw@gmail.com">hengo1125.tw@gmail.com</a></p>
+        <p>LINE：<a href="https://line.me/R/ti/p/@749ivaeq" target="_blank" rel="noopener">@749ivaeq</a></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <strong>HengGou AI Platform</strong>
+    <span>Operated by 恒構企業社</span>
+    <span>© 2026 All Rights Reserved.</span>
+  </footer>
+
+  <script src="js/script.js"></script>
 </body>
 </html>

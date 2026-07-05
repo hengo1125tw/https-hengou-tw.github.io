@@ -1,7 +1,7 @@
 # TODO
 
 ## Next Sprint
-- AI Cloud Waiting List 串接 Google Form。
-- Case Study 獨立頁。
-- favicon 與 Open Graph 圖片。
-- JSON-LD 結構化資料。
+- 串接 AI Cloud Waiting List Google Form。
+- 建立 Case Study 獨立頁。
+- 補 favicon、Open Graph 圖片與 JSON-LD。
+- 加入首頁 scroll reveal 動畫。

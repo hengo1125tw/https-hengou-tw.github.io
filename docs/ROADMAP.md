@@ -1,16 +1,15 @@
 # ROADMAP
 
 ## v0.5.0
-- Hero
-- AI Solutions
-- AI Cloud
-- Case Study
-- Footer
+- Sprint 1: Homepage foundation
+- Sprint 2: Conversion improvements
+- Sprint 3: Waiting List
+- Sprint 4: Case Study
 
 ## v0.6.0
-- Waiting List
 - Google Form
 - Apps Script notification
+- SEO enhancement
 
 ## v1.0.0
 - Website MVP Release

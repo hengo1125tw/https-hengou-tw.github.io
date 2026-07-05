@@ -1,3 +1,3 @@
 # VERSION
 
-Current version: v0.5.0-sprint1
+Current version: v0.5.0-sprint2

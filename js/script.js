@@ -9,32 +9,52 @@ const slides = [
 
 let currentSlide = 0;
 
-function showSlide(index){
+function showSlide(index) {
   const image = document.getElementById("carousel-image");
   const dots = document.querySelectorAll(".dot");
 
-  if(!image) return;
+  if (!image) return;
 
-  if(index >= slides.length){
+  if (index >= slides.length) {
     currentSlide = 0;
-  }else if(index < 0){
+  } else if (index < 0) {
     currentSlide = slides.length - 1;
-  }else{
+  } else {
     currentSlide = index;
   }
 
   image.src = slides[currentSlide];
 
   dots.forEach(dot => dot.classList.remove("active"));
-  if(dots[currentSlide]){
+
+  if (dots[currentSlide]) {
     dots[currentSlide].classList.add("active");
   }
 }
 
-function changeSlide(direction){
+function changeSlide(direction) {
   showSlide(currentSlide + direction);
 }
 
-function setSlide(index){
+function setSlide(index) {
   showSlide(index);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.querySelector(".nav-toggle");
+  const nav = document.querySelector(".site-nav");
+
+  if (toggle && nav) {
+    toggle.addEventListener("click", () => {
+      const isOpen = nav.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    nav.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        nav.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+});

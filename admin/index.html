@@ -51,26 +51,26 @@
       <section class="metric-grid" id="dashboard">
         <article class="metric-card">
           <span>Total Leads</span>
-          <strong>52</strong>
+          <strong id="metricTotalLeads">52</strong>
           <small>本月累積名單</small>
         </article>
 
         <article class="metric-card">
           <span>Waiting</span>
-          <strong>18</strong>
+          <strong id="metricWaiting">18</strong>
           <small>尚未聯絡</small>
         </article>
 
         <article class="metric-card">
           <span>Quotation</span>
-          <strong>9</strong>
+          <strong id="metricQuotation">9</strong>
           <small>報價評估中</small>
         </article>
 
         <article class="metric-card">
           <span>Conversion</span>
-          <strong>26%</strong>
-          <small>成交轉換率</small>
+          <strong id="apiStatusText">未設定</strong>
+          <small id="apiStatusHint">等待 Web App URL</small>
         </article>
       </section>
 
@@ -95,9 +95,10 @@
       <section class="panel" id="leads">
         <div class="panel-heading">
           <h2>Leads</h2>
-          <span>Google Sheets 串接前先使用假資料</span>
+          <span id="leadSourceLabel">Mock Data</span>
         </div>
 
+        <div class="panel-actions"><button class="ghost-button small" id="refreshLeads" type="button">重新整理 Leads</button><button class="ghost-button small" id="loadMockData" type="button">載入假資料</button></div>
         <div class="table-wrap">
           <table>
             <thead>
@@ -162,8 +163,18 @@
           <span>Production checklist</span>
         </div>
 
+        <form class="admin-config-form" id="apiConfigForm">
+          <label>Apps Script Web App URL<input type="url" id="apiBaseInput" placeholder="https://script.google.com/macros/s/xxxx/exec"></label>
+          <label>API Key<input type="password" id="apiKeyInput" placeholder="與 Code.gs 的 HG_CONFIG.API_KEY 相同"></label>
+          <div class="config-actions">
+            <button class="primary-button" type="submit">儲存設定</button>
+            <button class="ghost-button" id="testApiButton" type="button">測試 API</button>
+          </div>
+          <p class="muted">設定會存在本機瀏覽器 localStorage，不會上傳到 GitHub。</p>
+        </form>
         <div class="settings-list">
           <label><input type="checkbox"> Apps Script Web App 已部署</label>
+          <label><input type="checkbox"> setupHengGouCRM 已執行</label>
           <label><input type="checkbox"> js/config.js 已填 API_BASE</label>
           <label><input type="checkbox"> Gmail 通知測試成功</label>
           <label><input type="checkbox"> Telegram 通知測試成功</label>
@@ -175,5 +186,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/admin.js"></script>
+  <script src="js/admin-api.js"></script>
 </body>
 </html>

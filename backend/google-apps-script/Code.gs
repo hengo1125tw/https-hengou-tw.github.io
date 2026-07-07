@@ -82,12 +82,62 @@ function doPost(e) {
   }
 }
 
-function doGet() {
+function doGet(e) {
+  const action = e && e.parameter ? e.parameter.action : '';
+
+  if (action === 'listLeads') {
+    validateApiKeyGet_(e);
+    return json_({
+      ok: true,
+      leads: listLeads_()
+    });
+  }
+
   return json_({
     ok: true,
     service: 'HengGou AI Platform Lead API',
-    version: 'v0.5.0-sprint4B'
+    version: 'v0.6.1'
   });
+}
+
+function validateApiKeyGet_(e) {
+  const keyFromParameter = e && e.parameter ? (e.parameter.api_key || '') : '';
+
+  if (!HG_CONFIG.API_KEY || HG_CONFIG.API_KEY === 'CHANGE_ME_TO_A_LONG_RANDOM_KEY') {
+    throw new Error('後端 API_KEY 尚未設定');
+  }
+
+  if (keyFromParameter !== HG_CONFIG.API_KEY) {
+    throw new Error('API Key 驗證失敗');
+  }
+}
+
+function listLeads_() {
+  const ss = getSpreadsheet_();
+  ensureSheets_(ss);
+
+  const sheet = ss.getSheetByName(HG_CONFIG.SHEETS.LEADS);
+  const lastRow = sheet.getLastRow();
+  const lastCol = sheet.getLastColumn();
+
+  if (lastRow <= 1) return [];
+
+  const values = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
+
+  return values.slice(-50).reverse().map(row => ({
+    leadId: row[0],
+    createdAt: row[1],
+    source: row[2],
+    company: row[3],
+    name: row[4],
+    email: row[5],
+    line: row[6],
+    needs: row[7],
+    note: row[8],
+    status: row[16],
+    owner: row[17],
+    followUp: row[18]
+  }));
 }
 
 function parsePayload_(e) {

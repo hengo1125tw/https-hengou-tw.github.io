@@ -6,20 +6,20 @@ URL:
 /admin/
 ```
 
-## Current Status
+## v0.6.1
 
-v0.6.0 uses mock data only.
+新增 API 連線設定。
 
-## Includes
+### 使用方式
 
-- Metrics
-- Leads
-- CRM Pipeline
-- Charts
-- API Logs
-- Settings checklist
-- AI Agent placeholder
+1. 部署 Google Apps Script Web App。
+2. 進入 `/admin/`。
+3. 到 Settings。
+4. 填入：
+   - Apps Script Web App URL
+   - API Key
+5. 按「儲存設定」。
+6. 按「測試 API」。
+7. 按「重新整理 Leads」。
 
-## Next
-
-v0.7.0 will connect dashboard data to Google Sheets CRM.
+API 設定儲存在瀏覽器 localStorage，不會 commit 到 GitHub。

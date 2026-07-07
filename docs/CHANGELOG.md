@@ -76,3 +76,16 @@
 
 ### Changed
 - Added Admin link to main navigation.
+
+
+## v0.6.1
+
+### Added
+- Added Admin API settings panel.
+- Added `admin/js/admin-api.js`.
+- Added API health check UI.
+- Added refresh Leads from Google Sheets API.
+- Added `doGet?action=listLeads` support in Google Apps Script backend.
+
+### Changed
+- Admin Dashboard can now switch between mock data and API data.

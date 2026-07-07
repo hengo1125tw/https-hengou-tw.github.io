@@ -98,7 +98,21 @@
           <span id="leadSourceLabel">Mock Data</span>
         </div>
 
-        <div class="panel-actions"><button class="ghost-button small" id="refreshLeads" type="button">重新整理 Leads</button><button class="ghost-button small" id="loadMockData" type="button">載入假資料</button></div>
+        <div class="panel-actions">
+          <button class="ghost-button small" id="refreshLeads" type="button">重新整理 Leads</button>
+          <button class="ghost-button small" id="loadMockData" type="button">載入假資料</button>
+          <button class="ghost-button small" id="refreshLogs" type="button">重新整理 Logs</button>
+          <input class="table-filter" id="leadSearchInput" type="search" placeholder="搜尋公司 / 姓名 / Email / 需求">
+          <select class="table-filter" id="statusFilter">
+            <option value="">全部狀態</option>
+            <option>未聯絡</option>
+            <option>已聯絡</option>
+            <option>評估中</option>
+            <option>已報價</option>
+            <option>已成交</option>
+            <option>暫不合作</option>
+          </select>
+        </div>
         <div class="table-wrap">
           <table>
             <thead>
@@ -110,6 +124,7 @@
                 <th>需求</th>
                 <th>狀態</th>
                 <th>建立時間</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody id="leadTable"></tbody>
@@ -138,10 +153,8 @@
             <span>Latest</span>
           </div>
 
-          <div class="log-list">
-            <p><span class="ok"></span> Lead API success - HG-20260706-0001</p>
-            <p><span class="ok"></span> Gmail notification sent</p>
-            <p><span class="warn"></span> Telegram token not configured</p>
+          <div class="log-list" id="apiLogsList">
+            <p><span class="warn"></span> 尚未讀取 API Logs</p>
           </div>
         </article>
       </section>

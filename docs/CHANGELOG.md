@@ -89,3 +89,18 @@
 
 ### Changed
 - Admin Dashboard can now switch between mock data and API data.
+
+
+## v0.7.0
+
+### Added
+- Lead search filter.
+- Lead status filter.
+- Lead status update from Admin Dashboard.
+- API Logs viewer.
+- Apps Script `listLogs` action.
+- Apps Script `updateLeadStatus` action.
+
+### Changed
+- Admin Leads table now supports editable status controls.
+- Admin Dashboard is closer to real CRM workflow.

@@ -1,15 +1,16 @@
 # ROADMAP
 
-## v0.6.1
-- Admin API connection
-- Lead API health check
-- List Leads from Google Sheets CRM
-
 ## v0.7.0
 - Lead filtering
 - Status update
-- CRM editing
 - API logs viewer
+- CRM workflow controls
+
+## v0.8.0
+- Lead detail page
+- Notes timeline
+- Follow-up date editing
+- Export CSV
 
 ## v1.0.0
 - Production Website MVP

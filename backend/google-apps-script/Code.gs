@@ -93,10 +93,23 @@ function doGet(e) {
     });
   }
 
+  if (action === 'listLogs') {
+    validateApiKeyGet_(e);
+    return json_({
+      ok: true,
+      logs: listLogs_()
+    });
+  }
+
+  if (action === 'updateLeadStatus') {
+    validateApiKeyGet_(e);
+    return json_(updateLeadStatus_(e.parameter.leadId, e.parameter.status));
+  }
+
   return json_({
     ok: true,
     service: 'HengGou AI Platform Lead API',
-    version: 'v0.6.1'
+    version: 'v0.7.0'
   });
 }
 
@@ -472,4 +485,45 @@ function applyLeadDataValidation_(ss) {
     .build();
 
   sheet.getRange(2, statusColumn, 1000, 1).setDataValidation(rule);
+}
+
+
+function listLogs_() {
+  const ss = getSpreadsheet_();
+  ensureSheets_(ss);
+  const sheet = ss.getSheetByName(HG_CONFIG.SHEETS.LOGS);
+  const lastRow = sheet.getLastRow();
+  const lastCol = sheet.getLastColumn();
+  if (lastRow <= 1) return [];
+  const values = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
+  return values.slice(-50).reverse().map(row => ({
+    time: row[0],
+    status: row[1],
+    leadId: row[2],
+    message: row[3],
+    durationMs: row[4]
+  }));
+}
+
+function updateLeadStatus_(leadId, status) {
+  if (!leadId) return { ok: false, message: '缺少 Lead ID' };
+  const allowed = ['未聯絡', '已聯絡', '評估中', '已報價', '已成交', '暫不合作'];
+  if (allowed.indexOf(status) === -1) return { ok: false, message: '狀態不合法' };
+
+  const ss = getSpreadsheet_();
+  ensureSheets_(ss);
+  const sheet = ss.getSheetByName(HG_CONFIG.SHEETS.LEADS);
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return { ok: false, message: '尚無 Lead 資料' };
+
+  const ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues().flat();
+  const index = ids.indexOf(leadId);
+  if (index === -1) return { ok: false, message: '找不到 Lead ID：' + leadId };
+
+  const rowNumber = index + 2;
+  const statusColumn = 17;
+  sheet.getRange(rowNumber, statusColumn).setValue(status);
+  refreshDashboard_();
+
+  return { ok: true, message: '狀態已更新', leadId: leadId, status: status };
 }

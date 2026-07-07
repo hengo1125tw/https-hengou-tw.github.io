@@ -118,3 +118,13 @@
 ### Changed
 - Leads table includes detail action.
 - Admin dashboard now supports lightweight CRM follow-up workflow.
+
+
+## v0.9.0
+- Added favicon SVG.
+- Added manifest.webmanifest.
+- Added canonical and Twitter Card metadata.
+- Added Service JSON-LD.
+- Added QA checklist.
+- Updated robots.txt and sitemap.xml.
+- Improved mobile and accessibility styles.

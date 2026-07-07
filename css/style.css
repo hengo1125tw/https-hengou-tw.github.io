@@ -761,3 +761,10 @@ a{color:inherit}
 @keyframes hg-spin{
   to{transform:rotate(360deg)}
 }
+
+/* v0.9.0 Production polish */
+:focus-visible{outline:3px solid rgba(37,99,235,.55);outline-offset:3px}
+img{max-width:100%}
+@media(prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.01ms !important}}
+@media(max-width:520px){.hero-actions .btn{width:100%}.section-heading h2{font-size:28px}.lead-form,.waiting-copy,.card,.about,.contact{padding:22px}}
+@media print{.site-header,.site-footer,.hero-actions,.carousel-btn,.carousel-dots{display:none !important}body{background:white;color:black}.section,.hero{padding:20px}}

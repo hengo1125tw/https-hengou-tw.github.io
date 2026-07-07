@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
 
 Sitemap: https://hengo1125tw.github.io/https-hengou-tw.github.io/sitemap.xml

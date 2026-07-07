@@ -101,6 +101,7 @@
         <div class="panel-actions">
           <button class="ghost-button small" id="refreshLeads" type="button">重新整理 Leads</button>
           <button class="ghost-button small" id="loadMockData" type="button">載入假資料</button>
+          <button class="ghost-button small" id="exportCsv" type="button">匯出 CSV</button>
           <button class="ghost-button small" id="refreshLogs" type="button">重新整理 Logs</button>
           <input class="table-filter" id="leadSearchInput" type="search" placeholder="搜尋公司 / 姓名 / Email / 需求">
           <select class="table-filter" id="statusFilter">
@@ -196,6 +197,45 @@
       </section>
     </main>
   </div>
+
+  <aside class="lead-drawer" id="leadDrawer" aria-hidden="true">
+    <div class="lead-drawer-panel">
+      <div class="lead-drawer-header">
+        <div>
+          <p class="eyebrow">Lead Detail</p>
+          <h2 id="drawerLeadId">Lead</h2>
+        </div>
+        <button class="ghost-button small" id="closeDrawer" type="button">關閉</button>
+      </div>
+
+      <div class="lead-detail-grid">
+        <div><span>公司</span><strong id="drawerCompany">-</strong></div>
+        <div><span>姓名</span><strong id="drawerName">-</strong></div>
+        <div><span>Email</span><strong id="drawerEmail">-</strong></div>
+        <div><span>需求</span><strong id="drawerNeed">-</strong></div>
+        <div><span>狀態</span><strong id="drawerStatus">-</strong></div>
+        <div><span>建立時間</span><strong id="drawerCreated">-</strong></div>
+      </div>
+
+      <form class="drawer-form" id="followUpForm">
+        <label>
+          Follow-up 日期
+          <input type="date" id="followUpDate">
+        </label>
+
+        <label>
+          內部備註
+          <textarea id="internalNote" rows="5" placeholder="記錄聯絡內容、報價狀態、後續提醒"></textarea>
+        </label>
+
+        <button class="primary-button" type="submit">儲存 Follow-up</button>
+      </form>
+
+      <div class="timeline" id="noteTimeline">
+        <p class="muted">尚無備註紀錄。</p>
+      </div>
+    </div>
+  </aside>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/admin.js"></script>

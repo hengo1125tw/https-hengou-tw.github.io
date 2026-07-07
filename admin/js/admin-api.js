@@ -64,10 +64,22 @@ const HGAdminAPI = {
     } catch {
       return { ok: false, message: "更新狀態失敗" };
     }
+  },
+
+  async updateLeadFollowUp(leadId, followUp, note) {
+    const url = this.buildUrl("updateLeadFollowUp", { leadId, followUp, note });
+    if (!url) return { ok: false, message: "尚未設定 API URL" };
+    try {
+      const response = await fetch(url);
+      return await response.json();
+    } catch {
+      return { ok: false, message: "更新 Follow-up 失敗" };
+    }
   }
 };
 
 let currentRows = [];
+let currentDrawerLead = null;
 
 function normalizeLeadRows(leads) {
   if (!Array.isArray(leads) || leads.length === 0) return [];
@@ -78,7 +90,9 @@ function normalizeLeadRows(leads) {
     email: lead.email || lead["Email"] || "",
     need: lead.needs || lead["AI 需求"] || "",
     status: lead.status || lead["狀態"] || "未聯絡",
-    created: lead.createdAt || lead["建立時間"] || ""
+    created: lead.createdAt || lead["建立時間"] || "",
+    followUp: lead.followUp || lead["Follow Up"] || "",
+    note: lead.internalNote || lead["內部備註"] || ""
   }));
 }
 
@@ -109,6 +123,7 @@ function renderLeadRows(rows, sourceLabel = "API") {
       <td><span class="badge">${lead.status}</span></td>
       <td>${lead.created}</td>
       <td>
+        <button class="ghost-button small detail-button" data-lead-id="${lead.id}" type="button">詳細</button>
         <select class="status-select" data-lead-id="${lead.id}">
           ${["未聯絡","已聯絡","評估中","已報價","已成交","暫不合作"].map(status => `<option ${status === lead.status ? "selected" : ""}>${status}</option>`).join("")}
         </select>
@@ -124,6 +139,14 @@ function renderLeadRows(rows, sourceLabel = "API") {
     });
   });
 
+  tbody.querySelectorAll(".detail-button").forEach(button => {
+    button.addEventListener("click", () => openLeadDrawer(button.dataset.leadId));
+  });
+
+  updateMetrics(rows);
+}
+
+function updateMetrics(rows) {
   const total = document.getElementById("metricTotalLeads");
   const waiting = document.getElementById("metricWaiting");
   const quotation = document.getElementById("metricQuotation");
@@ -135,6 +158,54 @@ function renderLeadRows(rows, sourceLabel = "API") {
 function rerenderCurrentRows() {
   const label = document.getElementById("leadSourceLabel");
   renderLeadRows(currentRows, label ? label.textContent : "API");
+}
+
+function openLeadDrawer(leadId) {
+  const lead = currentRows.find(row => row.id === leadId);
+  if (!lead) return;
+  currentDrawerLead = lead;
+
+  document.getElementById("drawerLeadId").textContent = lead.id;
+  document.getElementById("drawerCompany").textContent = lead.company || "-";
+  document.getElementById("drawerName").textContent = lead.name || "-";
+  document.getElementById("drawerEmail").textContent = lead.email || "-";
+  document.getElementById("drawerNeed").textContent = lead.need || "-";
+  document.getElementById("drawerStatus").textContent = lead.status || "-";
+  document.getElementById("drawerCreated").textContent = lead.created || "-";
+  document.getElementById("followUpDate").value = lead.followUp ? String(lead.followUp).slice(0, 10) : "";
+  document.getElementById("internalNote").value = lead.note || "";
+
+  const timeline = document.getElementById("noteTimeline");
+  timeline.innerHTML = lead.note ? `<p><strong>內部備註</strong><br>${lead.note}</p>` : `<p class="muted">尚無備註紀錄。</p>`;
+
+  const drawer = document.getElementById("leadDrawer");
+  drawer.classList.add("show");
+  drawer.setAttribute("aria-hidden", "false");
+}
+
+function closeLeadDrawer() {
+  const drawer = document.getElementById("leadDrawer");
+  drawer.classList.remove("show");
+  drawer.setAttribute("aria-hidden", "true");
+  currentDrawerLead = null;
+}
+
+function exportCurrentRowsToCsv() {
+  const rows = getFilteredRows();
+  const headers = ["Lead ID","公司","姓名","Email","需求","狀態","建立時間","Follow Up","內部備註"];
+  const csvRows = [
+    headers,
+    ...rows.map(row => [row.id,row.company,row.name,row.email,row.need,row.status,row.created,row.followUp || "",row.note || ""])
+  ];
+
+  const csv = csvRows.map(row => row.map(value => `"${String(value || "").replace(/"/g, '""')}"`).join(",")).join("\\n");
+  const blob = new Blob(["\\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `henggou-leads-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 async function updateApiStatus() {
@@ -174,8 +245,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const refreshButton = document.getElementById("refreshLeads");
   const mockButton = document.getElementById("loadMockData");
   const refreshLogs = document.getElementById("refreshLogs");
+  const exportCsv = document.getElementById("exportCsv");
   const searchInput = document.getElementById("leadSearchInput");
   const statusFilter = document.getElementById("statusFilter");
+  const closeDrawer = document.getElementById("closeDrawer");
+  const followUpForm = document.getElementById("followUpForm");
 
   if (apiBaseInput) apiBaseInput.value = config.apiBase || "";
   if (apiKeyInput) apiKeyInput.value = config.apiKey || "";
@@ -199,7 +273,27 @@ document.addEventListener("DOMContentLoaded", () => {
   if (refreshButton) refreshButton.addEventListener("click", loadLeadsFromApi);
   if (mockButton) mockButton.addEventListener("click", () => renderLeadRows(mockLeads, "Mock Data"));
   if (refreshLogs) refreshLogs.addEventListener("click", loadLogsFromApi);
+  if (exportCsv) exportCsv.addEventListener("click", exportCurrentRowsToCsv);
   if (searchInput) searchInput.addEventListener("input", rerenderCurrentRows);
   if (statusFilter) statusFilter.addEventListener("change", rerenderCurrentRows);
+  if (closeDrawer) closeDrawer.addEventListener("click", closeLeadDrawer);
+
+  if (followUpForm) {
+    followUpForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!currentDrawerLead) return;
+      const followUp = document.getElementById("followUpDate").value;
+      const note = document.getElementById("internalNote").value;
+      const result = await HGAdminAPI.updateLeadFollowUp(currentDrawerLead.id, followUp, note);
+      if (!result.ok) {
+        alert(result.message || "儲存失敗");
+        return;
+      }
+      alert("Follow-up 已更新");
+      closeLeadDrawer();
+      await loadLeadsFromApi();
+    });
+  }
+
   updateApiStatus();
 });

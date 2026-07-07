@@ -6,12 +6,13 @@ URL:
 /admin/
 ```
 
-## v0.7.0 Features
+## v0.8.0 Features
 
-- API settings panel
-- API health check
-- Load Leads from Google Sheets CRM
-- Search Leads
-- Filter by status
-- Update Lead status
-- View API Logs
+- Lead search
+- Status filter
+- Status update
+- Lead detail drawer
+- Follow-up date editing
+- Internal note editing
+- CSV export
+- API Logs viewer

@@ -104,3 +104,17 @@
 ### Changed
 - Admin Leads table now supports editable status controls.
 - Admin Dashboard is closer to real CRM workflow.
+
+
+## v0.8.0
+
+### Added
+- Lead detail drawer.
+- Follow-up date editing.
+- Internal note editing.
+- CSV export.
+- Apps Script `updateLeadFollowUp` action.
+
+### Changed
+- Leads table includes detail action.
+- Admin dashboard now supports lightweight CRM follow-up workflow.

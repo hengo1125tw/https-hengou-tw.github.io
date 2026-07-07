@@ -106,10 +106,15 @@ function doGet(e) {
     return json_(updateLeadStatus_(e.parameter.leadId, e.parameter.status));
   }
 
+  if (action === 'updateLeadFollowUp') {
+    validateApiKeyGet_(e);
+    return json_(updateLeadFollowUp_(e.parameter.leadId, e.parameter.followUp, e.parameter.note));
+  }
+
   return json_({
     ok: true,
     service: 'HengGou AI Platform Lead API',
-    version: 'v0.7.0'
+    version: 'v0.8.0'
   });
 }
 
@@ -526,4 +531,34 @@ function updateLeadStatus_(leadId, status) {
   refreshDashboard_();
 
   return { ok: true, message: '狀態已更新', leadId: leadId, status: status };
+}
+
+
+function updateLeadFollowUp_(leadId, followUp, note) {
+  if (!leadId) return { ok: false, message: '缺少 Lead ID' };
+
+  const ss = getSpreadsheet_();
+  ensureSheets_(ss);
+  const sheet = ss.getSheetByName(HG_CONFIG.SHEETS.LEADS);
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return { ok: false, message: '尚無 Lead 資料' };
+
+  const ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues().flat();
+  const index = ids.indexOf(leadId);
+  if (index === -1) return { ok: false, message: '找不到 Lead ID：' + leadId };
+
+  const rowNumber = index + 2;
+  const followUpColumn = 19;
+  const noteColumn = 20;
+
+  sheet.getRange(rowNumber, followUpColumn).setValue(followUp || '');
+  sheet.getRange(rowNumber, noteColumn).setValue(sanitize_(note || ''));
+
+  refreshDashboard_();
+
+  return {
+    ok: true,
+    message: 'Follow-up 已更新',
+    leadId: leadId
+  };
 }

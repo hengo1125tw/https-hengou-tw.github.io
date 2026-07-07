@@ -24,6 +24,12 @@ GET /exec?action=listLogs&api_key=YOUR_API_KEY
 GET /exec?action=updateLeadStatus&api_key=YOUR_API_KEY&leadId=HG-20260706-0001&status=已聯絡
 ```
 
+## Update Lead Follow-up
+
+```text
+GET /exec?action=updateLeadFollowUp&api_key=YOUR_API_KEY&leadId=HG-20260706-0001&followUp=2026-07-10&note=已電話聯絡
+```
+
 ## Create Lead
 
 ```text

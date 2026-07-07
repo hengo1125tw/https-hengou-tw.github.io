@@ -1,3 +1,1 @@
-# VERSION
-
-Current version: v0.5.0-sprint3
+Current version: v0.6.0

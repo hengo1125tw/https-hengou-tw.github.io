@@ -1,15 +1,18 @@
 # ROADMAP
 
-## v0.5.0
-- Sprint 1: Homepage foundation
-- Sprint 2: Conversion improvements
-- Sprint 3: Waiting List + Case Study + SEO base
-- Sprint 4: Google Form integration + UI polish
-
 ## v0.6.0
-- SEO enhancement
-- Animation
-- Performance
+- Admin Dashboard
+- CRM UI
+- Leads UI
+- Analytics Charts
+- Dark Mode
+- API Logs UI
+- AI Agent placeholder
+
+## v0.7.0
+- Connect Dashboard to Google Sheets API
+- Real CRM data
+- Lead filtering and status editing
 
 ## v1.0.0
-- Website MVP Release
+- Production Website MVP

@@ -1,8 +1,16 @@
 # TODO
 
-## Next Sprint
-- 將 Waiting List 表單 action 換成正式 Google Form URL 與 entry ID。
-- 補 Open Graph 分享圖。
-- 補 favicon。
-- 補 JSON-LD Service Schema。
-- 增加首頁 scroll reveal 動畫。
+## Before Release
+- Deploy Google Apps Script Web App.
+- Fill `js/config.js` API_BASE and API_KEY.
+- Test real lead submission.
+- Confirm Gmail notification.
+- Confirm Telegram notification.
+- Validate GitHub Pages links.
+
+## Future
+- Open Graph image.
+- Favicon.
+- Full Lighthouse audit.
+- Scroll reveal animation.
+- Case Study images.

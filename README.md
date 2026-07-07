@@ -1,3 +1,7 @@
+# HengGou AI Platform
+
+Current version: v1.0.0 Production MVP
+
 # HengGou AI
 
 > AI × Automation × Engineering

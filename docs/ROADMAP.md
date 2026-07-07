@@ -1,12 +1,21 @@
 # ROADMAP
 
-## v0.9.0
-- Production polish
-- SEO completion
-- RWD audit
-- Release Candidate
-
 ## v1.0.0
-- Final QA fixes
-- Public release
-- GitHub Release tag
+- Production MVP Release
+
+## v1.1.0
+- Lead detail improvements
+- Follow-up timeline
+- Admin authentication planning
+- API hardening
+
+## v1.2.0
+- AI Agent console prototype
+- CRM task reminders
+- Gmail draft generation
+
+## v2.0.0
+- Client portal
+- Login
+- Project tracking
+- Quote management

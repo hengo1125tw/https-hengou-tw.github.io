@@ -128,3 +128,17 @@
 - Added QA checklist.
 - Updated robots.txt and sitemap.xml.
 - Improved mobile and accessibility styles.
+
+
+## v1.0.0
+
+### Added
+- Production MVP release notes.
+- Final QA checklist.
+- GitHub Release draft.
+- Version badges.
+
+### Changed
+- Updated version to v1.0.0.
+- Updated roadmap for post-release development.
+- Marked HengGou AI Platform as Production MVP.

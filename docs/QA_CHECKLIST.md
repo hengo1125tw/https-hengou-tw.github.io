@@ -1,23 +1,32 @@
-# QA CHECKLIST v0.9.0
+# QA CHECKLIST v1.0.0
 
-## Website
+## Required Before Public Use
+
+### Website
+
 - [ ] 首頁可正常開啟
 - [ ] Navbar 錨點正常
 - [ ] Admin 入口正常
 - [ ] Waiting List 欄位驗證正常
-- [ ] API 未設定時有正確提示
+- [ ] Waiting List 實際送出成功
 - [ ] 手機版 Hero / 表單 / 卡片沒有跑版
 
-## Admin
+### Admin
+
 - [ ] `/admin/` 可正常開啟
 - [ ] Chart.js 圖表正常
-- [ ] Dark / Light Mode 正常
-- [ ] Mock Data 正常
 - [ ] API 設定可儲存
+- [ ] API Status 顯示 Online
+- [ ] Leads 可從 Google Sheets CRM 載入
 - [ ] Leads 搜尋與篩選正常
+- [ ] Lead 狀態更新正常
+- [ ] Lead Detail Drawer 正常
+- [ ] Follow-up 日期與備註更新正常
 - [ ] CSV 匯出正常
+- [ ] API Logs 可讀取
 
-## Backend
+### Backend
+
 - [ ] Apps Script 已部署
 - [ ] `setupHengGouCRM` 已執行
 - [ ] Lead 新增成功

@@ -165,3 +165,18 @@
 - Rebuilt admin/index.html into a clean baseline.
 - Added clean project guide.
 - Added local server testing note.
+
+## v1.2.0-alpha.1
+
+### Added
+- Added `packages/core` shared library.
+- Added API client.
+- Added Config module.
+- Added Logger module.
+- Added Memory Cache.
+- Added structured error classes.
+- Added validation / formatter / date / string utilities.
+- Added unified ID generator.
+- Added required files check script.
+- Added B001 smoke test document.
+- Added Core Library engineering document.

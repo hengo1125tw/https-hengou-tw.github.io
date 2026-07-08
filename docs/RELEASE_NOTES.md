@@ -1,5 +1,23 @@
-# RELEASE NOTES
+# Release Notes
 
-## v1.1.1-clean
+## v1.2.0-alpha.1｜B001 Core Library
 
-乾淨基線版，修正手動覆蓋 ZIP 造成版本混雜的風險。
+This release adds the first shared core library for HengGou OS.
+
+### Includes
+
+- API Client
+- Config Module
+- Logger
+- Memory Cache
+- Validation Utilities
+- Formatter Utilities
+- ID Generator
+- Structured Errors
+- Required files check script
+
+### Test
+
+```powershell
+node scripts/check-required-files.mjs
+```

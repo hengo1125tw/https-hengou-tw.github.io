@@ -1,0 +1,9 @@
+{
+  "name": "henggou-os",
+  "version": "1.2.0-alpha.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check:files": "node scripts/check-required-files.mjs"
+  }
+}

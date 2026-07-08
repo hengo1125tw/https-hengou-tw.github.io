@@ -1,9 +1,12 @@
 {
   "name": "henggou-os",
-  "version": "1.2.0-alpha.1",
+  "version": "1.2.0-alpha.2",
   "private": true,
   "type": "module",
   "scripts": {
-    "check:files": "node scripts/check-required-files.mjs"
+    "check:files": "node scripts/check-required-files.mjs",
+    "check:b002": "node scripts/check-b002-files.mjs",
+    "test:ai:factory": "node packages/ai/testing/testProviderFactory.mjs",
+    "test:ai:openrouter": "node packages/ai/testing/testOpenRouterProvider.mjs"
   }
 }

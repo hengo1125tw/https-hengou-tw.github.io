@@ -180,3 +180,22 @@
 - Added required files check script.
 - Added B001 smoke test document.
 - Added Core Library engineering document.
+## v1.2.0-alpha.2
+
+### Added
+- Added `packages/ai` AI Provider Layer.
+- Added `BaseProvider`.
+- Added `OpenRouterProvider`.
+- Added provider factory.
+- Added AI configuration module.
+- Added AI error class.
+- Added token estimator.
+- Added provider factory test.
+- Added OpenRouter provider test.
+- Added local Developer Console at `/developer/`.
+- Added B002 smoke test.
+- Added B002 required files check script.
+
+### Notes
+- Only OpenRouter `chat()` is implemented in B002.
+- API keys must not be committed.

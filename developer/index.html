@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HengGou OS Developer Console</title>
+  <link rel="stylesheet" href="./developer.css" />
+</head>
+<body>
+  <main class="dev-shell">
+    <section class="dev-card">
+      <p class="eyebrow">HengGou OS</p>
+      <h1>Developer Console</h1>
+      <p>B002 AI Provider Layer test console. This page is local-only for now.</p>
+
+      <div class="grid">
+        <div>
+          <label>Provider</label>
+          <input id="provider" value="openrouter" />
+        </div>
+        <div>
+          <label>Model</label>
+          <input id="model" value="openai/gpt-4o-mini" />
+        </div>
+      </div>
+
+      <label>API Key（只存在瀏覽器畫面，不寫入檔案）</label>
+      <input id="apiKey" type="password" placeholder="sk-or-..." />
+
+      <label>Prompt</label>
+      <textarea id="prompt">用繁體中文回覆：HengGou OS AI Provider Layer 測試成功。</textarea>
+
+      <button id="runBtn">Run AI Test</button>
+
+      <pre id="output">Ready.</pre>
+    </section>
+  </main>
+
+  <script type="module" src="./developer.js"></script>
+</body>
+</html>

@@ -176,7 +176,7 @@ function openLeadDrawer(leadId) {
   document.getElementById("internalNote").value = lead.note || "";
 
   const timeline = document.getElementById("noteTimeline");
-  timeline.innerHTML = lead.note ? `<p><strong>內部備註</strong><br>${lead.note}</p>` : `<p class="muted">尚無備註紀錄。</p>`;
+  renderFollowUpTimeline(lead);
 
   const drawer = document.getElementById("leadDrawer");
   drawer.classList.add("show");
@@ -297,3 +297,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateApiStatus();
 });
+
+
+function renderFollowUpTimeline(lead) {
+  const timeline = document.getElementById("noteTimeline");
+  if (!timeline) return;
+
+  const items = [];
+  if (lead.created) items.push({ title: "Lead 建立", body: lead.created });
+  if (lead.status) items.push({ title: "目前狀態", body: lead.status });
+  if (lead.followUp) items.push({ title: "Follow-up", body: lead.followUp });
+  if (lead.note) items.push({ title: "內部備註", body: lead.note });
+
+  timeline.innerHTML = items.length
+    ? items.map(item => `<p><strong>${item.title}</strong><br>${item.body}</p>`).join("")
+    : `<p class="muted">尚無備註紀錄。</p>`;
+}

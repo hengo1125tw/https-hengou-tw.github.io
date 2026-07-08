@@ -142,3 +142,26 @@
 - Updated version to v1.0.0.
 - Updated roadmap for post-release development.
 - Marked HengGou AI Platform as Production MVP.
+
+
+## v1.1.0
+
+### Added
+- Added local Admin passcode gate.
+- Added `admin/js/admin-auth.js`.
+- Added follow-up timeline rendering helper.
+- Added admin access documentation.
+
+### Changed
+- Admin page now requires a local passcode before showing dashboard.
+- Lead detail drawer timeline is more structured.
+
+### Security Note
+- This is only a frontend local gate, not production-grade authentication.
+- Server-side authentication is planned for future versions.
+
+
+## v1.1.1-clean
+- Rebuilt admin/index.html into a clean baseline.
+- Added clean project guide.
+- Added local server testing note.

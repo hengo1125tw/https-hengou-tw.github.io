@@ -3,23 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Admin Dashboard｜HengGou AI Platform</title>
-  <meta name="description" content="HengGou AI Platform Admin Dashboard，管理 Leads、CRM、Analytics、AI Cloud 與 API Logs。" />
   <meta name="robots" content="noindex,nofollow" />
-
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="css/admin.css" />
 </head>
-
 <body>
+  <div class="admin-gate" id="adminGate">
+    <div class="admin-gate-card">
+      <div class="brand gate-brand"><span class="brand-mark">HG</span><span>HengGou AI Admin</span></div>
+      <h1>管理頁登入</h1>
+      <p>請使用本機管理密碼進入。若看到資料夾索引頁，請改開 <code>http://localhost:8000/admin/</code> 或 <code>admin/index.html</code>。</p>
+      <form id="adminGateForm">
+        <label>管理密碼<input type="password" id="adminPasscode" placeholder="預設：henggou-admin"></label>
+        <button class="primary-button" type="submit">進入 Admin</button>
+      </form>
+      <small>此為前端保護，不是真正的後端權限控管。</small>
+    </div>
+  </div>
+
   <div class="admin-shell">
     <aside class="sidebar">
-      <a class="brand" href="../index.html">
-        <span class="brand-mark">HG</span>
-        <span>HengGou AI</span>
-      </a>
-
+      <a class="brand" href="../index.html"><span class="brand-mark">HG</span><span>HengGou AI</span></a>
       <nav class="side-nav" aria-label="Admin navigation">
         <a class="active" href="#dashboard">Dashboard</a>
         <a href="#leads">Leads</a>
@@ -29,20 +34,12 @@
         <a href="#agent">AI Agent</a>
         <a href="#settings">Settings</a>
       </nav>
-
-      <div class="sidebar-footer">
-        <span>v1.0.0</span>
-        <span>Mock Data</span>
-      </div>
+      <div class="sidebar-footer"><span>v1.1.1-clean</span><span>Admin</span></div>
     </aside>
 
     <main class="admin-main">
       <header class="topbar">
-        <div>
-          <p class="eyebrow">Admin Dashboard</p>
-          <h1>HengGou AI Platform</h1>
-        </div>
-
+        <div><p class="eyebrow">Admin Dashboard</p><h1>HengGou AI Platform</h1></div>
         <div class="topbar-actions">
           <button class="ghost-button" id="themeToggle" type="button">切換模式</button>
           <a class="primary-button" href="../index.html#waiting-list">查看表單</a>
@@ -50,85 +47,40 @@
       </header>
 
       <section class="metric-grid" id="dashboard">
-        <article class="metric-card">
-          <span>Total Leads</span>
-          <strong id="metricTotalLeads">52</strong>
-          <small>本月累積名單</small>
-        </article>
-
-        <article class="metric-card">
-          <span>Waiting</span>
-          <strong id="metricWaiting">18</strong>
-          <small>尚未聯絡</small>
-        </article>
-
-        <article class="metric-card">
-          <span>Quotation</span>
-          <strong id="metricQuotation">9</strong>
-          <small>報價評估中</small>
-        </article>
-
-        <article class="metric-card">
-          <span>Conversion</span>
-          <strong id="apiStatusText">未設定</strong>
-          <small id="apiStatusHint">等待 Web App URL</small>
-        </article>
+        <article class="metric-card"><span>Total Leads</span><strong id="metricTotalLeads">52</strong><small>本月累積名單</small></article>
+        <article class="metric-card"><span>Waiting</span><strong id="metricWaiting">18</strong><small>尚未聯絡</small></article>
+        <article class="metric-card"><span>Quotation</span><strong id="metricQuotation">9</strong><small>報價評估中</small></article>
+        <article class="metric-card"><span>API Status</span><strong id="apiStatusText">未設定</strong><small id="apiStatusHint">等待 Web App URL</small></article>
       </section>
 
       <section class="dashboard-grid">
         <article class="panel wide" id="analytics">
-          <div class="panel-heading">
-            <h2>Leads Trend</h2>
-            <span>最近 6 週</span>
-          </div>
+          <div class="panel-heading"><h2>Leads Trend</h2><span>最近 6 週</span></div>
           <canvas id="leadTrendChart" height="120"></canvas>
         </article>
-
         <article class="panel">
-          <div class="panel-heading">
-            <h2>需求比例</h2>
-            <span>AI / AOI / LINE</span>
-          </div>
+          <div class="panel-heading"><h2>需求比例</h2><span>AI / AOI / LINE</span></div>
           <canvas id="needChart" height="180"></canvas>
         </article>
       </section>
 
       <section class="panel" id="leads">
-        <div class="panel-heading">
-          <h2>Leads</h2>
-          <span id="leadSourceLabel">Mock Data</span>
-        </div>
-
+        <div class="panel-heading"><h2>Leads</h2><span id="leadSourceLabel">Mock Data</span></div>
         <div class="panel-actions">
           <button class="ghost-button small" id="refreshLeads" type="button">重新整理 Leads</button>
           <button class="ghost-button small" id="loadMockData" type="button">載入假資料</button>
-          <button class="ghost-button small" id="exportCsv" type="button">匯出 CSV</button>
           <button class="ghost-button small" id="refreshLogs" type="button">重新整理 Logs</button>
+          <button class="ghost-button small" id="exportCsv" type="button">匯出 CSV</button>
           <input class="table-filter" id="leadSearchInput" type="search" placeholder="搜尋公司 / 姓名 / Email / 需求">
           <select class="table-filter" id="statusFilter">
             <option value="">全部狀態</option>
-            <option>未聯絡</option>
-            <option>已聯絡</option>
-            <option>評估中</option>
-            <option>已報價</option>
-            <option>已成交</option>
-            <option>暫不合作</option>
+            <option>未聯絡</option><option>已聯絡</option><option>評估中</option>
+            <option>已報價</option><option>已成交</option><option>暫不合作</option>
           </select>
         </div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th>Lead ID</th>
-                <th>公司</th>
-                <th>姓名</th>
-                <th>Email</th>
-                <th>需求</th>
-                <th>狀態</th>
-                <th>建立時間</th>
-                <th>操作</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Lead ID</th><th>公司</th><th>姓名</th><th>Email</th><th>需求</th><th>狀態</th><th>建立時間</th><th>操作</th></tr></thead>
             <tbody id="leadTable"></tbody>
           </table>
         </div>
@@ -136,11 +88,7 @@
 
       <section class="dashboard-grid">
         <article class="panel" id="crm">
-          <div class="panel-heading">
-            <h2>CRM Pipeline</h2>
-            <span>目前階段</span>
-          </div>
-
+          <div class="panel-heading"><h2>CRM Pipeline</h2><span>目前階段</span></div>
           <div class="pipeline">
             <div><strong>18</strong><span>未聯絡</span></div>
             <div><strong>11</strong><span>已聯絡</span></div>
@@ -148,36 +96,19 @@
             <div><strong>14</strong><span>已成交</span></div>
           </div>
         </article>
-
         <article class="panel" id="logs">
-          <div class="panel-heading">
-            <h2>API Logs</h2>
-            <span>Latest</span>
-          </div>
-
-          <div class="log-list" id="apiLogsList">
-            <p><span class="warn"></span> 尚未讀取 API Logs</p>
-          </div>
+          <div class="panel-heading"><h2>API Logs</h2><span>Latest</span></div>
+          <div class="log-list" id="apiLogsList"><p><span class="warn"></span> 尚未讀取 API Logs</p></div>
         </article>
       </section>
 
       <section class="panel" id="agent">
-        <div class="panel-heading">
-          <h2>AI Agent Console</h2>
-          <span>Coming Soon</span>
-        </div>
-        <p class="muted">
-          下一階段將整合 Hermes、OpenRouter、Google Sheets CRM 與工作流程自動化，
-          讓 AI 協助整理 Lead、產生回覆、提醒追蹤與建立報價草稿。
-        </p>
+        <div class="panel-heading"><h2>AI Agent Console</h2><span>Coming Soon</span></div>
+        <p class="muted">下一階段將整合 Hermes、OpenRouter、Google Sheets CRM 與工作流程自動化。</p>
       </section>
 
       <section class="panel" id="settings">
-        <div class="panel-heading">
-          <h2>Settings</h2>
-          <span>Production checklist</span>
-        </div>
-
+        <div class="panel-heading"><h2>Settings</h2><span>Lead API 設定</span></div>
         <form class="admin-config-form" id="apiConfigForm">
           <label>Apps Script Web App URL<input type="url" id="apiBaseInput" placeholder="https://script.google.com/macros/s/xxxx/exec"></label>
           <label>API Key<input type="password" id="apiKeyInput" placeholder="與 Code.gs 的 HG_CONFIG.API_KEY 相同"></label>
@@ -202,13 +133,9 @@
   <aside class="lead-drawer" id="leadDrawer" aria-hidden="true">
     <div class="lead-drawer-panel">
       <div class="lead-drawer-header">
-        <div>
-          <p class="eyebrow">Lead Detail</p>
-          <h2 id="drawerLeadId">Lead</h2>
-        </div>
+        <div><p class="eyebrow">Lead Detail</p><h2 id="drawerLeadId">Lead</h2></div>
         <button class="ghost-button small" id="closeDrawer" type="button">關閉</button>
       </div>
-
       <div class="lead-detail-grid">
         <div><span>公司</span><strong id="drawerCompany">-</strong></div>
         <div><span>姓名</span><strong id="drawerName">-</strong></div>
@@ -217,28 +144,17 @@
         <div><span>狀態</span><strong id="drawerStatus">-</strong></div>
         <div><span>建立時間</span><strong id="drawerCreated">-</strong></div>
       </div>
-
       <form class="drawer-form" id="followUpForm">
-        <label>
-          Follow-up 日期
-          <input type="date" id="followUpDate">
-        </label>
-
-        <label>
-          內部備註
-          <textarea id="internalNote" rows="5" placeholder="記錄聯絡內容、報價狀態、後續提醒"></textarea>
-        </label>
-
+        <label>Follow-up 日期<input type="date" id="followUpDate"></label>
+        <label>內部備註<textarea id="internalNote" rows="5" placeholder="記錄聯絡內容、報價狀態、後續提醒"></textarea></label>
         <button class="primary-button" type="submit">儲存 Follow-up</button>
       </form>
-
-      <div class="timeline" id="noteTimeline">
-        <p class="muted">尚無備註紀錄。</p>
-      </div>
+      <div class="timeline" id="noteTimeline"><p class="muted">尚無備註紀錄。</p></div>
     </div>
   </aside>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/admin-auth.js"></script>
   <script src="js/admin.js"></script>
   <script src="js/admin-api.js"></script>
 </body>

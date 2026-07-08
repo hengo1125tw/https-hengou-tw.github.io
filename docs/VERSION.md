@@ -1,2 +1,2 @@
-Current version: v1.0.0
-Release type: Production MVP
+Current version: v1.1.1-clean
+Release type: Clean baseline

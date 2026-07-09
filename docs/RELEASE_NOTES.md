@@ -24,3 +24,14 @@ node .\packages\admin\testing\testAdminAiPersistenceFiles.mjs
 node .\packages\business\testing\testProposalGenerator.mjs
 node .\packages\business\testing\testEmailDraftGenerator.mjs
 ```
+
+
+## v1.2.0-rc.2｜Lead Row Hotfix
+
+Fixes Admin Dashboard Lead row opening behavior.
+
+Test:
+
+```powershell
+node .\scripts\check-rc2-lead-row-hotfix.mjs
+```

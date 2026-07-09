@@ -1,6 +1,6 @@
 {
   "name": "henggou-os",
-  "version": "1.2.0-rc.1",
+  "version": "1.2.0-rc.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -44,6 +44,7 @@
     "test:admin:ai-actions": "node packages/admin/testing/testAdminLeadActions.mjs",
     "check:b012": "node scripts/check-b012-files.mjs",
     "test:admin:ai-persistence": "node packages/admin/testing/testAdminAiPersistenceFiles.mjs",
-    "test:release:rc1": "node scripts/check-b012-files.mjs && node packages/admin/testing/testAdminLeadActions.mjs && node packages/admin/testing/testAdminAiPersistenceFiles.mjs && node packages/business/testing/testProposalGenerator.mjs && node packages/business/testing/testEmailDraftGenerator.mjs"
+    "test:release:rc1": "node scripts/check-b012-files.mjs && node packages/admin/testing/testAdminLeadActions.mjs && node packages/admin/testing/testAdminAiPersistenceFiles.mjs && node packages/business/testing/testProposalGenerator.mjs && node packages/business/testing/testEmailDraftGenerator.mjs",
+    "check:rc2": "node scripts/check-rc2-lead-row-hotfix.mjs"
   }
 }

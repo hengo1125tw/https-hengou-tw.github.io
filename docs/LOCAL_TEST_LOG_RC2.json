@@ -1,0 +1,26 @@
+[
+  {
+    "command": "node scripts/check-rc2-lead-row-hotfix.mjs",
+    "returncode": 0,
+    "stdout": "RC2 Lead Row Hotfix check passed.\n{\n  \"lead-row class\": true,\n  \"row click handler\": true,\n  \"keyboard handler\": true,\n  \"lead id button\": true,\n  \"console helper\": true,\n  \"lead-row css\": true,\n  \"rc2 admin version\": true,\n  \"rc2 version file\": true\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/check-b012-files.mjs",
+    "returncode": 0,
+    "stdout": "B012 required files check passed.\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/admin/testing/testAdminLeadActions.mjs",
+    "returncode": 0,
+    "stdout": "Admin Lead Actions check passed.\n{\n  \"analysis\": {\n    \"status\": \"Qualified\",\n    \"priority\": \"High\",\n    \"score\": 76,\n    \"confidence\": 90,\n    \"businessUnit\": \"AOI 視覺檢測軟體\",\n    \"businessUnitCode\": \"AOI_SOFTWARE\",\n    \"product\": \"AOI 視覺檢測軟體\",\n    \"sku\": \"AOI-SW-CUSTOM\",\n    \"missingInfo\": [\n      \"導入時程 / 需求期限\",\n      \"預算範圍\"\n    ],\n    \"nextAction\": \"安排需求訪談\",\n    \"pricingGuidance\": \"專案估價：先確認需求範圍、交付項目、時程、維護責任，再報價。\"\n  },\n  \"proposalId\": \"PROP-20260709-A6DY44\",\n  \"emailSubject\": \"關於AOI 視覺檢測軟體需求資訊確認｜奇鋐科技\",\n  \"proposalEmailSubject\": \"AOI 視覺檢測軟體初步提案｜奇鋐科技\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/admin/testing/testAdminAiPersistenceFiles.mjs",
+    "returncode": 0,
+    "stdout": "Admin AI Persistence Files check passed.\n{\n  \"localStorage persistence\": true,\n  \"clear action\": true,\n  \"saved timestamp\": true,\n  \"download filename includes lead\": true,\n  \"production version\": true,\n  \"mobile css\": true\n}\n",
+    "stderr": ""
+  }
+]

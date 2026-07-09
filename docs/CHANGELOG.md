@@ -335,3 +335,11 @@
 ### Boundary
 - Browser Admin remains deterministic and does not expose OpenRouter API keys.
 - Gmail drafts are generated for review only; no automatic sending.
+
+## v1.2.0-rc.2
+
+### Fixed
+- Admin Lead table rows are now clickable.
+- Lead ID is now a clickable button.
+- Added keyboard access for Lead rows.
+- Added `HGOpenLeadDrawer()` console helper for troubleshooting.

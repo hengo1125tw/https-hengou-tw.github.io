@@ -18,14 +18,14 @@ if (missing.length) {
 }
 
 const version = fs.readFileSync("VERSION", "utf8").trim();
-if (version !== "v1.2.0-rc.1") {
-  console.error(`Expected VERSION v1.2.0-rc.1, got ${version}`);
+if (!["v1.2.0-rc.1", "v1.2.0-rc.2"].includes(version)) {
+  console.error(`Expected VERSION v1.2.0-rc.1 or v1.2.0-rc.2, got ${version}`);
   process.exit(1);
 }
 
 const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
-if (packageJson.version !== "1.2.0-rc.1") {
-  console.error(`Expected package version 1.2.0-rc.1, got ${packageJson.version}`);
+if (!["1.2.0-rc.1", "1.2.0-rc.2"].includes(packageJson.version)) {
+  console.error(`Expected package version 1.2.0-rc.1 or 1.2.0-rc.2, got ${packageJson.version}`);
   process.exit(1);
 }
 

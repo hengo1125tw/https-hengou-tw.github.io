@@ -114,8 +114,8 @@ function renderLeadRows(rows, sourceLabel = "API") {
   const filtered = getFilteredRows();
 
   tbody.innerHTML = filtered.map(lead => `
-    <tr>
-      <td>${lead.id}</td>
+    <tr class="lead-row" data-lead-id="${lead.id}" tabindex="0" title="點擊開啟 Lead 詳細資料">
+      <td><button class="link-button lead-id-button" data-lead-id="${lead.id}" type="button">${lead.id}</button></td>
       <td>${lead.company}</td>
       <td>${lead.name}</td>
       <td>${lead.email}</td>
@@ -139,8 +139,25 @@ function renderLeadRows(rows, sourceLabel = "API") {
     });
   });
 
-  tbody.querySelectorAll(".detail-button").forEach(button => {
-    button.addEventListener("click", () => openLeadDrawer(button.dataset.leadId));
+  tbody.querySelectorAll(".detail-button, .lead-id-button").forEach(button => {
+    button.addEventListener("click", event => {
+      event.stopPropagation();
+      openLeadDrawer(button.dataset.leadId);
+    });
+  });
+
+  tbody.querySelectorAll(".lead-row").forEach(row => {
+    row.addEventListener("click", event => {
+      if (event.target.closest("button, select, input, textarea, a")) return;
+      openLeadDrawer(row.dataset.leadId);
+    });
+
+    row.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openLeadDrawer(row.dataset.leadId);
+      }
+    });
   });
 
   updateMetrics(rows);
@@ -315,3 +332,9 @@ function renderFollowUpTimeline(lead) {
     ? items.map(item => `<p><strong>${item.title}</strong><br>${item.body}</p>`).join("")
     : `<p class="muted">尚無備註紀錄。</p>`;
 }
+
+
+// v1.2.0-rc.2 debug helper: open Lead drawer from browser console.
+// Example: HGOpenLeadDrawer("HG-20260706-0001")
+window.HGOpenLeadDrawer = openLeadDrawer;
+window.HGGetCurrentRows = () => currentRows;

@@ -657,3 +657,44 @@ body.light .ghost-button.danger{
     flex:1;
   }
 }
+
+
+/* v1.2.0-rc.2 Lead Row Hotfix */
+.lead-row{
+  cursor:pointer;
+}
+
+.lead-row:hover{
+  background:rgba(96,165,250,.08);
+}
+
+body.light .lead-row:hover{
+  background:#eff6ff;
+}
+
+.link-button{
+  appearance:none;
+  border:0;
+  background:transparent;
+  color:var(--accent);
+  cursor:pointer;
+  font:inherit;
+  font-weight:900;
+  padding:0;
+  text-align:left;
+}
+
+.link-button:hover{
+  text-decoration:underline;
+}
+
+.lead-id-button{
+  white-space:nowrap;
+}
+
+.detail-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:52px;
+}

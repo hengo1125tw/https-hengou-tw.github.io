@@ -9,7 +9,7 @@ const checks = [
   ["clear action", js.includes("clearAiActionOutput") && html.includes("clearAiActionOutput")],
   ["saved timestamp", js.includes("aiActionSavedAt") && html.includes("aiActionSavedAt")],
   ["download filename includes lead", js.includes("safeLeadId")],
-  ["production version", html.includes("v1.2.0-rc.1")],
+  ["production version", (html.includes("v1.2.0-rc.1") || html.includes("v1.2.0-rc.2"))],
   ["mobile css", css.includes("v1.2.0-rc.1 Production Candidate")]
 ];
 

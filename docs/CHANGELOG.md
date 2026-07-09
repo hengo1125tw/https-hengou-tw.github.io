@@ -321,3 +321,17 @@
 ### Security
 - Admin Dashboard does not expose OpenRouter API keys in browser.
 - Live AI calls remain in CLI / Developer Console for now.
+
+## v1.2.0-rc.1
+
+### Release Candidate
+- Productized B001-B011 into the first internal production release candidate.
+- Added Admin AI output local persistence.
+- Added clear output action.
+- Added saved timestamp.
+- Added production user guide, deployment runbook, and productization checklist.
+- Updated version from alpha to release candidate.
+
+### Boundary
+- Browser Admin remains deterministic and does not expose OpenRouter API keys.
+- Gmail drafts are generated for review only; no automatic sending.

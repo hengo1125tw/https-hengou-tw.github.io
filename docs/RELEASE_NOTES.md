@@ -1,12 +1,26 @@
 # Release Notes
 
-## v1.2.0-alpha.11｜B011 Admin Dashboard AI Actions
+## v1.2.0-rc.1｜Production Release Candidate
 
-This release connects Lead Intake, Proposal Generator, and Gmail Draft Generator to the Admin Dashboard.
+This release productizes HengGou OS for internal operational use.
+
+## Highlights
+
+- Admin Dashboard AI Actions
+- Persistent Admin AI output per Lead ID
+- Proposal Generator
+- Gmail Draft Generator
+- Lead Intake Classification
+- Product / Service Catalog
+- AI Cache + Usage Monitor
+- Production documentation
 
 ## Test
 
 ```powershell
-node .\scripts\check-b011-files.mjs
+node .\scripts\check-b012-files.mjs
 node .\packages\admin\testing\testAdminLeadActions.mjs
+node .\packages\admin\testing\testAdminAiPersistenceFiles.mjs
+node .\packages\business\testing\testProposalGenerator.mjs
+node .\packages\business\testing\testEmailDraftGenerator.mjs
 ```

@@ -35,7 +35,7 @@
         <a href="#ai-actions">AI Actions</a>
         <a href="#settings">Settings</a>
       </nav>
-      <div class="sidebar-footer"><span>v1.2.0-alpha.11</span><span>Admin</span></div>
+      <div class="sidebar-footer"><span>v1.2.0-rc.1</span><span>Admin</span></div>
     </aside>
 
     <main class="admin-main">
@@ -177,8 +177,10 @@
           <div>
             <button class="ghost-button small" id="copyAiActionOutput" type="button">複製</button>
             <button class="ghost-button small" id="downloadAiActionOutput" type="button">下載 TXT</button>
+            <button class="ghost-button small danger" id="clearAiActionOutput" type="button">清除</button>
           </div>
         </div>
+        <div class="ai-action-saved-at" id="aiActionSavedAt">Saved: -</div>
         <pre class="ai-action-output" id="aiActionOutput">請選擇 Analyze Lead、Generate Proposal 或 Generate Gmail Draft。</pre>
       </section>
 

@@ -619,3 +619,41 @@ body.light .ai-action-output{
     grid-template-columns:1fr;
   }
 }
+
+
+/* v1.2.0-rc.1 Production Candidate */
+.ghost-button.danger{
+  border-color:rgba(239,68,68,.35);
+  color:#fecaca;
+}
+
+body.light .ghost-button.danger{
+  color:#b91c1c;
+}
+
+.ai-action-saved-at{
+  margin:-2px 0 8px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  text-align:right;
+}
+
+.ai-action-output{
+  min-height:180px;
+}
+
+@media(max-width:640px){
+  .ai-output-header{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .ai-output-header div{
+    width:100%;
+  }
+
+  .ai-output-header button{
+    flex:1;
+  }
+}

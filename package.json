@@ -1,6 +1,6 @@
 {
   "name": "henggou-os",
-  "version": "1.2.0-alpha.10",
+  "version": "1.2.0-alpha.11",
   "private": true,
   "type": "module",
   "scripts": {
@@ -39,6 +39,8 @@
     "test:business:email": "node packages/business/testing/testEmailDraftGenerator.mjs",
     "test:business:proposal-email": "node packages/business/testing/testProposalEmailDraft.mjs",
     "test:ai:gmail": "node packages/ai/testing/testAiGmailDraftGenerator.mjs",
-    "test:ai:gmail-openrouter": "node packages/ai/testing/testAiGmailDraftOpenRouter.mjs"
+    "test:ai:gmail-openrouter": "node packages/ai/testing/testAiGmailDraftOpenRouter.mjs",
+    "check:b011": "node scripts/check-b011-files.mjs",
+    "test:admin:ai-actions": "node packages/admin/testing/testAdminLeadActions.mjs"
   }
 }

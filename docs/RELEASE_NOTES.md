@@ -1,14 +1,12 @@
 # Release Notes
 
-## v1.2.0-alpha.10｜B010 Gmail Draft Generator
+## v1.2.0-alpha.11｜B011 Admin Dashboard AI Actions
 
-This release adds Gmail Draft Generator.
+This release connects Lead Intake, Proposal Generator, and Gmail Draft Generator to the Admin Dashboard.
 
 ## Test
 
 ```powershell
-node .\scripts\check-b010-files.mjs
-node .\packages\business\testing\testEmailDraftGenerator.mjs
-node .\packages\business\testing\testProposalEmailDraft.mjs
-node .\packages\ai\testing\testAiGmailDraftGenerator.mjs
+node .\scripts\check-b011-files.mjs
+node .\packages\admin\testing\testAdminLeadActions.mjs
 ```

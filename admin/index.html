@@ -32,9 +32,10 @@
         <a href="#analytics">Analytics</a>
         <a href="#logs">API Logs</a>
         <a href="#agent">AI Agent</a>
+        <a href="#ai-actions">AI Actions</a>
         <a href="#settings">Settings</a>
       </nav>
-      <div class="sidebar-footer"><span>v1.1.1-clean</span><span>Admin</span></div>
+      <div class="sidebar-footer"><span>v1.2.0-alpha.11</span><span>Admin</span></div>
     </aside>
 
     <main class="admin-main">
@@ -103,8 +104,21 @@
       </section>
 
       <section class="panel" id="agent">
-        <div class="panel-heading"><h2>AI Agent Console</h2><span>Coming Soon</span></div>
-        <p class="muted">下一階段將整合 Hermes、OpenRouter、Google Sheets CRM 與工作流程自動化。</p>
+        <div class="panel-heading"><h2>AI Agent Console</h2><span>B011 Ready</span></div>
+        <p class="muted">目前已整合 Lead Intake、Proposal Generator、Gmail Draft Generator 與 Admin AI Actions。OpenRouter 即時潤飾仍保留在 Developer Console / CLI 測試，不在前端 Admin 暴露 API Key。</p>
+      </section>
+
+
+      <section class="panel" id="ai-actions">
+        <div class="panel-heading"><h2>Admin AI Actions</h2><span>B011 Local Actions</span></div>
+        <p class="muted">在 Lead 詳細頁開啟後，可直接分析案件、產生提案草稿、產生 Gmail 草稿。本區目前為本機 deterministic actions，不會自動寄信。</p>
+        <div class="ai-summary-grid">
+          <div><span>Priority</span><strong id="aiLeadPriority">-</strong></div>
+          <div><span>Score</span><strong id="aiLeadScore">-</strong></div>
+          <div><span>Business Unit</span><strong id="aiLeadBusinessUnit">-</strong></div>
+          <div><span>Product / Service</span><strong id="aiLeadProduct">-</strong></div>
+        </div>
+        <div class="ai-next-action"><span>Next Action</span><strong id="aiLeadNextAction">-</strong></div>
       </section>
 
       <section class="panel" id="settings">
@@ -149,6 +163,25 @@
         <label>內部備註<textarea id="internalNote" rows="5" placeholder="記錄聯絡內容、報價狀態、後續提醒"></textarea></label>
         <button class="primary-button" type="submit">儲存 Follow-up</button>
       </form>
+
+      <section class="drawer-ai-actions" id="drawerAiActions">
+        <div class="panel-heading compact"><h2>AI Actions</h2><span>Local</span></div>
+        <div class="drawer-action-buttons">
+          <button class="ghost-button small" id="analyzeLeadAi" type="button">Analyze Lead</button>
+          <button class="ghost-button small" id="generateProposalAi" type="button">Generate Proposal</button>
+          <button class="ghost-button small" id="generateMissingInfoEmailAi" type="button">Generate Missing Info Email</button>
+          <button class="ghost-button small" id="generateProposalEmailAi" type="button">Generate Proposal Email</button>
+        </div>
+        <div class="ai-output-header">
+          <strong id="aiActionTitle">AI Actions</strong>
+          <div>
+            <button class="ghost-button small" id="copyAiActionOutput" type="button">複製</button>
+            <button class="ghost-button small" id="downloadAiActionOutput" type="button">下載 TXT</button>
+          </div>
+        </div>
+        <pre class="ai-action-output" id="aiActionOutput">請選擇 Analyze Lead、Generate Proposal 或 Generate Gmail Draft。</pre>
+      </section>
+
       <div class="timeline" id="noteTimeline"><p class="muted">尚無備註紀錄。</p></div>
     </div>
   </aside>
@@ -157,5 +190,6 @@
   <script src="js/admin-auth.js"></script>
   <script src="js/admin.js"></script>
   <script src="js/admin-api.js"></script>
+  <script type="module" src="js/admin-ai-actions.js"></script>
 </body>
 </html>

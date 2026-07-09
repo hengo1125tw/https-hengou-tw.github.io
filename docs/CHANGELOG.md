@@ -305,3 +305,19 @@
 
 ### Rule
 - System only creates drafts. It does not send emails automatically.
+
+## v1.2.0-alpha.11
+
+### Added
+- Added Admin Dashboard AI Actions.
+- Added Admin Lead Actions adapter.
+- Added Analyze Lead button in Lead Drawer.
+- Added Generate Proposal button in Lead Drawer.
+- Added Generate Missing Info Email button in Lead Drawer.
+- Added Generate Proposal Email button in Lead Drawer.
+- Added copy/download output actions.
+- Added Admin AI Actions tests.
+
+### Security
+- Admin Dashboard does not expose OpenRouter API keys in browser.
+- Live AI calls remain in CLI / Developer Console for now.

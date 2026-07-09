@@ -181,6 +181,7 @@ function openLeadDrawer(leadId) {
   const drawer = document.getElementById("leadDrawer");
   drawer.classList.add("show");
   drawer.setAttribute("aria-hidden", "false");
+  window.dispatchEvent(new CustomEvent("hg:lead-drawer-opened", { detail: { lead } }));
 }
 
 function closeLeadDrawer() {
@@ -188,6 +189,7 @@ function closeLeadDrawer() {
   drawer.classList.remove("show");
   drawer.setAttribute("aria-hidden", "true");
   currentDrawerLead = null;
+  window.dispatchEvent(new CustomEvent("hg:lead-drawer-closed"));
 }
 
 function exportCurrentRowsToCsv() {

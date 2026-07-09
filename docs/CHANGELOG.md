@@ -199,3 +199,109 @@
 ### Notes
 - Only OpenRouter `chat()` is implemented in B002.
 - API keys must not be committed.
+## v1.2.0-alpha.3
+
+### Added
+- Added Prompt Engine.
+- Added template renderer.
+- Added variable extractor.
+- Added prompt validator.
+- Added prompt registry.
+- Added default prompts.
+- Added local Prompt Engine test.
+- Added OpenRouter Prompt Engine live test.
+- Updated Developer Console to run through Prompt Engine.
+- Added B003 smoke test and engineering documentation.
+## v1.2.0-alpha.4
+
+### Added
+- Added Context Builder.
+- Added context schema.
+- Added context normalizers.
+- Added timeline context builder.
+- Added knowledge context builder.
+- Added playbook context builder.
+- Added context preview utility.
+- Added Context Builder tests.
+- Updated Developer Console to use Context Builder + Prompt Engine.
+- Added B004 smoke test and engineering documentation.
+## v1.2.0-alpha.5
+
+### Added
+- Added Business Unit Registry.
+- Added Business Unit Classifier.
+- Added HengGou multi-business unit definitions.
+- Added AI context integration for Business Unit.
+- Added tests for registry, classifier, and context integration.
+- Updated default prompts to include Business Unit context.
+- Updated Developer Console to classify business lines.
+
+### Changed
+- HengGou OS positioning updated from AI-only platform to multi-business operating platform.
+## v1.2.0-alpha.6
+
+### Added
+- Added Product / Service Catalog.
+- Added Product Registry.
+- Added Product Classifier.
+- Added Pricing Guidance Rules.
+- Added Product Catalog AI context integration.
+- Added Product Catalog tests.
+- Updated default prompts to include product/service and pricing guidance.
+- Updated Developer Console to show detected business unit and product.
+
+### Fixed
+- Updated Prompt Engine test context to support Business Unit and Product Catalog variables.
+## v1.2.0-alpha.7
+
+### Added
+- Added Lead Intake Classification.
+- Added Lead normalization and validation.
+- Added Lead missing information analysis.
+- Added Lead scoring, priority, and confidence.
+- Added next action rules.
+- Added Lead Intake AI context integration.
+- Added Lead Intake tests.
+- Updated default prompts to use Lead Intake summary.
+- Updated Developer Console to show Lead Intake results.
+
+## v1.2.0-alpha.8
+
+### Added
+- Added AI Cache.
+- Added AI Usage Log.
+- Added AI Cost Estimator.
+- Added AI Execution Engine.
+- Added cached OpenRouter test.
+- Updated Developer Console to show cache and usage summary.
+
+### Changed
+- AI feature execution should now go through AIExecutionEngine instead of calling PromptEngine directly.
+
+## v1.2.0-alpha.9
+
+### Added
+- Added Proposal Generator.
+- Added Proposal Templates by Business Unit.
+- Added Proposal Markdown Renderer.
+- Added AI Proposal Generator.
+- Added PRM-000003 Proposal Polish prompt.
+- Added Proposal Generator tests.
+- Updated Developer Console to generate proposals.
+
+### Rule
+- Deterministic proposal is the source of truth; AI only polishes.
+
+## v1.2.0-alpha.10
+
+### Added
+- Added Gmail Draft Generator.
+- Added deterministic email draft builder.
+- Added proposal email draft generation.
+- Added AI Gmail Draft Generator.
+- Added PRM-000004 Gmail Draft Polish prompt.
+- Added Gmail draft tests.
+- Updated Developer Console to generate Gmail drafts.
+
+### Rule
+- System only creates drafts. It does not send emails automatically.

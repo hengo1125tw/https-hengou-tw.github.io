@@ -1,0 +1,38 @@
+[
+  {
+    "command": "node scripts/check-b010-files.mjs",
+    "returncode": 0,
+    "stdout": "B010 required files check passed.\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/business/testing/testEmailDraftGenerator.mjs",
+    "returncode": 0,
+    "stdout": "Email Draft Generator check passed.\n{\n  \"draftId\": \"DRF-20260708-ECF97I\",\n  \"subject\": \"關於AOI 視覺檢測軟體需求資訊確認｜奇鋐科技\",\n  \"bodyPreview\": \"Bill 您好：\\n\\n我們已收到您關於「AOI 視覺檢測軟體」的需求。\\n\\n為了讓後續評估與報價更準確，想先跟您確認以下資訊：\\n\\n1. 導入時程 / 需求期限\\n2. 預算範圍\\n\\n以上先提供您參考。\\n若方便，請回覆目前可補充的資訊，我們再協助整理下一步方案。\\n\\n謝謝。\",\n  \"related\": {\n    \"businessUnitCode\": \"AOI_SOFTWARE\",\n    \"sku\": \"AOI-SW-CUSTOM\",\n    \"leadStatus\": \"Qualified\",\n    \"priority\": \"Medium\",\n    \"score\": 64,\n    \"confidence\": 90\n  }\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/business/testing/testProposalEmailDraft.mjs",
+    "returncode": 0,
+    "stdout": "Proposal Email Draft check passed.\n{\n  \"subject\": \"AOI 視覺檢測軟體初步提案｜奇鋐科技\",\n  \"related\": {\n    \"proposalId\": \"PROP-20260708-YP85XY\",\n    \"businessUnitCode\": \"AOI_SOFTWARE\",\n    \"sku\": \"AOI-SW-CUSTOM\",\n    \"priority\": \"Medium\",\n    \"confidence\": 90\n  },\n  \"bodyPreview\": \"Bill 您好：\\n\\n針對「AOI 視覺檢測軟體」，我們先整理一份初步提案供您參考。\\n\\n本提案目前為初步版本，正式報價仍需依實際規格、數量、時程與交付範圍確認。\\n\\n提案重點如下：\\n1. 業務線：AOI 視覺檢測軟體\\n2. 產品 / 服務：AOI 視覺檢測軟體\\n3. 建議下一步：安排需求訪談\\n\\n以上先提供您參考。\\n若方便，請回覆目前可補充的資訊，我們再協助整理下一步方案。\\n\\n謝謝。\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/ai/testing/testAiGmailDraftGenerator.mjs",
+    "returncode": 0,
+    "stdout": "AI Gmail Draft Generator check passed.\n{\n  \"draftId\": \"DRF-20260708-8FPANX\",\n  \"subject\": \"關於AOI 視覺檢測軟體需求資訊確認｜奇鋐科技\",\n  \"aiText\": \"Subject: AOI 視覺檢測需求資訊確認\\nBody:\\nBill 您好，這是一封經 AI 潤飾的 Email 草稿。\\nFollow-up Note: 三天後追蹤。\",\n  \"cached\": false\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/business/testing/testProposalGenerator.mjs",
+    "returncode": 0,
+    "stdout": "Proposal Generator check passed.\n{\n  \"proposalId\": \"PROP-20260708-3HIYVB\",\n  \"title\": \"AOI 視覺檢測軟體提案｜奇鋐科技\",\n  \"businessUnit\": {\n    \"code\": \"AOI_SOFTWARE\",\n    \"displayName\": \"AOI 視覺檢測軟體\"\n  },\n  \"product\": {\n    \"sku\": \"AOI-SW-CUSTOM\",\n    \"displayName\": \"AOI 視覺檢測軟體\",\n    \"description\": \"SN 掃碼、自動拍照、OK/NG 判定、Excel 紀錄、防呆機制與客製化影像檢測流程。\"\n  },\n  \"markdownPreview\": \"# AOI 視覺檢測軟體提案｜奇鋐科技\\n\\n提案編號：PROP-20260708-3HIYVB\\n狀態：draft\\n客戶：奇鋐科技\\n聯絡人：Bill\\n業務線：AOI 視覺檢測軟體\\n產品 / 服務：AOI 視覺檢測軟體\\n優先級：High\\n信心分數：95\\n\\n## 一、提案摘要\\n\\n本提案依據目前客戶需求，初步判斷適合導入「AOI 視覺檢測軟體」。目前案件優先級為 High，系統信心分數為 95。\\n\\n## 二、客戶需求\\n\\n想評估 AOI 視覺檢測 OK NG Excel 紀錄，需求是水冷板重工檢測。\\n\\n## 三、建議方案\\n\\nAOI 視覺檢測軟體 將依據客戶實際需求，提供「AOI 視覺檢測軟體」之評估、規劃與執行協助。\\n\\n## 四、服務範圍\\n\\n初步服務範圍如下，正式範圍仍需依需求訪談或規格確認後調整。\\n\\n- 檢測流程設計\\n- 相機與影像輸入\\n- OK/NG 判定\\n- SN 掃碼\\n- Excel 自動紀錄\\n- 現場測試\\n\\n## 五、導入流程\\n\\n建議流程如下。\\n\\n- 樣品與影像確認\\n- 檢測規則定義\\n- 軟體開發\\n- 現場測試\\n- 驗收與教育訓練\\n\\n## 六、報價邏輯\\n\\n專案估價：先確認需求範圍、交付項目、時程、維護責任，再報價。\\n\\n## 七、需補充資訊\\n\\n正式報價前建議先補充以下資訊。\\n\\n- 預算範圍：專案型案件有預算範圍會更容易提供合適方案。\\n\\n## 八、下一步\\n\\n先確認流程、現況痛點、資料來源\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/ai/testing/testAiExecutionEngine.mjs",
+    "returncode": 0,
+    "stdout": "AI Execution Engine check passed.\n{\n  \"first\": {\n    \"cached\": false,\n    \"output\": \"fake response 1\"\n  },\n  \"second\": {\n    \"cached\": true,\n    \"output\": \"fake response 1\"\n  },\n  \"summary\": {\n    \"totalCalls\": 2,\n    \"success\": 1,\n    \"errors\": 0,\n    \"cacheHits\": 1,\n    \"totalTokens\": 15,\n    \"estimatedCostUSD\": 0,\n    \"averageLatencyMs\": 1\n  }\n}\n",
+    "stderr": ""
+  }
+]

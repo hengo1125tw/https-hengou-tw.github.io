@@ -1,0 +1,38 @@
+[
+  {
+    "command": "node scripts/check-b008-files.mjs",
+    "returncode": 0,
+    "stdout": "B008 required files check passed.\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/ai/testing/testAiCache.mjs",
+    "returncode": 0,
+    "stdout": "AI Cache check passed.\n{\n  \"key\": \"ai:response:openrouter:openai/gpt-4o-mini:PRM-TEST:5mgpdm\",\n  \"value\": {\n    \"value\": \"ok\",\n    \"cachedAt\": \"2026-07-08T09:26:12.543Z\"\n  }\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/ai/testing/testAiUsageLog.mjs",
+    "returncode": 0,
+    "stdout": "AI Usage Log check passed.\n{\n  \"totalCalls\": 2,\n  \"success\": 1,\n  \"errors\": 0,\n  \"cacheHits\": 1,\n  \"totalTokens\": 30,\n  \"estimatedCostUSD\": 0.00001,\n  \"averageLatencyMs\": 603\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/ai/testing/testAiExecutionEngine.mjs",
+    "returncode": 0,
+    "stdout": "AI Execution Engine check passed.\n{\n  \"first\": {\n    \"cached\": false,\n    \"output\": \"fake response 1\"\n  },\n  \"second\": {\n    \"cached\": true,\n    \"output\": \"fake response 1\"\n  },\n  \"summary\": {\n    \"totalCalls\": 2,\n    \"success\": 1,\n    \"errors\": 0,\n    \"cacheHits\": 1,\n    \"totalTokens\": 15,\n    \"estimatedCostUSD\": 0,\n    \"averageLatencyMs\": 1\n  }\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/business/testing/testLeadIntakeEngine.mjs",
+    "returncode": 0,
+    "stdout": "Lead Intake Engine check passed.\n[\n  {\n    \"status\": \"Qualified\",\n    \"priority\": \"High\",\n    \"score\": 84,\n    \"confidence\": 95,\n    \"businessUnit\": \"AOI_SOFTWARE\",\n    \"product\": \"AOI-SW-CUSTOM\",\n    \"missingInfo\": [\n      \"預算範圍\"\n    ],\n    \"nextAction\": \"安排需求訪談\"\n  },\n  {\n    \"status\": \"Qualified\",\n    \"priority\": \"Medium\",\n    \"score\": 46,\n    \"confidence\": 100,\n    \"businessUnit\": \"PROTOFAB_3D\",\n    \"product\": \"3D-PEGBOARD\",\n    \"missingInfo\": [],\n    \"nextAction\": \"確認列印圖檔、照片或尺寸\"\n  },\n  {\n    \"status\": \"Qualified\",\n    \"priority\": \"Medium\",\n    \"score\": 46,\n    \"confidence\": 100,\n    \"businessUnit\": \"PACKAGING_MATERIALS\",\n    \"product\": \"PACK-BOX\",\n    \"missingInfo\": [],\n    \"nextAction\": \"確認數量與取貨方式\"\n  }\n]\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/ai/testing/testPromptEngine.mjs",
+    "returncode": 0,
+    "stdout": "Prompt engine build check passed.\n{\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"你是 HengGou OS 的 B2B 業務分析助理。請用繁體中文、客觀、精簡地分析。恒構企業社是多業務公司，AI 是營運工具，不是唯一產品。\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"請分析以下 Lead：\\n\\n公司：奇鋐科技\\n聯絡人：Bill\\nEmail：bill@example.com\\n需求：想評估 AOI 視覺檢測與 AI Agent 導入。\\n\\n系統判斷業務線：AOI 視覺檢測軟體\\n系統推薦產品/服務：AOI 視覺檢測軟體\\n案件狀態：Needs Info\\n優先級：Medium\\n分數：56\\n信心：79\\n缺少資訊：規格 / 型號 / 尺寸\\n導入時程 / 需求期限\\n預算範圍\\n下一步：先補齊必要資訊\\n報價邏輯：專案估價：先確認需求範圍、交付項目、時程、維護責任，再報價。\\n\\n請輸出：\\n1. 產業判斷\\n2. 業務線是否正確\\n3. 推薦產品/服務是否正確\\n4. 商機價值\\n5. 缺少資訊\\n6. 下一步建議\"\n    }\n  ],\n  \"missing\": [],\n  \"estimatedTokens\": 194\n}\n",
+    "stderr": ""
+  }
+]

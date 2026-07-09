@@ -1,0 +1,32 @@
+[
+  {
+    "command": "node scripts/check-b006-files.mjs",
+    "returncode": 0,
+    "stdout": "B006 required files check passed.\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/business/testing/testProductRegistry.mjs",
+    "returncode": 0,
+    "stdout": "e\": \"國際空運 / 出口協助\",\n    \"businessUnitCode\": \"LOGISTICS_CUSTOMS\",\n    \"type\": \"service\",\n    \"pricingModel\": \"cost_plus\",\n    \"status\": \"active\"\n  },\n  {\n    \"productId\": \"PRD-000702\",\n    \"sku\": \"LOG-CUSTOMS\",\n    \"name\": \"Customs / Label Support\",\n    \"displayName\": \"報關 / 標籤文件協助\",\n    \"businessUnitCode\": \"LOGISTICS_CUSTOMS\",\n    \"type\": \"service\",\n    \"pricingModel\": \"project_scope\",\n    \"status\": \"active\"\n  },\n  {\n    \"productId\": \"PRD-000801\",\n    \"sku\": \"WEB-CORP\",\n    \"name\": \"Corporate Website\",\n    \"displayName\": \"企業形象網站\",\n    \"businessUnitCode\": \"WEBSITE_SYSTEM\",\n    \"type\": \"project\",\n    \"pricingModel\": \"project_scope\",\n    \"status\": \"active\"\n  },\n  {\n    \"productId\": \"PRD-000802\",\n    \"sku\": \"SYS-GSHEET\",\n    \"name\": \"Google Sheets Workflow System\",\n    \"displayName\": \"Google Sheets / Apps Script 系統\",\n    \"businessUnitCode\": \"WEBSITE_SYSTEM\",\n    \"type\": \"project\",\n    \"pricingModel\": \"project_scope\",\n    \"status\": \"active\"\n  },\n  {\n    \"productId\": \"PRD-999999\",\n    \"sku\": \"OTHER-MANUAL\",\n    \"name\": \"Manual Review Service\",\n    \"displayName\": \"未分類服務 / 人工評估\",\n    \"businessUnitCode\": \"OTHER\",\n    \"type\": \"other\",\n    \"pricingModel\": \"manual\",\n    \"status\": \"active\"\n  }\n]\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/business/testing/testProductClassifier.mjs",
+    "returncode": 0,
+    "stdout": "oogle Sheets\",\n        \"weight\": 16\n      },\n      {\n        \"type\": \"keyword\",\n        \"value\": \"Apps Script\",\n        \"weight\": 15\n      },\n      {\n        \"type\": \"keyword\",\n        \"value\": \"表單\",\n        \"weight\": 10\n      },\n      {\n        \"type\": \"keyword\",\n        \"value\": \"Gmail\",\n        \"weight\": 12\n      },\n      {\n        \"type\": \"keyword\",\n        \"value\": \"自動化\",\n        \"weight\": 10\n      },\n      {\n        \"type\": \"deliverable\",\n        \"value\": \"表單\",\n        \"weight\": 5\n      },\n      {\n        \"type\": \"deliverable\",\n        \"value\": \"Apps Script\",\n        \"weight\": 10\n      }\n    ]\n  },\n  {\n    \"text\": \"淘寶 1688 工具代購 找貨\",\n    \"expected\": \"PROC-TAOBAO\",\n    \"actual\": \"PROC-TAOBAO\",\n    \"confidence\": 100,\n    \"matches\": [\n      {\n        \"type\": \"keyword\",\n        \"value\": \"淘寶\",\n        \"weight\": 10\n      },\n      {\n        \"type\": \"keyword\",\n        \"value\": \"1688\",\n        \"weight\": 12\n      },\n      {\n        \"type\": \"keyword\",\n        \"value\": \"代購\",\n        \"weight\": 10\n      },\n      {\n        \"type\": \"keyword\",\n        \"value\": \"工具\",\n        \"weight\": 10\n      },\n      {\n        \"type\": \"keyword\",\n        \"value\": \"找貨\",\n        \"weight\": 10\n      }\n    ]\n  }\n]\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/ai/testing/testProductCatalogContext.mjs",
+    "returncode": 0,
+    "stdout": "Product Catalog Context check passed.\n[\n  {\n    \"message\": \"我想做 3D列印 洞洞板 PETG 配件\",\n    \"businessUnit\": \"PROTOFAB_3D\",\n    \"product\": \"3D-PEGBOARD\",\n    \"productName\": \"洞洞板配件\",\n    \"pricingGuidance\": \"單價制：確認規格、數量、包裝、交期與運費。\"\n  },\n  {\n    \"message\": \"我要買紙箱 包材 緩衝材\",\n    \"businessUnit\": \"PACKAGING_MATERIALS\",\n    \"product\": \"PACK-BOX\",\n    \"productName\": \"再利用紙箱 / 包材\",\n    \"pricingGuidance\": \"單價制：確認規格、數量、包裝、交期與運費。\"\n  },\n  {\n    \"message\": \"COSMO LS-R902 氣密測試設備\",\n    \"businessUnit\": \"COSMO_EQUIPMENT\",\n    \"product\": \"COSMO-LS-R902\",\n    \"productName\": \"COSMO LS-R902 氣密測試設備\",\n    \"pricingGuidance\": \"成本加成：先確認成本、運費、風險、服務費，再報價。\"\n  },\n  {\n    \"message\": \"AOI 視覺檢測 OK NG Excel 紀錄\",\n    \"businessUnit\": \"AOI_SOFTWARE\",\n    \"product\": \"AOI-SW-CUSTOM\",\n    \"productName\": \"AOI 視覺檢測軟體\",\n    \"pricingGuidance\": \"專案估價：先確認需求範圍、交付項目、時程、維護責任，再報價。\"\n  }\n]\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/ai/testing/testPromptEngine.mjs",
+    "returncode": 0,
+    "stdout": "Prompt engine build check passed.\n{\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"你是 HengGou OS 的 B2B 業務分析助理。請用繁體中文、客觀、精簡地分析。恒構企業社是多業務公司，AI 是營運工具，不是唯一產品。\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"請分析以下 Lead：\\n\\n公司：奇鋐科技\\n聯絡人：Bill\\nEmail：bill@example.com\\n需求：想評估 AOI 視覺檢測與 AI Agent 導入。\\n\\n系統判斷業務線：AOI 視覺檢測軟體\\n業務線說明：AOI 視覺檢測、OK/NG 判定、SN 掃碼、自動拍照、Excel 紀錄、資料追蹤與客製化檢測流程。\\n\\n系統推薦產品/服務：AOI 視覺檢測軟體\\n產品/服務說明：SN 掃碼、自動拍照、OK/NG 判定、Excel 紀錄、防呆機制與客製化影像檢測流程。\\n報價邏輯：專案估價：先確認需求範圍、交付項目、時程、維護責任，再報價。\\n\\n請輸出：\\n1. 產業判斷\\n2. 業務線是否正確\\n3. 推薦產品/服務是否正確\\n4. 商機價值\\n5. 缺少資訊\\n6. 下一步建議\"\n    }\n  ],\n  \"missing\": [],\n  \"estimatedTokens\": 207\n}\n",
+    "stderr": ""
+  }
+]

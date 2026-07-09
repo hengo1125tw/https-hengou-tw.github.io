@@ -1,9 +1,31 @@
 export { aiConfig } from "./config/aiConfig.js";
-
 export { AIError } from "./errors/AIError.js";
-
 export { BaseProvider } from "./providers/BaseProvider.js";
 export { OpenRouterProvider } from "./providers/OpenRouterProvider.js";
 export { createProvider, listSupportedProviders } from "./providers/providerFactory.js";
-
 export { estimateTokens, estimateMessagesTokens } from "./utils/tokenEstimator.js";
+export { PromptEngine, promptEngine } from "./prompt/promptEngine.js";
+export { renderTemplate } from "./prompt/templateRenderer.js";
+export { extractVariables, extractPromptVariables } from "./prompt/variableExtractor.js";
+export { validatePrompt, validatePromptContext } from "./prompt/promptValidator.js";
+export { PromptRegistry, promptRegistry } from "./prompt/promptRegistry.js";
+export { DEFAULT_PROMPTS } from "./prompt/defaultPrompts.js";
+export { CONTEXT_SECTIONS, createEmptyContext } from "./context/contextSchema.js";
+export { ContextBuilder, contextBuilder } from "./context/contextBuilder.js";
+export { createContextPreview } from "./context/contextPreview.js";
+export { buildTimelineContext } from "./context/timelineContext.js";
+export { buildKnowledgeContext } from "./context/knowledgeContext.js";
+export { buildPlaybookContext } from "./context/playbookContext.js";
+export { buildBusinessUnitContext } from "./context/businessUnitContext.js";
+export { buildProductCatalogContext } from "./context/productCatalogContext.js";
+export { buildLeadIntakeContext } from "./context/leadIntakeContext.js";
+export { AI_USAGE_STATUS, AI_USAGE_TYPE, AI_CACHE_NAMESPACE } from "./usage/aiUsageConstants.js";
+export { AICache, aiCache } from "./usage/aiCache.js";
+export { AIUsageLog, aiUsageLog } from "./usage/aiUsageLog.js";
+export { AIExecutionEngine, aiExecutionEngine } from "./usage/aiExecutionEngine.js";
+export { estimateCostUSD, estimateUsageCost, DEFAULT_RATES } from "./usage/aiCostEstimator.js";
+export { stableStringify, simpleHash } from "./usage/stableStringify.js";
+
+export { AIProposalGenerator, aiProposalGenerator } from "./proposal/aiProposalGenerator.js";
+
+export { AIGmailDraftGenerator, aiGmailDraftGenerator } from "./gmail/aiGmailDraftGenerator.js";

@@ -35,3 +35,10 @@ Test:
 ```powershell
 node .\scripts\check-rc2-lead-row-hotfix.mjs
 ```
+
+
+## v1.2.0-rc.3｜Apps Script API Hotfix
+
+Fixes production Admin status update failures by adding JSONP fallback and robust Apps Script response handling.
+
+Important: update and redeploy the Apps Script `Code.gs` included in this package.

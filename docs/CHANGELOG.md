@@ -343,3 +343,11 @@
 - Lead ID is now a clickable button.
 - Added keyboard access for Lead rows.
 - Added `HGOpenLeadDrawer()` console helper for troubleshooting.
+
+## v1.2.0-rc.3
+
+### Fixed
+- Added Apps Script JSONP fallback for Admin API actions on GitHub Pages.
+- Added structured Apps Script error responses for `doGet`.
+- Prevented Dashboard refresh failures from breaking Lead status updates.
+- Improved Admin API error messages.

@@ -20,61 +20,117 @@ const HGAdminAPI = {
     return apiBase + (apiBase.includes("?") ? "&" : "?") + search.toString();
   },
 
+  async request(action, params = {}, options = {}) {
+    const url = this.buildUrl(action, params);
+    if (!url) return { ok: false, message: "尚未設定 API URL" };
+
+    if (options.preferJsonp) {
+      return await this.jsonpRequest(action, params);
+    }
+
+    try {
+      const response = await fetch(url, { method: "GET", cache: "no-store" });
+      const text = await response.text();
+      try {
+        return JSON.parse(text);
+      } catch (parseError) {
+        if (text && text.trim().startsWith("<")) {
+          throw new Error("API 回傳 HTML，通常是 Apps Script 錯誤、權限或部署版本未更新。");
+        }
+        throw new Error("API 回傳不是 JSON：" + (text || "").slice(0, 160));
+      }
+    } catch (error) {
+      // Google Apps Script Web App sometimes fails CORS on GitHub Pages.
+      // JSONP fallback avoids CORS for GET-based Admin operations.
+      try {
+        return await this.jsonpRequest(action, params);
+      } catch (jsonpError) {
+        return {
+          ok: false,
+          message: `${action} 失敗：${jsonpError.message || error.message || "API 連線失敗"}`
+        };
+      }
+    }
+  },
+
+  jsonpRequest(action, params = {}, timeoutMs = 15000) {
+    const { apiBase, apiKey } = this.getConfig();
+    if (!apiBase) return Promise.resolve({ ok: false, message: "尚未設定 API URL" });
+
+    return new Promise((resolve, reject) => {
+      const callbackName = `__hgAdminApiCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+      const search = new URLSearchParams({
+        action,
+        api_key: apiKey || "",
+        ...params,
+        callback: callbackName
+      });
+
+      const url = apiBase + (apiBase.includes("?") ? "&" : "?") + search.toString();
+      const script = document.createElement("script");
+      let done = false;
+
+      const cleanup = () => {
+        try { delete window[callbackName]; } catch { window[callbackName] = undefined; }
+        if (script.parentNode) script.parentNode.removeChild(script);
+      };
+
+      const timer = setTimeout(() => {
+        if (done) return;
+        done = true;
+        cleanup();
+        reject(new Error("API JSONP 逾時，請確認 Apps Script 已重新部署且允許任何人存取。"));
+      }, timeoutMs);
+
+      window[callbackName] = data => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        cleanup();
+        resolve(data);
+      };
+
+      script.onerror = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        cleanup();
+        reject(new Error("API JSONP 載入失敗，請確認 Web App URL /exec 正確。"));
+      };
+
+      script.src = url;
+      document.head.appendChild(script);
+    });
+  },
+
   async healthCheck() {
     const { apiBase } = this.getConfig();
     if (!apiBase) return { ok: false, message: "尚未設定 API URL" };
-    try {
-      const response = await fetch(apiBase, { method: "GET" });
-      const text = await response.text();
-      try { return JSON.parse(text); }
-      catch { return { ok: response.ok, message: text || "API 可連線，但不是 JSON 回應" }; }
-    } catch {
-      return { ok: false, message: "API 連線失敗" };
-    }
+    return await this.request("", {});
   },
 
   async listLeads() {
-    const url = this.buildUrl("listLeads");
-    if (!url) return { ok: false, message: "尚未設定 API URL", leads: [] };
-    try {
-      const response = await fetch(url);
-      return await response.json();
-    } catch {
-      return { ok: false, message: "讀取 Leads 失敗", leads: [] };
-    }
+    const result = await this.request("listLeads");
+    if (!result.ok) return { ok: false, message: result.message || "讀取 Leads 失敗", leads: [] };
+    return result;
   },
 
   async listLogs() {
-    const url = this.buildUrl("listLogs");
-    if (!url) return { ok: false, message: "尚未設定 API URL", logs: [] };
-    try {
-      const response = await fetch(url);
-      return await response.json();
-    } catch {
-      return { ok: false, message: "讀取 Logs 失敗", logs: [] };
-    }
+    const result = await this.request("listLogs");
+    if (!result.ok) return { ok: false, message: result.message || "讀取 Logs 失敗", logs: [] };
+    return result;
   },
 
   async updateLeadStatus(leadId, status) {
-    const url = this.buildUrl("updateLeadStatus", { leadId, status });
-    if (!url) return { ok: false, message: "尚未設定 API URL" };
-    try {
-      const response = await fetch(url);
-      return await response.json();
-    } catch {
-      return { ok: false, message: "更新狀態失敗" };
-    }
+    const result = await this.request("updateLeadStatus", { leadId, status }, { preferJsonp: true });
+    if (!result.ok) return { ok: false, message: result.message || "更新狀態失敗" };
+    return result;
   },
 
   async updateLeadFollowUp(leadId, followUp, note) {
-    const url = this.buildUrl("updateLeadFollowUp", { leadId, followUp, note });
-    if (!url) return { ok: false, message: "尚未設定 API URL" };
-    try {
-      const response = await fetch(url);
-      return await response.json();
-    } catch {
-      return { ok: false, message: "更新 Follow-up 失敗" };
-    }
+    const result = await this.request("updateLeadFollowUp", { leadId, followUp, note }, { preferJsonp: true });
+    if (!result.ok) return { ok: false, message: result.message || "更新 Follow-up 失敗" };
+    return result;
   }
 };
 
@@ -133,8 +189,21 @@ function renderLeadRows(rows, sourceLabel = "API") {
 
   tbody.querySelectorAll(".status-select").forEach(select => {
     select.addEventListener("change", async () => {
+      const previousValue = currentRows.find(row => row.id === select.dataset.leadId)?.status || "";
+      select.disabled = true;
       const result = await HGAdminAPI.updateLeadStatus(select.dataset.leadId, select.value);
-      if (!result.ok) alert(result.message || "更新失敗");
+      select.disabled = false;
+
+      if (!result.ok) {
+        alert(result.message || "更新失敗");
+        if (previousValue) select.value = previousValue;
+        return;
+      }
+
+      if (result.warning) {
+        alert(result.message || "狀態已更新，但後續同步有警告。");
+      }
+
       await loadLeadsFromApi();
     });
   });
@@ -334,7 +403,7 @@ function renderFollowUpTimeline(lead) {
 }
 
 
-// v1.2.0-rc.2 debug helper: open Lead drawer from browser console.
+// v1.2.0-rc.3 debug helper: open Lead drawer from browser console.
 // Example: HGOpenLeadDrawer("HG-20260706-0001")
 window.HGOpenLeadDrawer = openLeadDrawer;
 window.HGGetCurrentRows = () => currentRows;

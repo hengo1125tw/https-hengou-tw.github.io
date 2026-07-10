@@ -12,8 +12,8 @@ const checks = [
   ["lead id button", api.includes("lead-id-button")],
   ["console helper", api.includes("window.HGOpenLeadDrawer")],
   ["lead-row css", css.includes(".lead-row")],
-  ["rc2 admin version", html.includes("v1.2.0-rc.2")],
-  ["rc2 version file", version === "v1.2.0-rc.2"]
+  ["rc2 admin version", (html.includes("v1.2.0-rc.2") || html.includes("v1.2.0-rc.3"))],
+  ["rc2 version file", ["v1.2.0-rc.2", "v1.2.0-rc.3"].includes(version)]
 ];
 
 const failed = checks.filter(([, ok]) => !ok);

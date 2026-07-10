@@ -6,7 +6,7 @@
 
 /************************************************
  * HengGou AI Platform｜Lead API
- * Version: v0.5.0-sprint4B
+ * Version: v1.2.0-rc.3
  ************************************************/
 
 const HG_CONFIG = {
@@ -83,11 +83,22 @@ function doPost(e) {
 }
 
 function doGet(e) {
+  try {
+    return handleGet_(e);
+  } catch (error) {
+    return output_(e, {
+      ok: false,
+      message: error.message || '系統錯誤，請稍後再試。'
+    });
+  }
+}
+
+function handleGet_(e) {
   const action = e && e.parameter ? e.parameter.action : '';
 
   if (action === 'listLeads') {
     validateApiKeyGet_(e);
-    return json_({
+    return output_(e, {
       ok: true,
       leads: listLeads_()
     });
@@ -95,7 +106,7 @@ function doGet(e) {
 
   if (action === 'listLogs') {
     validateApiKeyGet_(e);
-    return json_({
+    return output_(e, {
       ok: true,
       logs: listLogs_()
     });
@@ -103,18 +114,18 @@ function doGet(e) {
 
   if (action === 'updateLeadStatus') {
     validateApiKeyGet_(e);
-    return json_(updateLeadStatus_(e.parameter.leadId, e.parameter.status));
+    return output_(e, updateLeadStatus_(e.parameter.leadId, e.parameter.status));
   }
 
   if (action === 'updateLeadFollowUp') {
     validateApiKeyGet_(e);
-    return json_(updateLeadFollowUp_(e.parameter.leadId, e.parameter.followUp, e.parameter.note));
+    return output_(e, updateLeadFollowUp_(e.parameter.leadId, e.parameter.followUp, e.parameter.note));
   }
 
-  return json_({
+  return output_(e, {
     ok: true,
     service: 'HengGou AI Platform Lead API',
-    version: 'v0.8.0'
+    version: 'v1.2.0-rc.3'
   });
 }
 
@@ -396,6 +407,24 @@ function json_(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function output_(e, obj) {
+  const callback = e && e.parameter ? String(e.parameter.callback || '') : '';
+  if (callback) {
+    return jsonp_(callback, obj);
+  }
+  return json_(obj);
+}
+
+function jsonp_(callback, obj) {
+  if (!/^[A-Za-z_$][0-9A-Za-z_$]*$/.test(callback)) {
+    return json_({ ok: false, message: 'JSONP callback 名稱不合法' });
+  }
+
+  return ContentService
+    .createTextOutput(callback + '(' + JSON.stringify(obj) + ');')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
 
 /************************************************
  * SETUP / CRM DASHBOARD
@@ -528,7 +557,26 @@ function updateLeadStatus_(leadId, status) {
   const rowNumber = index + 2;
   const statusColumn = 17;
   sheet.getRange(rowNumber, statusColumn).setValue(status);
-  refreshDashboard_();
+
+  try {
+    refreshDashboard_();
+  } catch (error) {
+    logApi_(ss, {
+      status: 'error',
+      leadId: leadId,
+      message: 'Dashboard refresh failed after status update: ' + error.message,
+      payload: { action: 'updateLeadStatus', status: status },
+      startedAt: new Date()
+    });
+
+    return {
+      ok: true,
+      warning: 'dashboard_refresh_failed',
+      message: '狀態已更新，但 Dashboard 統計更新失敗：' + error.message,
+      leadId: leadId,
+      status: status
+    };
+  }
 
   return { ok: true, message: '狀態已更新', leadId: leadId, status: status };
 }
@@ -554,7 +602,24 @@ function updateLeadFollowUp_(leadId, followUp, note) {
   sheet.getRange(rowNumber, followUpColumn).setValue(followUp || '');
   sheet.getRange(rowNumber, noteColumn).setValue(sanitize_(note || ''));
 
-  refreshDashboard_();
+  try {
+    refreshDashboard_();
+  } catch (error) {
+    logApi_(ss, {
+      status: 'error',
+      leadId: leadId,
+      message: 'Dashboard refresh failed after follow-up update: ' + error.message,
+      payload: { action: 'updateLeadFollowUp' },
+      startedAt: new Date()
+    });
+
+    return {
+      ok: true,
+      warning: 'dashboard_refresh_failed',
+      message: 'Follow-up 已更新，但 Dashboard 統計更新失敗：' + error.message,
+      leadId: leadId
+    };
+  }
 
   return {
     ok: true,

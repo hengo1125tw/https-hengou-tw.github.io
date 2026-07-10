@@ -1,4 +1,4 @@
-// v1.2.0-rc.5
+// v1.2.0-rc.5-email-template-1
 // Browser-bundled Admin AI Actions with immediate init and delegated click fallback.
 // This file intentionally has no static imports so GitHub Pages cannot fail silently
 // because of module dependency paths or browser-incompatible package imports.
@@ -20,6 +20,25 @@ function getText(id) {
 function safeText(value, fallback = "-") {
   const text = String(value || "").trim();
   return text || fallback;
+}
+
+function isInvalidName(name) {
+  const text = String(name || "").trim();
+
+  if (!text) return true;
+  if (text === "-") return true;
+  if (/^\d+$/.test(text)) return true;
+  if (/^test$/i.test(text)) return true;
+  if (/^null$/i.test(text)) return true;
+  if (/^undefined$/i.test(text)) return true;
+
+  return false;
+}
+
+function safeContactName(name) {
+  const text = String(name || "").trim();
+  if (isInvalidName(text)) return "您好";
+  return `${text}您好`;
 }
 
 function leadKey(lead = activeLead) {
@@ -209,16 +228,19 @@ function renderProposal(lead = {}, analysis = analyzeLead(lead)) {
 }
 
 function renderMissingInfoEmail(lead = {}, analysis = analyzeLead(lead)) {
-  const company = safeText(lead.company, "貴公司");
-  const contact = safeText(lead.name, "您好");
+  const contact = safeContactName(lead.name);
 
   return [
     `To: ${safeText(lead.email, "(待填 Email)")}`,
-    `Subject: 關於${analysis.product}需求資訊確認｜${company}`,
+    `Subject: 關於${analysis.product}需求資訊確認｜恒構企業社`,
     "",
-    `${contact}您好：`,
+    `${contact}：`,
     "",
-    `謝謝您提供需求資訊。我們已先初步整理，為了評估合適方案與後續報價，想再跟您確認幾項內容：`,
+    `我是恒構企業社的宋先生。`,
+    "",
+    `謝謝您提供目前需求資訊，我們已先做初步判斷，方向大致屬於「${analysis.product}」。`,
+    "",
+    `為了避免後續評估方向錯誤，也方便我們整理較精準的方案與報價，想再請您協助確認以下資訊：`,
     "",
     ...(analysis.missingInfo || []).slice(0, 5).map((item, index) => `${index + 1}. ${item}`),
     "",
@@ -226,41 +248,55 @@ function renderMissingInfoEmail(lead = {}, analysis = analyzeLead(lead)) {
     "",
     `謝謝。`,
     "",
-    `恒構企業社`
-    `宋先生`
-    `Email：hengo1125.tw@gmail.com`
-    `Line：@749ivaeq`
+    `恒構企業社`,
+    `宋先生`,
+    `Email：hengo1125.tw@gmail.com`,
+    `Line：@749ivaeq`,
     `電話：0978353910`
-  ].join("\n");
+  ].join("
+");
 }
+
 
 function renderProposalEmail(lead = {}, analysis = analyzeLead(lead)) {
   const company = safeText(lead.company, "貴公司");
-  const contact = safeText(lead.name, "您好");
+  const contact = safeContactName(lead.name);
+  const need = safeText(lead.need, "待確認");
 
   return [
     `To: ${safeText(lead.email, "(待填 Email)")}`,
-    `Subject: ${analysis.product}初步提案｜${company}`,
+    `Subject: ${analysis.product}初步合作說明｜恒構企業社`,
     "",
-    `${contact}您好：`,
+    `${contact}：`,
     "",
-    `依照目前資訊，我們先整理一版「${analysis.product}」初步方向給您參考。`,
+    `我是恒構企業社的宋先生，感謝您提供目前需求。`,
     "",
-    `本案建議先以需求確認與小範圍驗證為主，確認流程、資料格式、現場限制與驗收標準後，再進一步提供正式報價與交期。`,
+    `我們先依照目前資訊，整理初步合作方向如下：`,
     "",
-    `目前建議下一步：${analysis.nextAction}`,
+    `一、需求摘要`,
+    `公司：${company}`,
+    `需求：${need}`,
+    `建議服務：${analysis.product}`,
     "",
-    `若方便，我們可以再約時間確認需求細節。`,
+    `二、初步建議`,
+    `本案建議先確認實際流程、資料格式、導入環境、現場限制與驗收標準，再提供正式報價與時程。`,
+    "",
+    `三、下一步`,
+    `${analysis.nextAction}`,
+    "",
+    `若方便，我們可以再約時間確認需求細節，確認後再整理較完整的方案、導入方式與時程。`,
     "",
     `謝謝。`,
     "",
-    `恒構企業社`
-    `宋先生`
-    `Email：hengo1125.tw@gmail.com`
-    `Line：@749ivaeq`
+    `恒構企業社`,
+    `宋先生`,
+    `Email：hengo1125.tw@gmail.com`,
+    `Line：@749ivaeq`,
     `電話：0978353910`
-  ].join("\n");
+  ].join("
+");
 }
+
 
 function setSummary(summary = {}) {
   const mappings = {

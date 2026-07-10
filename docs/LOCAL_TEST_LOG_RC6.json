@@ -1,0 +1,26 @@
+[
+  {
+    "command": "node --check admin/js/admin-ai-actions.js",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/check-rc6-email-template-hotfix.mjs",
+    "returncode": 0,
+    "stdout": "RC6 Email Template Hotfix check passed.\n{\n  \"version file rc6\": true,\n  \"package rc6\": true,\n  \"admin html rc6\": true,\n  \"cache buster rc6\": true,\n  \"ai actions version marker\": true,\n  \"missing info template subject\": true,\n  \"proposal template subject\": true,\n  \"company signature\": true,\n  \"contact signature\": true,\n  \"name fallback\": true,\n  \"no static imports\": true,\n  \"ready flag\": true\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": "node scripts/check-b012-files.mjs",
+    "returncode": 0,
+    "stdout": "B012 required files check passed.\n",
+    "stderr": ""
+  },
+  {
+    "command": "node packages/admin/testing/testAdminLeadActions.mjs",
+    "returncode": 0,
+    "stdout": "Admin Lead Actions check passed.\n{\n  \"analysis\": {\n    \"status\": \"Qualified\",\n    \"priority\": \"High\",\n    \"score\": 76,\n    \"confidence\": 90,\n    \"businessUnit\": \"AOI 視覺檢測軟體\",\n    \"businessUnitCode\": \"AOI_SOFTWARE\",\n    \"product\": \"AOI 視覺檢測軟體\",\n    \"sku\": \"AOI-SW-CUSTOM\",\n    \"missingInfo\": [\n      \"導入時程 / 需求期限\",\n      \"預算範圍\"\n    ],\n    \"nextAction\": \"安排需求訪談\",\n    \"pricingGuidance\": \"專案估價：先確認需求範圍、交付項目、時程、維護責任，再報價。\"\n  },\n  \"proposalId\": \"PROP-20260710-IPE545\",\n  \"emailSubject\": \"關於AOI 視覺檢測軟體需求資訊確認｜奇鋐科技\",\n  \"proposalEmailSubject\": \"AOI 視覺檢測軟體初步提案｜奇鋐科技\"\n}\n",
+    "stderr": ""
+  }
+]

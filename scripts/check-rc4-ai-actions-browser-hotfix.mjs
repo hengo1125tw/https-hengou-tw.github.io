@@ -6,9 +6,9 @@ const version = fs.readFileSync("VERSION", "utf8").trim();
 const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
 
 const checks = [
-  ["version file rc4", ["v1.2.0-rc.4", "v1.2.0-rc.5"].includes(version)],
-  ["package rc4", ["1.2.0-rc.4", "1.2.0-rc.5"].includes(pkg.version)],
-  ["admin html rc4", (html.includes("v1.2.0-rc.4") || html.includes("v1.2.0-rc.5"))],
+  ["version file rc4", ["v1.2.0-rc.4", "v1.2.0-rc.5", "v1.2.0-rc.6"].includes(version)],
+  ["package rc4", ["1.2.0-rc.4", "1.2.0-rc.5", "1.2.0-rc.6"].includes(pkg.version)],
+  ["admin html rc4", (html.includes("v1.2.0-rc.4") || html.includes("v1.2.0-rc.5", "v1.2.0-rc.6"))],
   ["no static imports", !/^import\s/m.test(ai)],
   ["browser bundle marker", ai.includes("Browser-bundled Admin AI Actions")],
   ["analyze function exists", ai.includes("function analyzeLead")],

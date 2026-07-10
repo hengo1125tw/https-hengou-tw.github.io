@@ -7,9 +7,9 @@ const version = fs.readFileSync("VERSION", "utf8").trim();
 const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
 
 const checks = [
-  ["version file rc5", version === "v1.2.0-rc.5"],
-  ["package rc5", pkg.version === "1.2.0-rc.5"],
-  ["admin html rc5", html.includes("v1.2.0-rc.5")],
+  ["version file rc5", ["v1.2.0-rc.5", "v1.2.0-rc.6"].includes(version), "v1.2.0-rc.6"],
+  ["package rc5", ["1.2.0-rc.5", "1.2.0-rc.6"].includes(pkg.version), "1.2.0-rc.6"],
+  ["admin html rc5", html.includes("v1.2.0-rc.5", "v1.2.0-rc.6")],
   ["script tag is non-module", html.includes('src="js/admin-ai-actions.js?v=rc5"') && !html.includes('type="module" src="js/admin-ai-actions.js"')],
   ["immediate init", ai.includes('document.readyState === "loading"') && ai.includes("initAiActions();")],
   ["init guard", ai.includes("aiActionsInitialized")],

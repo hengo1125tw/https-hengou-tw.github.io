@@ -1,7 +1,7 @@
-// v1.2.0-rc.5-email-template-1
-// Browser-bundled Admin AI Actions with immediate init and delegated click fallback.
-// This file intentionally has no static imports so GitHub Pages cannot fail silently
-// because of module dependency paths or browser-incompatible package imports.
+// v1.2.0-rc.6-email-template
+// Browser-bundled Admin AI Actions.
+// No import. Safe for GitHub Pages.
+// This version updates Missing Info Email and Proposal Email templates.
 
 const STORAGE_PREFIX = "henggou:admin:ai-actions:";
 const DEFAULT_OUTPUT = "請選擇 Analyze Lead、Generate Proposal 或 Generate Gmail Draft。";
@@ -62,10 +62,13 @@ function leadFromDrawer() {
 
 function saveState(state = {}) {
   try {
-    localStorage.setItem(leadKey(), JSON.stringify({
-      ...state,
-      savedAt: new Date().toISOString()
-    }));
+    localStorage.setItem(
+      leadKey(),
+      JSON.stringify({
+        ...state,
+        savedAt: new Date().toISOString()
+      })
+    );
   } catch (error) {
     console.warn("AI action state not saved", error);
   }
@@ -142,8 +145,13 @@ function classifyBusinessUnit(lead = {}) {
   };
 
   for (const rule of rules) {
-    const score = rule.keywords.reduce((sum, keyword) => sum + (text.includes(keyword.toLowerCase()) ? 1 : 0), 0);
-    if (score > best.score) best = { ...rule, score };
+    const score = rule.keywords.reduce((sum, keyword) => {
+      return sum + (text.includes(keyword.toLowerCase()) ? 1 : 0);
+    }, 0);
+
+    if (score > best.score) {
+      best = { ...rule, score };
+    }
   }
 
   return best;
@@ -151,11 +159,13 @@ function classifyBusinessUnit(lead = {}) {
 
 function analyzeLead(lead = {}) {
   const classification = classifyBusinessUnit(lead);
+
   const hasCompany = Boolean(String(lead.company || "").trim());
-  const hasContact = Boolean(String(lead.name || "").trim());
+  const hasContact = Boolean(String(lead.name || "").trim()) && !isInvalidName(lead.name);
   const hasEmail = Boolean(String(lead.email || "").trim());
   const hasNeed = Boolean(String(lead.need || "").trim());
   const hasTimeline = Boolean(String(lead.followUp || "").trim());
+
   const missingInfo = [];
 
   if (!hasNeed) missingInfo.push("需求內容 / 使用情境");
@@ -171,10 +181,15 @@ function analyzeLead(lead = {}) {
   if (hasNeed) score += 20;
   if (classification.score > 0) score += Math.min(15, classification.score * 5);
   if (hasTimeline) score += 8;
+
   score = Math.max(0, Math.min(100, score));
 
   const priority = score >= 75 ? "High" : score >= 55 ? "Medium" : "Low";
-  const nextAction = missingInfo.length >= 3 ? "先補齊需求資訊，再安排需求訪談" : "安排需求訪談並整理初步提案";
+  const nextAction =
+    missingInfo.length >= 3
+      ? "先補齊需求資訊，再安排需求訪談"
+      : "安排需求訪談並整理初步提案";
+
   const status = score >= 60 ? "Qualified" : "Needs Info";
   const confidence = classification.score > 0 ? Math.min(95, 65 + classification.score * 10) : 45;
 
@@ -195,7 +210,7 @@ function analyzeLead(lead = {}) {
 
 function renderProposal(lead = {}, analysis = analyzeLead(lead)) {
   const company = safeText(lead.company, "貴公司");
-  const contact = safeText(lead.name, "窗口");
+  const contact = isInvalidName(lead.name) ? "窗口" : safeText(lead.name, "窗口");
   const need = safeText(lead.need, "尚待確認");
   const followUp = safeText(lead.followUp, "待確認");
 
@@ -253,10 +268,8 @@ function renderMissingInfoEmail(lead = {}, analysis = analyzeLead(lead)) {
     `Email：hengo1125.tw@gmail.com`,
     `Line：@749ivaeq`,
     `電話：0978353910`
-  ].join("
-");
+  ].join("\n");
 }
-
 
 function renderProposalEmail(lead = {}, analysis = analyzeLead(lead)) {
   const company = safeText(lead.company, "貴公司");
@@ -293,10 +306,8 @@ function renderProposalEmail(lead = {}, analysis = analyzeLead(lead)) {
     `Email：hengo1125.tw@gmail.com`,
     `Line：@749ivaeq`,
     `電話：0978353910`
-  ].join("
-");
+  ].join("\n");
 }
-
 
 function setSummary(summary = {}) {
   const mappings = {
@@ -317,6 +328,7 @@ function renderOutput(title, content, mode = "json", options = {}) {
   const output = $("aiActionOutput");
   const titleEl = $("aiActionTitle");
   const savedAtEl = $("aiActionSavedAt");
+
   if (!output) return;
 
   const text = mode === "text" ? String(content || "") : JSON.stringify(content, null, 2);
@@ -341,13 +353,18 @@ function renderOutput(title, content, mode = "json", options = {}) {
 
 function restoreLeadState(lead) {
   const state = loadState(lead);
+
   if (!state) {
     setSummary({});
-    renderOutput("AI Actions", DEFAULT_OUTPUT, "text", { persist: false, savedAt: "-" });
+    renderOutput("AI Actions", DEFAULT_OUTPUT, "text", {
+      persist: false,
+      savedAt: "-"
+    });
     return;
   }
 
   if (state.summary) setSummary(state.summary);
+
   renderOutput(state.title || "AI Actions", state.content || DEFAULT_OUTPUT, "text", {
     persist: false,
     savedAt: state.savedAt ? new Date(state.savedAt).toLocaleString() : "-"
@@ -356,6 +373,7 @@ function restoreLeadState(lead) {
 
 async function copyOutput() {
   const text = $("aiActionOutput")?.textContent || "";
+
   try {
     await navigator.clipboard.writeText(text);
     alert("已複製 AI Actions 輸出。");
@@ -374,38 +392,56 @@ function downloadOutput(prefix = "henggou-ai-action") {
   const lead = leadFromDrawer();
   const text = $("aiActionOutput")?.textContent || "";
   const safeLeadId = String(lead?.id || "lead").replace(/[^\w-]+/g, "_");
-  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+
+  const blob = new Blob([text], {
+    type: "text/plain;charset=utf-8"
+  });
+
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
+
   a.href = url;
   a.download = `${prefix}-${safeLeadId}-${new Date().toISOString().slice(0, 10)}.txt`;
   a.click();
+
   URL.revokeObjectURL(url);
 }
 
 function clearOutput() {
   clearState();
   setSummary({});
-  renderOutput("AI Actions", DEFAULT_OUTPUT, "text", { persist: false, savedAt: "-" });
+  renderOutput("AI Actions", DEFAULT_OUTPUT, "text", {
+    persist: false,
+    savedAt: "-"
+  });
 }
 
 function runAction(actionName, runner) {
   try {
     const lead = leadFromDrawer();
+
     if (!lead.id || lead.id === "Lead") {
-      renderOutput("AI Actions Error", "請先開啟一筆 Lead 再執行 AI Actions。", "text", { persist: false });
+      renderOutput("AI Actions Error", "請先開啟一筆 Lead 再執行 AI Actions。", "text", {
+        persist: false
+      });
       return;
     }
+
     runner(lead);
   } catch (error) {
     console.error(`AI action failed: ${actionName}`, error);
-    renderOutput("AI Actions Error", `${actionName} 執行失敗：${error.message || error}`, "text", { persist: false });
+    renderOutput(
+      "AI Actions Error",
+      `${actionName} 執行失敗：${error.message || error}`,
+      "text",
+      {
+        persist: false
+      }
+    );
   }
 }
 
-function initAiActions() {
-  if (aiActionsInitialized) return;
-  aiActionsInitialized = true;
+function bindAiActionsDirectly() {
   const analyzeButton = $("analyzeLeadAi");
   const proposalButton = $("generateProposalAi");
   const missingEmailButton = $("generateMissingInfoEmailAi");
@@ -414,62 +450,67 @@ function initAiActions() {
   const downloadButton = $("downloadAiActionOutput");
   const clearButton = $("clearAiActionOutput");
 
-  if (!analyzeButton || !proposalButton || !missingEmailButton || !proposalEmailButton) {
-    console.warn("AI Actions buttons not found.");
-    return;
-  }
-
-  window.addEventListener("hg:lead-drawer-opened", event => {
-    activeLead = event.detail?.lead || null;
-    restoreLeadState(activeLead);
+  analyzeButton?.addEventListener("click", () => {
+    runAction("Analyze Lead", lead => {
+      const summary = analyzeLead(lead);
+      setSummary(summary);
+      renderOutput("Lead Analysis", summary, "json", { summary });
+    });
   });
 
-  window.addEventListener("hg:lead-drawer-closed", () => {
-    activeLead = null;
+  proposalButton?.addEventListener("click", () => {
+    runAction("Generate Proposal", lead => {
+      const summary = analyzeLead(lead);
+      setSummary(summary);
+      renderOutput("Proposal Markdown", renderProposal(lead, summary), "text", { summary });
+    });
   });
 
-  analyzeButton.addEventListener("click", () => runAction("Analyze Lead", lead => {
-    const summary = analyzeLead(lead);
-    setSummary(summary);
-    renderOutput("Lead Analysis", summary, "json", { summary });
-  }));
+  missingEmailButton?.addEventListener("click", () => {
+    runAction("Generate Missing Info Email", lead => {
+      const summary = analyzeLead(lead);
+      setSummary(summary);
+      renderOutput("Missing Info Gmail Draft", renderMissingInfoEmail(lead, summary), "text", {
+        summary
+      });
+    });
+  });
 
-  proposalButton.addEventListener("click", () => runAction("Generate Proposal", lead => {
-    const summary = analyzeLead(lead);
-    setSummary(summary);
-    renderOutput("Proposal Markdown", renderProposal(lead, summary), "text", { summary });
-  }));
-
-  missingEmailButton.addEventListener("click", () => runAction("Generate Missing Info Email", lead => {
-    const summary = analyzeLead(lead);
-    setSummary(summary);
-    renderOutput("Missing Info Gmail Draft", renderMissingInfoEmail(lead, summary), "text", { summary });
-  }));
-
-  proposalEmailButton.addEventListener("click", () => runAction("Generate Proposal Email", lead => {
-    const summary = analyzeLead(lead);
-    setSummary(summary);
-    renderOutput("Proposal Gmail Draft", renderProposalEmail(lead, summary), "text", { summary });
-  }));
+  proposalEmailButton?.addEventListener("click", () => {
+    runAction("Generate Proposal Email", lead => {
+      const summary = analyzeLead(lead);
+      setSummary(summary);
+      renderOutput("Proposal Gmail Draft", renderProposalEmail(lead, summary), "text", {
+        summary
+      });
+    });
+  });
 
   copyButton?.addEventListener("click", copyOutput);
   downloadButton?.addEventListener("click", () => downloadOutput("henggou-ai-action"));
   clearButton?.addEventListener("click", clearOutput);
+}
 
+function bindAiActionsDelegated() {
   document.addEventListener("click", event => {
     const button = event.target.closest("button");
     if (!button) return;
 
     const id = button.id;
-    if (![
-      "analyzeLeadAi",
-      "generateProposalAi",
-      "generateMissingInfoEmailAi",
-      "generateProposalEmailAi",
-      "copyAiActionOutput",
-      "downloadAiActionOutput",
-      "clearAiActionOutput"
-    ].includes(id)) return;
+
+    if (
+      ![
+        "analyzeLeadAi",
+        "generateProposalAi",
+        "generateMissingInfoEmailAi",
+        "generateProposalEmailAi",
+        "copyAiActionOutput",
+        "downloadAiActionOutput",
+        "clearAiActionOutput"
+      ].includes(id)
+    ) {
+      return;
+    }
 
     event.preventDefault();
 
@@ -493,7 +534,9 @@ function initAiActions() {
       runAction("Generate Missing Info Email", lead => {
         const summary = analyzeLead(lead);
         setSummary(summary);
-        renderOutput("Missing Info Gmail Draft", renderMissingInfoEmail(lead, summary), "text", { summary });
+        renderOutput("Missing Info Gmail Draft", renderMissingInfoEmail(lead, summary), "text", {
+          summary
+        });
       });
     }
 
@@ -501,7 +544,9 @@ function initAiActions() {
       runAction("Generate Proposal Email", lead => {
         const summary = analyzeLead(lead);
         setSummary(summary);
-        renderOutput("Proposal Gmail Draft", renderProposalEmail(lead, summary), "text", { summary });
+        renderOutput("Proposal Gmail Draft", renderProposalEmail(lead, summary), "text", {
+          summary
+        });
       });
     }
 
@@ -509,8 +554,26 @@ function initAiActions() {
     if (id === "downloadAiActionOutput") downloadOutput("henggou-ai-action");
     if (id === "clearAiActionOutput") clearOutput();
   });
+}
+
+function initAiActions() {
+  if (aiActionsInitialized) return;
+  aiActionsInitialized = true;
+
+  window.addEventListener("hg:lead-drawer-opened", event => {
+    activeLead = event.detail?.lead || null;
+    restoreLeadState(activeLead);
+  });
+
+  window.addEventListener("hg:lead-drawer-closed", () => {
+    activeLead = null;
+  });
+
+  bindAiActionsDirectly();
+  bindAiActionsDelegated();
 
   window.HGAiActionsReady = true;
+
   window.HGRunAiActionTest = () => {
     activeLead = leadFromDrawer();
     const summary = analyzeLead(activeLead);

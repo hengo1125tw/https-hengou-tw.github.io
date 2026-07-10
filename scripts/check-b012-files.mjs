@@ -18,13 +18,13 @@ if (missing.length) {
 }
 
 const version = fs.readFileSync("VERSION", "utf8").trim();
-if (!["v1.2.0-rc.1", "v1.2.0-rc.2", "v1.2.0-rc.3", "v1.2.0-rc.4", "v1.2.0-rc.5"].includes(version)) {
+if (!["v1.2.0-rc.1", "v1.2.0-rc.2", "v1.2.0-rc.3", "v1.2.0-rc.4", "v1.2.0-rc.5", "v1.2.0-rc.6"].includes(version)) {
   console.error(`Expected VERSION v1.2.0-rc.1 / rc.2 / rc.3, got ${version}`);
   process.exit(1);
 }
 
 const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
-if (!["1.2.0-rc.1", "1.2.0-rc.2", "1.2.0-rc.3", "1.2.0-rc.4", "1.2.0-rc.5"].includes(packageJson.version)) {
+if (!["1.2.0-rc.1", "1.2.0-rc.2", "1.2.0-rc.3", "1.2.0-rc.4", "1.2.0-rc.5", "1.2.0-rc.6"].includes(packageJson.version)) {
   console.error(`Expected package version 1.2.0-rc.1 / rc.2 / rc.3, got ${packageJson.version}`);
   process.exit(1);
 }

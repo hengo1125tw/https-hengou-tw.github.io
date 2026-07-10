@@ -42,3 +42,17 @@ node .\scripts\check-rc2-lead-row-hotfix.mjs
 Fixes production Admin status update failures by adding JSONP fallback and robust Apps Script response handling.
 
 Important: update and redeploy the Apps Script `Code.gs` included in this package.
+
+
+## v1.2.0-rc.4｜AI Actions Browser Hotfix
+
+Fixes unresponsive Admin AI Actions buttons on GitHub Pages by bundling the local action logic directly into `admin/js/admin-ai-actions.js`.
+
+No Apps Script backend redeployment is required for this hotfix.
+
+
+## v1.2.0-rc.5｜AI Actions Init Hotfix
+
+Fixes persistent unresponsive AI Actions by loading the AI Actions script as a non-module script with cache busting and delegated click fallback.
+
+No Apps Script backend redeployment is required.

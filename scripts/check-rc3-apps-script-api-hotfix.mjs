@@ -8,9 +8,9 @@ const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
 const adminHtml = fs.readFileSync("admin/index.html", "utf8");
 
 const checks = [
-  ["version file rc3", version === "v1.2.0-rc.3"],
-  ["package rc3", pkg.version === "1.2.0-rc.3"],
-  ["admin html rc3", adminHtml.includes("v1.2.0-rc.3")],
+  ["version file rc3", ["v1.2.0-rc.3", "v1.2.0-rc.4", "v1.2.0-rc.5"].includes(version)],
+  ["package rc3", ["1.2.0-rc.3", "1.2.0-rc.4", "1.2.0-rc.5"].includes(pkg.version)],
+  ["admin html rc3", (adminHtml.includes("v1.2.0-rc.3") || adminHtml.includes("v1.2.0-rc.4") || adminHtml.includes("v1.2.0-rc.5"))],
   ["admin request wrapper", adminApi.includes("async request(action")],
   ["admin jsonp fallback", adminApi.includes("jsonpRequest(action")],
   ["update status prefers jsonp", adminApi.includes('preferJsonp: true')],

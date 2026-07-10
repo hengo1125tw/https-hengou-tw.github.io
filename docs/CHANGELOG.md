@@ -351,3 +351,17 @@
 - Added structured Apps Script error responses for `doGet`.
 - Prevented Dashboard refresh failures from breaking Lead status updates.
 - Improved Admin API error messages.
+
+## v1.2.0-rc.4
+
+### Fixed
+- Admin AI Actions no longer depend on browser-loading package imports.
+- AI Actions now use a browser-bundled deterministic action layer.
+- Added `window.HGAiActionsReady` and `HGRunAiActionTest()` for production troubleshooting.
+
+## v1.2.0-rc.5
+
+### Fixed
+- AI Actions script now loads as non-module script with cache busting.
+- Added immediate initialization and delegated click fallback.
+- Added stronger production troubleshooting hooks.

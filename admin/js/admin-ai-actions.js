@@ -227,6 +227,10 @@ function renderMissingInfoEmail(lead = {}, analysis = analyzeLead(lead)) {
     `謝謝。`,
     "",
     `恒構企業社`
+    `宋先生`
+    `Email：hengo1125.tw@gmail.com`
+    `Line：@749ivaeq`
+    `電話：0978353910`
   ].join("\n");
 }
 

@@ -297,7 +297,7 @@
           </label>
           <label>備註<textarea name="note" rows="4" placeholder="請簡述目前想解決的流程或問題"></textarea></label>
           <button class="btn btn-primary form-button" type="submit">送出服務需求</button>
-          <p class="form-note">送出後會整理需求內容；公開網站將開啟 Email，也可改用 LINE 聯絡。</p>
+          <p class="form-note" id="leadFormNote">送出後將寫入需求紀錄並寄送通知；若服務異常，可改用 Gmail 或 LINE 聯絡。</p>
         </form>
       </div>
     </section>
@@ -411,6 +411,24 @@
   </div>
 
 
+  <dialog class="form-dialog" id="leadFallbackDialog">
+    <div class="form-dialog-head">
+      <div>
+        <small>備援聯絡</small>
+        <h2>表單目前無法完成送出</h2>
+      </div>
+      <button type="button" data-lead-dialog-close aria-label="關閉">×</button>
+    </div>
+    <p id="leadFallbackMessage">請改用 Gmail 或 LINE 傳送已整理的需求內容。</p>
+    <div class="form-dialog-actions">
+      <button class="btn btn-primary" type="button" id="leadGmailButton">開啟 Gmail</button>
+      <button class="btn form-dialog-secondary" type="button" id="leadCopyButton">複製需求內容</button>
+      <a class="btn form-dialog-secondary" id="leadLineButton" href="https://line.me/R/ti/p/@749ivaeq" target="_blank" rel="noopener">LINE 聯絡</a>
+    </div>
+  </dialog>
+
+  <script src="js/form-config.js"></script>
+  <script src="js/form-client.js"></script>
   <script src="js/public-form.js"></script>
 </body>
 </html>

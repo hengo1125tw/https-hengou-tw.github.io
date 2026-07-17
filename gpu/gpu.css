@@ -82,3 +82,9 @@
 
 @media(max-width:1000px){.gpu-hero-grid,.request-layout,.queue-layout{grid-template-columns:1fr}.request-copy{position:static}.use-case-grid,.compute-level-grid,.gpu-process{grid-template-columns:repeat(2,minmax(0,1fr))}.plan-grid{grid-template-columns:1fr}.gpu-footer{grid-template-columns:1fr}.gpu-footer>div{flex-wrap:wrap}}
 @media(max-width:720px){.gpu-hero{padding:64px 6%}.gpu-section{padding:64px 6%}.gpu-hero h1{letter-spacing:-1.5px}.use-case-grid,.compute-level-grid,.gpu-process,.queue-rules,.two-col{grid-template-columns:1fr}.console-titlebar{grid-template-columns:auto 1fr}.console-titlebar>span:nth-child(2){display:none}.gpu-footer{padding:30px 6%}.dialog-actions{display:grid}.dialog-actions .btn{width:100%}}
+
+/* Stage 2｜Actual form submit status */
+.dialog-status{margin:0;padding:13px 24px;border-bottom:1px solid #e2e8f0;background:#eff6ff;color:#1e40af;font-size:13px;font-weight:800}
+.dialog-status[data-state="success"]{background:#ecfdf5;color:#166534}
+.dialog-status[data-state="error"]{background:#fef2f2;color:#b91c1c}
+.dialog-actions button[disabled]{opacity:.62;cursor:wait;transform:none}

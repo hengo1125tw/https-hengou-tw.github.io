@@ -1,42 +1,143 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("leadForm");
-  const toast = document.getElementById("toast");
-  if (!form) return;
+(() => {
+  const formStartedAt = Date.now();
+  let latestSummary = "";
 
-  const showMessage = message => {
+  const $ = selector => document.querySelector(selector);
+  const form = $("#leadForm");
+  const toast = $("#toast");
+  const overlay = $("#loadingOverlay");
+  const fallbackDialog = $("#leadFallbackDialog");
+  const fallbackMessage = $("#leadFallbackMessage");
+  const submitButton = form?.querySelector('button[type="submit"]');
+  const client = window.HGFormClient;
+  let submitting = false;
+
+  if (!form || !client) return;
+
+  const clean = client.clean;
+
+  const showMessage = (message, type = "info") => {
     if (!toast) return;
     toast.textContent = message;
-    toast.className = "toast show info";
-    window.setTimeout(() => { toast.className = "toast"; }, 4200);
+    toast.className = `toast show ${type}`;
+    window.setTimeout(() => { toast.className = "toast"; }, 4600);
   };
 
-  form.addEventListener("submit", event => {
+  const setBusy = busy => {
+    if (submitButton) {
+      submitButton.disabled = busy;
+      submitButton.textContent = busy ? "正在送出…" : "送出服務需求";
+    }
+    overlay?.classList.toggle("show", busy);
+    overlay?.setAttribute("aria-hidden", String(!busy));
+  };
+
+  const buildSummary = data => [
+    "【HengGou AI 服務需求】",
+    "",
+    `公司：${clean(data.get("company"))}`,
+    `姓名：${clean(data.get("name"))}`,
+    `Email：${clean(data.get("email"))}`,
+    `LINE：${clean(data.get("line")) || "未提供"}`,
+    `需求：${clean(data.get("needs"))}`,
+    "",
+    `補充說明：${clean(data.get("note")) || "無"}`
+  ].join("\n");
+
+  const validate = data => {
+    if (clean(data.get("website"))) return { ok: false, spam: true };
+    const required = [
+      ["company", "請填寫公司名稱。"],
+      ["name", "請填寫姓名。"],
+      ["email", "請填寫 Email。"],
+      ["needs", "請選擇需求項目。"]
+    ];
+
+    for (const [field, message] of required) {
+      if (!clean(data.get(field))) return { ok: false, message, field };
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean(data.get("email")))) {
+      return { ok: false, message: "Email 格式不正確。", field: "email" };
+    }
+
+    return { ok: true };
+  };
+
+  const showFallback = message => {
+    if (fallbackMessage) fallbackMessage.textContent = message;
+    if (fallbackDialog?.showModal) fallbackDialog.showModal();
+    else showMessage(message, "error");
+  };
+
+  form.addEventListener("submit", async event => {
     event.preventDefault();
+    if (submitting) return;
     const data = new FormData(form);
-    const company = String(data.get("company") || "").trim();
-    const name = String(data.get("name") || "").trim();
-    const email = String(data.get("email") || "").trim();
-    const line = String(data.get("line") || "").trim();
-    const needs = String(data.get("needs") || "").trim();
-    const note = String(data.get("note") || "").trim();
-    const honeypot = String(data.get("website") || "").trim();
+    const result = validate(data);
 
-    if (honeypot) { form.reset(); showMessage("需求已送出。"); return; }
-    if (!company || !name || !email || !needs) { showMessage("請填寫公司、姓名、Email 與需求項目。"); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showMessage("Email 格式不正確。"); return; }
+    if (result.spam) {
+      form.reset();
+      showMessage("需求已送出。", "success");
+      return;
+    }
 
-    const body = [
-      "【HengGou AI 服務需求】", "",
-      "公司：" + company,
-      "姓名：" + name,
-      "Email：" + email,
-      "LINE：" + (line || "未提供"),
-      "需求：" + needs, "",
-      "補充說明：" + (note || "無")
-    ].join("\n");
+    if (!result.ok) {
+      showMessage(result.message, "error");
+      form.elements[result.field]?.focus();
+      return;
+    }
 
-    const subject = encodeURIComponent("HengGou AI 服務需求｜" + company);
-    window.location.href = "mailto:hengo1125.tw@gmail.com?subject=" + subject + "&body=" + encodeURIComponent(body);
-    showMessage("已整理需求並開啟 Email；也可改用 LINE 聯絡。 ");
+    latestSummary = buildSummary(data);
+    const payload = {
+      formType: "general",
+      source: "website-home",
+      company: clean(data.get("company")),
+      name: clean(data.get("name")),
+      email: clean(data.get("email")),
+      line: clean(data.get("line")),
+      needs: clean(data.get("needs")),
+      note: clean(data.get("note")),
+      honeypot: clean(data.get("website")),
+      formStartedAt,
+      submittedAt: Date.now()
+    };
+
+    submitting = true;
+    setBusy(true);
+    const response = await client.submit(payload);
+    submitting = false;
+    setBusy(false);
+
+    if (response.ok) {
+      form.reset();
+      showMessage(response.message, "success");
+      return;
+    }
+
+    showMessage(response.message, "error");
+    showFallback(response.message);
   });
-});
+
+  $("[data-lead-dialog-close]")?.addEventListener("click", () => fallbackDialog?.close());
+  fallbackDialog?.addEventListener("click", event => {
+    if (event.target === fallbackDialog) fallbackDialog.close();
+  });
+
+  $("#leadGmailButton")?.addEventListener("click", () => {
+    const company = clean(new FormData(form).get("company")) || "網站客戶";
+    client.openGmail(`HengGou AI 服務需求｜${company}`, latestSummary || "請協助我評估服務需求。 ");
+  });
+
+  $("#leadCopyButton")?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(latestSummary);
+      showMessage("需求內容已複製。", "success");
+    } catch {
+      showMessage("無法自動複製，請改用 Gmail 或 LINE。", "error");
+    }
+  });
+
+  const lineButton = $("#leadLineButton");
+  if (lineButton) lineButton.href = client.lineUrl();
+})();

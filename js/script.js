@@ -1,10 +1,10 @@
 const slides = [
-  "images/products/paper-cushion/06.jpg",
-  "images/products/paper-cushion/04.jpg",
-  "images/products/paper-cushion/03.jpg",
-  "images/products/paper-cushion/02.jpg",
-  "images/products/paper-cushion/main.jpg",
-  "images/products/paper-cushion/01.jpg"
+  "assets/images/products/paper-cushion/06.jpg",
+  "assets/images/products/paper-cushion/04.jpg",
+  "assets/images/products/paper-cushion/03.jpg",
+  "assets/images/products/paper-cushion/02.jpg",
+  "assets/images/products/paper-cushion/main.jpg",
+  "assets/images/products/paper-cushion/01.jpg"
 ];
 
 let currentSlide = 0;

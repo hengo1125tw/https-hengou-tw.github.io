@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>客戶入口｜HengGou AI Platform</title>
+  <meta name="description" content="HengGou AI Platform 客戶入口介面，規劃提供方案、剩餘時數、預約排程、工作站狀態與技術支援。" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#08111f" />
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="portal.css" />
+</head>
+<body>
+  <header class="portal-topbar">
+    <a class="portal-brand" href="../index.html"><span>HG</span><strong>HengGou Compute</strong></a>
+    <nav><a href="../gpu/">GPU 算力服務</a><a href="../index.html#contact">聯絡我們</a></nav>
+  </header>
+
+  <main class="portal-main">
+    <section class="portal-login" id="loginView">
+      <div class="login-copy">
+        <span class="status-pill"><i></i>入口介面已完成，帳戶服務尚未啟用</span>
+        <p class="portal-kicker">CUSTOMER PORTAL</p>
+        <h1>集中查看方案、額度、排程與工作站狀態。</h1>
+        <p>本頁為第一階段入口介面。正式登入、付款、GPU 啟停與原廠平台連線，需待合作條件與後端權限完成後才會啟用。</p>
+        <ul>
+          <li>查看月租方案與剩餘時數</li>
+          <li>提交或調整 GPU 預約</li>
+          <li>取得工作環境與連線入口</li>
+          <li>回報技術問題與查詢處理狀態</li>
+        </ul>
+      </div>
+
+      <div class="login-panel">
+        <div class="login-panel-head"><span>客戶登入</span><small>Stage 1</small></div>
+        <form id="portalLoginForm" novalidate>
+          <label>Email<input type="email" name="email" required placeholder="name@example.com" autocomplete="email" /></label>
+          <label>密碼<input type="password" name="password" required placeholder="帳戶開通後提供" autocomplete="current-password" /></label>
+          <div class="login-options"><label><input type="checkbox" />記住此裝置</label><button type="button" id="forgotButton">忘記密碼</button></div>
+          <button class="portal-primary" type="submit">登入客戶入口</button>
+        </form>
+        <div class="login-divider"><span>目前可先查看</span></div>
+        <button class="portal-secondary" id="demoButton" type="button">進入展示模式</button>
+        <p class="login-note">展示模式不會建立帳戶、不會連接 GPU，也不會保存輸入的密碼。</p>
+        <a class="request-link" href="../gpu/#request">尚未申請？提交算力需求 →</a>
+      </div>
+    </section>
+
+    <section class="dashboard-view" id="dashboardView" hidden>
+      <aside class="dashboard-sidebar">
+        <a class="portal-brand side-brand" href="../index.html"><span>HG</span><strong>Compute</strong></a>
+        <nav>
+          <button class="active" data-panel="overview"><span>總覽</span></button>
+          <button data-panel="reservation"><span>預約排程</span></button>
+          <button data-panel="usage"><span>使用紀錄</span></button>
+          <button data-panel="support"><span>技術支援</span></button>
+        </nav>
+        <div class="sidebar-bottom"><small>DEMO MODE</small><button id="exitDemoButton" type="button">離開展示</button></div>
+      </aside>
+
+      <div class="dashboard-content">
+        <header class="dashboard-header">
+          <div><p>客戶入口</p><h2 id="dashboardTitle">總覽</h2></div>
+          <div class="account-badge"><span>展示帳戶</span><i>DEMO</i></div>
+        </header>
+
+        <section class="portal-panel active" data-panel-content="overview">
+          <div class="notice-banner"><strong>尚未連接正式服務</strong><span>下列資料為介面示意，不代表已購買或保留任何設備。</span></div>
+          <div class="metric-grid">
+            <article><span>目前方案</span><strong>標準算力月租</strong><small>展示資料</small></article>
+            <article><span>剩餘時數</span><strong>62.5 <em>hr</em></strong><small>本期 100 小時</small></article>
+            <article><span>下次預約</span><strong>07/20 18:00</strong><small>4 小時</small></article>
+            <article><span>工作站狀態</span><strong class="waiting-text">未配置</strong><small>等待正式開通</small></article>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="dashboard-card workspace-card">
+              <div class="card-heading"><div><span>GPU WORKSPACE</span><h3>工作站連線</h3></div><i class="status-dot"></i></div>
+              <div class="workspace-detail"><span>算力等級</span><strong>24–32GB VRAM</strong></div>
+              <div class="workspace-detail"><span>環境</span><strong>Jupyter / PyTorch</strong></div>
+              <div class="workspace-detail"><span>資料保存</span><strong>尚未設定</strong></div>
+              <button class="disabled-action" type="button" disabled>等待帳戶配置</button>
+            </article>
+
+            <article class="dashboard-card">
+              <div class="card-heading"><div><span>NEXT RESERVATION</span><h3>預約摘要</h3></div></div>
+              <div class="schedule-item"><div><b>20</b><small>JUL</small></div><p><strong>18:00–22:00</strong><span>標準算力｜YOLO 訓練</span></p></div>
+              <div class="schedule-item muted"><div><b>24</b><small>JUL</small></div><p><strong>19:00–23:00</strong><span>標準算力｜模型驗證</span></p></div>
+              <button class="text-action" type="button" data-go-panel="reservation">管理預約 →</button>
+            </article>
+          </div>
+        </section>
+
+        <section class="portal-panel" data-panel-content="reservation">
+          <div class="panel-heading"><div><p>SCHEDULING</p><h3>預約排程</h3></div><span>展示模式</span></div>
+          <div class="reservation-layout">
+            <form class="reservation-form" id="reservationForm">
+              <label>使用日期<input type="date" name="date" required /></label>
+              <div class="two-columns"><label>開始時間<input type="time" name="start" required /></label><label>預估時數<input type="number" name="hours" min="1" max="24" value="4" required /></label></div>
+              <label>算力等級<select name="level"><option>標準算力｜24–32GB</option><option>入門算力｜12–16GB</option><option>專業算力｜48–96GB</option><option>高階算力｜80GB+</option></select></label>
+              <label>工作內容<textarea name="task" rows="4" placeholder="例如 YOLO 訓練、ComfyUI 批次出圖"></textarea></label>
+              <label class="inline-check"><input type="checkbox" name="equivalent" checked />接受同級或更高規格替代</label>
+              <button class="portal-primary" type="submit">新增展示預約</button>
+            </form>
+            <div class="reservation-list">
+              <div class="reservation-row"><span>07/20</span><strong>18:00–22:00</strong><em>已排程</em><small>YOLO 訓練</small></div>
+              <div class="reservation-row"><span>07/24</span><strong>19:00–23:00</strong><em>已排程</em><small>模型驗證</small></div>
+              <div id="demoReservationList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="portal-panel" data-panel-content="usage">
+          <div class="panel-heading"><div><p>USAGE</p><h3>使用紀錄</h3></div><span>展示資料</span></div>
+          <div class="usage-chart" aria-label="展示用量長條圖">
+            <div><i style="height:35%"></i><span>一</span></div><div><i style="height:65%"></i><span>二</span></div><div><i style="height:20%"></i><span>三</span></div><div><i style="height:80%"></i><span>四</span></div><div><i style="height:45%"></i><span>五</span></div><div><i style="height:15%"></i><span>六</span></div><div><i style="height:55%"></i><span>日</span></div>
+          </div>
+          <div class="usage-table"><div class="table-head"><span>日期</span><span>工作內容</span><span>時數</span><span>狀態</span></div><div><span>2026/07/16</span><span>YOLO 訓練</span><span>5.5 hr</span><span>已完成</span></div><div><span>2026/07/14</span><span>環境測試</span><span>2.0 hr</span><span>已完成</span></div><div><span>2026/07/12</span><span>資料前處理</span><span>4.0 hr</span><span>已完成</span></div></div>
+        </section>
+
+        <section class="portal-panel" data-panel-content="support">
+          <div class="panel-heading"><div><p>SUPPORT</p><h3>技術支援</h3></div><span>尚未啟用</span></div>
+          <div class="support-grid">
+            <article><h4>環境與連線</h4><p>Jupyter、SSH、CUDA、套件安裝與連線問題。</p><button type="button" data-support="環境與連線">建立工單</button></article>
+            <article><h4>用量與排程</h4><p>剩餘時數、預約衝突、延期與超時需求。</p><button type="button" data-support="用量與排程">建立工單</button></article>
+            <article><h4>專案協助</h4><p>YOLO、ComfyUI、模型部署與完整導入評估。</p><button type="button" data-support="專案協助">聯絡顧問</button></article>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div class="portal-toast" id="portalToast" role="status" aria-live="polite"></div>
+  <script src="portal.js"></script>
+</body>
+</html>

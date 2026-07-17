@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GPU 算力服務｜HengGou AI Platform</title>
+  <meta name="description" content="恒構企業社規劃提供 GPU 算力租用、固定月租、專屬工作站與 AI 環境建置，適用 YOLO、ComfyUI、Jupyter、LLM 與企業 AI 專案。" />
+  <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#07111f" />
+  <link rel="canonical" href="https://hengo1125tw.github.io/https-hengou-tw.github.io/gpu/" />
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="gpu.css" />
+</head>
+<body class="gpu-page">
+  <header class="site-header gpu-header" id="top">
+    <a class="logo" href="../index.html" aria-label="HengGou AI Platform 首頁">
+      <span class="logo-mark">HG</span>
+      <span>HengGou AI</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-label="開啟選單" aria-expanded="false">☰</button>
+    <nav class="site-nav" aria-label="GPU 算力服務選單">
+      <a href="#use-cases">用途</a>
+      <a href="#compute-levels">算力等級</a>
+      <a href="#plans">方案</a>
+      <a href="#process">流程</a>
+      <a href="#request">需求申請</a>
+      <a class="nav-portal-link" href="../portal/">客戶入口</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="gpu-hero">
+      <div class="gpu-hero-grid">
+        <div class="gpu-hero-copy">
+          <span class="service-status"><i></i>供應與合作方案確認中</span>
+          <p class="gpu-kicker">GPU COMPUTE SERVICE</p>
+          <h1>需要算力時再使用，<br>不必先買高階工作站。</h1>
+          <p class="gpu-lead">
+            依用途、顯示記憶體、使用時數與技術需求規劃 GPU 環境，支援模型訓練、影像生成、
+            AI 推論與企業專案。正式設備、售價及服務範圍以合作確認後的書面方案為準。
+          </p>
+          <div class="gpu-hero-actions">
+            <a class="btn btn-primary" href="#request">提交算力需求</a>
+            <a class="btn gpu-btn-ghost" href="../portal/">查看客戶入口</a>
+          </div>
+          <div class="gpu-trust-row">
+            <span>需求導向選型</span>
+            <span>固定時段規劃</span>
+            <span>技術環境協助</span>
+          </div>
+        </div>
+
+        <div class="compute-console" aria-label="GPU 算力服務介面示意">
+          <div class="console-titlebar">
+            <span class="console-dots"><i></i><i></i><i></i></span>
+            <span>HengGou Compute Console</span>
+            <span class="console-state">PLANNING</span>
+          </div>
+          <div class="console-body">
+            <div class="console-metric">
+              <span>工作負載</span>
+              <strong>YOLO Training</strong>
+            </div>
+            <div class="console-metric">
+              <span>建議顯示記憶體</span>
+              <strong>24–32 GB</strong>
+            </div>
+            <div class="console-metric">
+              <span>供應方式</span>
+              <strong>預約 / 月租</strong>
+            </div>
+            <div class="console-progress">
+              <div class="console-progress-label"><span>環境準備</span><span>80%</span></div>
+              <div class="console-progress-track"><i></i></div>
+            </div>
+            <div class="console-log">
+              <p><span>01</span>確認模型、資料量與框架</p>
+              <p><span>02</span>配置 GPU、儲存與使用時段</p>
+              <p><span>03</span>建立工作環境與連線入口</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="gpu-section" id="use-cases">
+      <div class="gpu-section-heading">
+        <p>USE CASES</p>
+        <h2>先確認工作內容，再決定 GPU。</h2>
+        <span>相同 GPU 型號不代表整體效能相同，CPU、RAM、儲存與網路也會影響實際使用體驗。</span>
+      </div>
+      <div class="use-case-grid">
+        <article class="use-case-card">
+          <b>01</b><h3>YOLO / AOI 視覺模型</h3>
+          <p>資料前處理、物件偵測訓練、驗證與模型匯出。</p>
+          <small>常見需求：24GB 以上 VRAM</small>
+        </article>
+        <article class="use-case-card">
+          <b>02</b><h3>ComfyUI / 圖像生成</h3>
+          <p>Stable Diffusion、工作流測試、批次出圖與模型載入。</p>
+          <small>常見需求：16–32GB VRAM</small>
+        </article>
+        <article class="use-case-card">
+          <b>03</b><h3>LLM / RAG / 推論服務</h3>
+          <p>開源模型測試、量化推論、內部知識庫與 API 服務。</p>
+          <small>依模型大小評估 VRAM</small>
+        </article>
+        <article class="use-case-card">
+          <b>04</b><h3>Jupyter / 科學運算</h3>
+          <p>CUDA、PyTorch、TensorFlow、資料分析與工程驗證。</p>
+          <small>需同步確認 CPU、RAM、SSD</small>
+        </article>
+      </div>
+    </section>
+
+    <section class="gpu-section compute-level-section" id="compute-levels">
+      <div class="gpu-section-heading light-heading">
+        <p>COMPUTE LEVELS</p>
+        <h2>以能力等級報價，不綁死單一型號。</h2>
+        <span>供應不足時，可依客戶書面同意改配同級或更高規格，降低等待與中斷風險。</span>
+      </div>
+      <div class="compute-level-grid">
+        <article>
+          <span class="level-label">LEVEL 1</span>
+          <h3>入門算力</h3><strong>12–16GB</strong>
+          <p>基礎推論、影像處理、測試與輕量生成。</p>
+        </article>
+        <article class="featured">
+          <span class="level-label">LEVEL 2</span>
+          <span class="recommended">建議起步</span>
+          <h3>標準算力</h3><strong>24–32GB</strong>
+          <p>YOLO、ComfyUI、一般模型訓練與工程開發。</p>
+        </article>
+        <article>
+          <span class="level-label">LEVEL 3</span>
+          <h3>專業算力</h3><strong>48–96GB</strong>
+          <p>大型模型、企業訓練、多模型並行與高負載工作。</p>
+        </article>
+        <article>
+          <span class="level-label">LEVEL 4</span>
+          <h3>高階算力</h3><strong>80GB+</strong>
+          <p>大型語言模型、企業級推論與高記憶體工作負載。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="gpu-section" id="plans">
+      <div class="gpu-section-heading">
+        <p>SERVICE PLANS</p>
+        <h2>從臨時使用到固定月租。</h2>
+        <span>目前先接受需求評估，不公開固定價格，避免供應與月租條件尚未確認時產生錯誤承諾。</span>
+      </div>
+      <div class="plan-grid">
+        <article class="plan-card">
+          <span>彈性計時</span><h3>臨時算力</h3>
+          <p>適合短期測試、偶發訓練或臨時增加算力。</p>
+          <ul><li>依實際使用時數</li><li>預約制</li><li>可加購環境建置</li></ul>
+          <a href="#request">提出需求</a>
+        </article>
+        <article class="plan-card primary-plan">
+          <span>固定額度</span><h3>月租方案</h3>
+          <p>適合每月有固定訓練量或固定工作時段的客戶。</p>
+          <ul><li>固定月時數</li><li>可預約固定時段</li><li>用量與超時管理</li></ul>
+          <a href="#request">申請評估</a>
+        </article>
+        <article class="plan-card">
+          <span>固定容量</span><h3>專屬工作站</h3>
+          <p>適合企業專案、固定環境或不希望與他人共用資源。</p>
+          <ul><li>固定規格</li><li>持久儲存</li><li>故障替代條件</li></ul>
+          <a href="#request">洽談專案</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="gpu-section queue-section">
+      <div class="queue-layout">
+        <div>
+          <p class="gpu-kicker dark-kicker">CAPACITY CONTROL</p>
+          <h2>排隊問題不靠運氣，靠容量規則。</h2>
+          <p>正式服務將採用預約、保留容量與備援供應三層管理。未經確認不超賣，並保留必要的緩衝時數處理延長、故障與尖峰需求。</p>
+        </div>
+        <div class="queue-rules">
+          <div><b>80%</b><span>可銷售容量上限</span></div>
+          <div><b>20%</b><span>延遲與故障緩衝</span></div>
+          <div><b>2+</b><span>規劃備援供應來源</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="gpu-section process-section" id="process">
+      <div class="gpu-section-heading">
+        <p>HOW IT WORKS</p>
+        <h2>從需求到開通的標準流程。</h2>
+      </div>
+      <ol class="gpu-process">
+        <li><span>01</span><div><h3>提交需求</h3><p>用途、軟體、VRAM、時數、時段與儲存需求。</p></div></li>
+        <li><span>02</span><div><h3>規格評估</h3><p>確認 GPU 等級、CPU、RAM、SSD、網路與備援條件。</p></div></li>
+        <li><span>03</span><div><h3>報價與排程</h3><p>確認價格、使用期間、超時、資料保存及技術支援。</p></div></li>
+        <li><span>04</span><div><h3>建立入口</h3><p>分配客戶帳戶、工作環境與連線方式。</p></div></li>
+      </ol>
+    </section>
+
+    <section class="gpu-section request-section" id="request">
+      <div class="request-layout">
+        <div class="request-copy">
+          <p class="gpu-kicker">REQUIREMENT INTAKE</p>
+          <h2>提交 GPU 算力需求</h2>
+          <p>資料越完整，越能避免選錯規格。此表單目前用於需求評估，不代表設備已保留或服務已成立。</p>
+          <div class="request-contact">
+            <span>Email</span><a href="mailto:hengo1125.tw@gmail.com">hengo1125.tw@gmail.com</a>
+            <span>LINE</span><a href="https://line.me/R/ti/p/@749ivaeq" target="_blank" rel="noopener">@749ivaeq</a>
+            <span>電話</span><a href="tel:+886978353910">0978-353-910</a>
+          </div>
+        </div>
+
+        <form class="gpu-request-form" id="gpuRequestForm" novalidate>
+          <input type="text" name="website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <div class="form-grid two-col">
+            <label>公司 / 單位名稱<input type="text" name="company" required placeholder="公司、工作室或學校" /></label>
+            <label>聯絡人<input type="text" name="name" required placeholder="請輸入姓名" /></label>
+            <label>Email<input type="email" name="email" required placeholder="name@example.com" /></label>
+            <label>電話<input type="tel" name="phone" placeholder="09xx-xxx-xxx" /></label>
+            <label>LINE ID<input type="text" name="line" placeholder="選填" /></label>
+            <label>預計開始日期<input type="date" name="startDate" /></label>
+          </div>
+
+          <label>主要用途
+            <select name="useCase" required>
+              <option value="">請選擇</option>
+              <option>YOLO / AOI 視覺模型訓練</option>
+              <option>ComfyUI / AI 圖像生成</option>
+              <option>LLM / RAG / 模型推論</option>
+              <option>Jupyter / CUDA / 科學運算</option>
+              <option>其他 AI 或工程運算</option>
+            </select>
+          </label>
+
+          <div class="form-grid two-col">
+            <label>使用軟體 / 框架<input type="text" name="software" placeholder="例如 PyTorch、Ultralytics、ComfyUI" /></label>
+            <label>最低 VRAM
+              <select name="vram">
+                <option>不確定，請協助評估</option>
+                <option>12–16GB</option><option>24–32GB</option><option>48–96GB</option><option>80GB 以上</option>
+              </select>
+            </label>
+            <label>供應方式
+              <select name="scheduleType" required>
+                <option value="">請選擇</option>
+                <option>臨時計時 / 預約制</option>
+                <option>每月固定時數</option>
+                <option>每日固定時段</option>
+                <option>24 小時專屬月租</option>
+                <option>尚未確定</option>
+              </select>
+            </label>
+            <label>每月預估使用時數<input type="number" name="hoursPerMonth" min="1" max="744" placeholder="例如 80" /></label>
+            <label>固定使用時段<input type="text" name="fixedTime" placeholder="例如 週一至週五 18:00–22:00" /></label>
+            <label>持久儲存需求<input type="text" name="storage" placeholder="例如 500GB，需保存 30 天" /></label>
+            <label>技術支援
+              <select name="support">
+                <option>只需算力</option>
+                <option>需要環境安裝</option>
+                <option>需要模型訓練協助</option>
+                <option>需要完整專案導入</option>
+              </select>
+            </label>
+            <label>預算範圍
+              <select name="budget">
+                <option>尚未確定</option>
+                <option>每月 NT$3,000 以下</option>
+                <option>每月 NT$3,000–10,000</option>
+                <option>每月 NT$10,000–30,000</option>
+                <option>每月 NT$30,000 以上</option>
+              </select>
+            </label>
+          </div>
+
+          <label>補充說明<textarea name="note" rows="5" placeholder="模型大小、資料量、目前設備、預計同時使用人數或其他限制"></textarea></label>
+          <label class="check-label"><input type="checkbox" name="allowEquivalent" value="是" />若指定型號缺貨，接受先評估同級或更高規格替代</label>
+          <label class="check-label"><input type="checkbox" name="consent" required />我了解此表單僅供需求評估，實際規格、價格、排程及服務條款需另行書面確認</label>
+          <button class="btn btn-primary gpu-submit" type="submit">整理並提交需求</button>
+          <p class="form-security-note">網站不會要求您提供 GPU 平台密碼、私鑰或付款卡號。</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="gpu-footer">
+    <div><strong>HengGou AI Platform</strong><span>Operated by 恒構企業社</span></div>
+    <div><a href="../index.html">公司官網</a><a href="../portal/">客戶入口</a><a href="#top">回到頂部</a></div>
+    <small>© 2026 HengGou. GPU 算力服務為規劃中項目，未宣稱任何原廠代理或官方合作關係。</small>
+  </footer>
+
+  <dialog class="request-dialog" id="requestDialog">
+    <div class="dialog-head"><div><small>需求摘要</small><h2>請確認後選擇傳送方式</h2></div><button type="button" data-close aria-label="關閉">×</button></div>
+    <pre id="requestSummary"></pre>
+    <div class="dialog-actions">
+      <button class="btn btn-primary" type="button" id="openEmailButton">開啟 Email</button>
+      <button class="btn dialog-secondary" type="button" id="copyRequestButton">複製內容</button>
+      <a class="btn dialog-secondary" href="https://line.me/R/ti/p/@749ivaeq" target="_blank" rel="noopener">LINE 聯絡</a>
+    </div>
+  </dialog>
+  <div class="toast" id="gpuToast" role="status" aria-live="polite"></div>
+  <script src="gpu.js"></script>
+</body>
+</html>

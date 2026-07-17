@@ -768,3 +768,6 @@ img{max-width:100%}
 @media(prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.01ms !important}}
 @media(max-width:520px){.hero-actions .btn{width:100%}.section-heading h2{font-size:28px}.lead-form,.waiting-copy,.card,.about,.contact{padding:22px}}
 @media print{.site-header,.site-footer,.hero-actions,.carousel-btn,.carousel-dots{display:none !important}body{background:white;color:black}.section,.hero{padding:20px}}
+
+/* GPU service Stage 1 additions */
+.card-link{margin-top:14px!important}.card-link a{color:var(--primary);font-weight:900;text-decoration:none}.cloud-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}.cloud-secondary{color:#fff;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08)}.inline-service-link{display:inline-flex;margin-top:18px;color:var(--primary);font-weight:900;text-decoration:none}

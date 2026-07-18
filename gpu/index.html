@@ -293,14 +293,14 @@
   </footer>
 
   <dialog class="request-dialog" id="requestDialog">
-    <div class="dialog-head"><div><small>需求摘要</small><h2>請確認後選擇傳送方式</h2></div><button type="button" data-close aria-label="關閉">×</button></div>
+    <div class="dialog-head"><div><small>需求摘要</small><h2>請確認需求內容</h2></div><button type="button" data-close aria-label="關閉">×</button></div>
     <pre id="requestSummary"></pre>
     <p class="dialog-status" id="requestDialogStatus">請確認內容，按下「確認送出」後才會正式提交。</p>
     <div class="dialog-actions">
       <button class="btn btn-primary" type="button" id="sendRequestButton">確認送出</button>
-      <button class="btn dialog-secondary" type="button" id="openEmailButton">Gmail 備援</button>
-      <button class="btn dialog-secondary" type="button" id="copyRequestButton">複製內容</button>
-      <a class="btn dialog-secondary" href="https://line.me/R/ti/p/@749ivaeq" target="_blank" rel="noopener">LINE 聯絡</a>
+      <button class="btn dialog-secondary fallback-only" type="button" id="openEmailButton" hidden>Gmail 備援</button>
+      <button class="btn dialog-secondary fallback-only" type="button" id="copyRequestButton" hidden>複製內容</button>
+      <a class="btn dialog-secondary fallback-only" id="dialogLineButton" href="https://line.me/R/ti/p/@749ivaeq" target="_blank" rel="noopener" hidden>LINE 聯絡</a>
     </div>
   </dialog>
   <div class="toast" id="gpuToast" role="status" aria-live="polite"></div>

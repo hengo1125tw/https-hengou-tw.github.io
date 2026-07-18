@@ -8,6 +8,7 @@
   const status = $("#requestDialogStatus");
   const sendButton = $("#sendRequestButton");
   const client = window.HGFormClient;
+  const fallbackActions = [...document.querySelectorAll(".fallback-only")];
   let latestText = "";
   let latestPayload = null;
   let submitting = false;
@@ -33,6 +34,12 @@
     if (!sendButton) return;
     sendButton.disabled = busy;
     sendButton.textContent = busy ? "正在送出…" : "確認送出";
+  };
+
+  const setFallbackVisible = visible => {
+    fallbackActions.forEach(element => {
+      element.hidden = !visible;
+    });
   };
 
   const buildSummary = data => [
@@ -144,7 +151,8 @@
     latestText = buildSummary(data);
     latestPayload = toPayload(data);
     if (summary) summary.textContent = latestText;
-    setStatus("請確認內容，按下「確認送出」後才會正式提交。", "info");
+    setFallbackVisible(false);
+    setStatus("請確認內容，按下「確認送出」後會直接寫入需求紀錄。", "info");
     if (dialog?.showModal) dialog.showModal();
     else showToast("瀏覽器不支援確認視窗，請改用 Gmail 或 LINE。 ");
   });
@@ -153,7 +161,8 @@
     if (!latestPayload || submitting) return;
     submitting = true;
     setBusy(true);
-    setStatus("正在傳送需求資料…", "info");
+    setFallbackVisible(false);
+    setStatus("正在傳送需求資料至需求紀錄…", "info");
     const response = await client.submit(latestPayload);
     submitting = false;
     setBusy(false);
@@ -167,7 +176,8 @@
       return;
     }
 
-    setStatus(`${response.message} 下方可直接使用 Gmail、複製內容或 LINE 備援。`, "error");
+    setFallbackVisible(true);
+    setStatus(`${response.message} 可改用下方 Gmail、複製內容或 LINE 備援。`, "error");
     showToast(response.message);
   });
 
@@ -189,6 +199,6 @@
     client.openGmail("GPU 算力需求申請｜恒構企業社", latestText);
   });
 
-  const lineLink = dialog?.querySelector('a[href*="line.me"]');
+  const lineLink = $("#dialogLineButton");
   if (lineLink) lineLink.href = client.lineUrl();
 })();

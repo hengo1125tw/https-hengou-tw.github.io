@@ -22,6 +22,10 @@ assert.match(homeForm, /if \(submitting\) return/, "Home form must block duplica
 assert.match(gpuForm, /if \(!latestPayload \|\| submitting\) return/, "GPU form must block duplicate submissions");
 assert.match(home, /leadGmailButton[\s\S]*leadCopyButton[\s\S]*leadLineButton/, "Home fallback actions are incomplete");
 assert.match(gpu, /openEmailButton[\s\S]*copyRequestButton[\s\S]*line\.me/, "GPU fallback actions are incomplete");
+assert.equal((gpu.match(/class="btn dialog-secondary fallback-only"/g) || []).length, 3, "GPU fallback actions must be grouped");
+assert.equal((gpu.match(/fallback-only[^>]*hidden/g) || []).length, 3, "GPU fallback actions must be hidden initially");
+assert.match(gpuForm, /setFallbackVisible\(false\)[\s\S]*client\.submit\(latestPayload\)/, "GPU fallbacks must stay hidden during submission");
+assert.match(gpuForm, /setFallbackVisible\(true\)[\s\S]*Gmail、複製內容或 LINE 備援/, "GPU fallbacks must appear after failure");
 assert.match(home, /name="email"[^>]*type="email"|type="email"[^>]*name="email"/, "Home email field must use type=email");
 assert.match(gpu, /name="email"[^>]*type="email"|type="email"[^>]*name="email"/, "GPU email field must use type=email");
 assert.equal((home.match(/id="leadForm"/g) || []).length, 1, "Home form must be unique");

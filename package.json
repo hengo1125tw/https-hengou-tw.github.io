@@ -49,6 +49,7 @@
     "check:rc3": "node scripts/check-rc3-apps-script-api-hotfix.mjs",
     "check:rc4": "node scripts/check-rc4-ai-actions-browser-hotfix.mjs",
     "check:rc5": "node scripts/check-rc5-ai-actions-init-hotfix.mjs",
-    "check:rc6": "node scripts/check-rc6-email-template-hotfix.mjs"
+    "check:rc6": "node scripts/check-rc6-email-template-hotfix.mjs",
+    "check:stage2-form": "node scripts/check-stage2-form.mjs"
   }
 }

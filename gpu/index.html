@@ -279,8 +279,8 @@
           <label>補充說明<textarea name="note" rows="5" placeholder="模型大小、資料量、目前設備、預計同時使用人數或其他限制"></textarea></label>
           <label class="check-label"><input type="checkbox" name="allowEquivalent" value="是" />若指定型號缺貨，接受先評估同級或更高規格替代</label>
           <label class="check-label"><input type="checkbox" name="consent" required />我了解此表單僅供需求評估，實際規格、價格、排程及服務條款需另行書面確認</label>
-          <button class="btn btn-primary gpu-submit" type="submit">整理並提交需求</button>
-          <p class="form-security-note">網站不會要求您提供 GPU 平台密碼、私鑰或付款卡號。</p>
+          <button class="btn btn-primary gpu-submit" type="submit">整理並送出需求</button>
+          <p class="form-security-note">送出後將寫入需求紀錄並寄送通知；網站不會要求 GPU 平台密碼、私鑰或付款卡號。</p>
         </form>
       </div>
     </section>
@@ -295,13 +295,17 @@
   <dialog class="request-dialog" id="requestDialog">
     <div class="dialog-head"><div><small>需求摘要</small><h2>請確認後選擇傳送方式</h2></div><button type="button" data-close aria-label="關閉">×</button></div>
     <pre id="requestSummary"></pre>
+    <p class="dialog-status" id="requestDialogStatus">請確認內容，按下「確認送出」後才會正式提交。</p>
     <div class="dialog-actions">
-      <button class="btn btn-primary" type="button" id="openEmailButton">開啟 Email</button>
+      <button class="btn btn-primary" type="button" id="sendRequestButton">確認送出</button>
+      <button class="btn dialog-secondary" type="button" id="openEmailButton">Gmail 備援</button>
       <button class="btn dialog-secondary" type="button" id="copyRequestButton">複製內容</button>
       <a class="btn dialog-secondary" href="https://line.me/R/ti/p/@749ivaeq" target="_blank" rel="noopener">LINE 聯絡</a>
     </div>
   </dialog>
   <div class="toast" id="gpuToast" role="status" aria-live="polite"></div>
+  <script src="../js/form-config.js"></script>
+  <script src="../js/form-client.js"></script>
   <script src="gpu.js"></script>
 </body>
 </html>

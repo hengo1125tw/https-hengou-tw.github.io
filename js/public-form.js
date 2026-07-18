@@ -16,6 +16,13 @@
 
   const clean = client.clean;
 
+  const clearAutofilledHoneypot = data => {
+    const field = form.elements.website;
+    if (!field || !clean(data.get("website"))) return;
+    field.value = "";
+    data.set("website", "");
+  };
+
   const showMessage = (message, type = "info") => {
     if (!toast) return;
     toast.textContent = message;
@@ -45,7 +52,6 @@
   ].join("\n");
 
   const validate = data => {
-    if (clean(data.get("website"))) return { ok: false, spam: true };
     const required = [
       ["company", "請填寫公司名稱。"],
       ["name", "請填寫姓名。"],
@@ -74,13 +80,8 @@
     event.preventDefault();
     if (submitting) return;
     const data = new FormData(form);
+    clearAutofilledHoneypot(data);
     const result = validate(data);
-
-    if (result.spam) {
-      form.reset();
-      showMessage("需求已送出。", "success");
-      return;
-    }
 
     if (!result.ok) {
       showMessage(result.message, "error");

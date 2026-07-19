@@ -168,7 +168,7 @@
     submitting = false;
     setBusy(false);
 
-    if (response.ok) {
+    if (response.ok === true && response.state === "saved" && clean(response.requestId)) {
       setStatus(response.message, "success");
       form.reset();
       latestPayload = null;

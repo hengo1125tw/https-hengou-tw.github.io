@@ -3,6 +3,11 @@
 
   const clean = value => String(value ?? "").trim();
 
+  const createRequestToken = () => {
+    if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+    return `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 14)}`;
+  };
+
   const isConfigured = () => /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec(?:\?.*)?$/.test(clean(config.ENDPOINT));
 
   const getTracking = () => {
@@ -19,6 +24,62 @@
     };
   };
 
+  const readStatus = (requestToken, timeoutMs = 5000) => new Promise((resolve, reject) => {
+    const callbackName = `HGFormStatus_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    const script = document.createElement("script");
+    const timer = window.setTimeout(() => finish(new Error("status_timeout")), timeoutMs);
+
+    const finish = (error, result) => {
+      window.clearTimeout(timer);
+      delete window[callbackName];
+      script.remove();
+      if (error) reject(error);
+      else resolve(result);
+    };
+
+    window[callbackName] = result => finish(null, result);
+    script.onerror = () => finish(new Error("status_network_error"));
+    const query = new URLSearchParams({
+      action: "status",
+      requestToken,
+      prefix: callbackName,
+      _: String(Date.now())
+    });
+    script.src = `${config.ENDPOINT}?${query.toString()}`;
+    script.async = true;
+    document.head.appendChild(script);
+  });
+
+  const waitForSavedStatus = async requestToken => {
+    const totalTimeoutMs = Number(config.STATUS_TIMEOUT_MS) || 20000;
+    const startedAt = Date.now();
+
+    while (Date.now() - startedAt < totalTimeoutMs) {
+      try {
+        const status = await readStatus(requestToken);
+        if (status?.state === "saved" && status?.ok === true && clean(status.requestId)) {
+          return status;
+        }
+        if (status?.state === "error") {
+          return {
+            ok: false,
+            state: "error",
+            message: clean(status.message) || "表單服務未完成寫入。"
+          };
+        }
+      } catch (_) {
+        // A transient JSONP failure may recover on the next poll.
+      }
+      await new Promise(resolve => window.setTimeout(resolve, Number(config.STATUS_POLL_INTERVAL_MS) || 800));
+    }
+
+    return {
+      ok: false,
+      state: "timeout",
+      message: "未收到需求寫入確認，請改用 Gmail 或 LINE 聯絡。"
+    };
+  };
+
   const submit = async payload => {
     if (!isConfigured()) {
       return {
@@ -28,6 +89,7 @@
       };
     }
 
+    const requestToken = createRequestToken();
     const controller = new AbortController();
     const timer = window.setTimeout(
       () => controller.abort(),
@@ -35,9 +97,9 @@
     );
 
     try {
-      const response = await fetch(config.ENDPOINT, {
+      await fetch(config.ENDPOINT, {
         method: "POST",
-        mode: "cors",
+        mode: "no-cors",
         cache: "no-store",
         redirect: "follow",
         referrerPolicy: "no-referrer",
@@ -46,34 +108,28 @@
         },
         body: JSON.stringify({
           ...payload,
+          requestToken,
           tracking: getTracking()
         }),
         signal: controller.signal
       });
 
-      let result;
-      try {
-        result = await response.json();
-      } catch (_) {
+      const status = await waitForSavedStatus(requestToken);
+      if (status.ok !== true || status.state !== "saved" || !clean(status.requestId)) {
         return {
           ok: false,
-          code: "invalid_response",
-          message: "表單服務回應格式異常，請改用 Gmail 或 LINE 聯絡。"
-        };
-      }
-
-      if (!response.ok || result?.ok !== true) {
-        return {
-          ok: false,
-          code: clean(result?.code) || `http_${response.status}`,
-          message: clean(result?.message) || "表單服務未完成送出，請改用 Gmail 或 LINE 聯絡。"
+          code: status.state === "timeout" ? "status_timeout" : "write_error",
+          requestToken,
+          message: clean(status.message) || "表單服務未完成寫入，請改用 Gmail 或 LINE 聯絡。"
         };
       }
 
       return {
         ok: true,
-        requestId: clean(result.requestId),
-        message: clean(result.message) || "需求已送出，我們會盡快與您聯絡。"
+        state: "saved",
+        requestId: clean(status.requestId),
+        requestToken,
+        message: `需求已送出（${clean(status.requestId)}），我們會盡快與您聯絡。`
       };
     } catch (error) {
       const timeout = error?.name === "AbortError";
@@ -103,6 +159,7 @@
 
   window.HGFormClient = Object.freeze({
     clean,
+    createRequestToken,
     isConfigured,
     submit,
     gmailUrl,

@@ -110,7 +110,7 @@
     submitting = false;
     setBusy(false);
 
-    if (response.ok) {
+    if (response.ok === true && response.state === "saved" && clean(response.requestId)) {
       form.reset();
       showMessage(response.message, "success");
       return;

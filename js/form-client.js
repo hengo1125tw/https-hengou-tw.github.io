@@ -24,6 +24,10 @@
     };
   };
 
+  const delay = timeoutMs => new Promise(resolve => window.setTimeout(resolve, timeoutMs));
+  const processingMessage = "資料正在處理，請勿重複送出。";
+  const timeoutMessage = "系統可能仍在處理，請勿重複送出；可提供送出時間與聯絡資料供人工確認。";
+
   const readStatus = (requestToken, timeoutMs = 5000) => new Promise((resolve, reject) => {
     const callbackName = `HGFormStatus_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
     const script = document.createElement("script");
@@ -43,20 +47,27 @@
       action: "status",
       requestToken,
       prefix: callbackName,
-      _: String(Date.now())
+      _ts: String(Date.now())
     });
     script.src = `${config.ENDPOINT}?${query.toString()}`;
     script.async = true;
     document.head.appendChild(script);
   });
 
-  const waitForSavedStatus = async requestToken => {
-    const totalTimeoutMs = Number(config.STATUS_TIMEOUT_MS) || 20000;
+  const waitForSavedStatus = async (requestToken, onStatus = () => {}) => {
+    const totalTimeoutMs = Math.min(Number(config.STATUS_TIMEOUT_MS) || 60000, 60000);
+    const fastPhaseMs = Number(config.STATUS_FAST_PHASE_MS) || 15000;
+    const fastIntervalMs = Number(config.STATUS_FAST_POLL_INTERVAL_MS) || 800;
+    const slowIntervalMs = Number(config.STATUS_SLOW_POLL_INTERVAL_MS) || 2500;
     const startedAt = Date.now();
 
     while (Date.now() - startedAt < totalTimeoutMs) {
       try {
-        const status = await readStatus(requestToken);
+        const remainingMs = totalTimeoutMs - (Date.now() - startedAt);
+        const status = await readStatus(
+          requestToken,
+          Math.min(Number(config.STATUS_REQUEST_TIMEOUT_MS) || 5000, remainingMs)
+        );
         if (status?.state === "saved" && status?.ok === true && clean(status.requestId)) {
           return status;
         }
@@ -67,20 +78,27 @@
             message: clean(status.message) || "表單服務未完成寫入。"
           };
         }
+        if (["pending", "processing", "not_found"].includes(clean(status?.state))) {
+          onStatus({ state: clean(status.state), message: processingMessage });
+        } else {
+          onStatus({ state: "pending", message: processingMessage });
+        }
       } catch (_) {
-        // A transient JSONP failure may recover on the next poll.
+        onStatus({ state: "pending", message: processingMessage });
       }
-      await new Promise(resolve => window.setTimeout(resolve, Number(config.STATUS_POLL_INTERVAL_MS) || 800));
+      const elapsedMs = Date.now() - startedAt;
+      const intervalMs = elapsedMs < fastPhaseMs ? fastIntervalMs : slowIntervalMs;
+      await delay(Math.min(intervalMs, Math.max(0, totalTimeoutMs - elapsedMs)));
     }
 
     return {
       ok: false,
       state: "timeout",
-      message: "未收到需求寫入確認，請改用 Gmail 或 LINE 聯絡。"
+      message: timeoutMessage
     };
   };
 
-  const submit = async payload => {
+  const submit = async (payload, options = {}) => {
     if (!isConfigured()) {
       return {
         ok: false,
@@ -90,14 +108,11 @@
     }
 
     const requestToken = createRequestToken();
-    const controller = new AbortController();
-    const timer = window.setTimeout(
-      () => controller.abort(),
-      Number(config.REQUEST_TIMEOUT_MS) || 15000
-    );
+    const onStatus = typeof options.onStatus === "function" ? options.onStatus : () => {};
 
     try {
-      await fetch(config.ENDPOINT, {
+      onStatus({ state: "processing", message: processingMessage });
+      const postResult = fetch(config.ENDPOINT, {
         method: "POST",
         mode: "no-cors",
         cache: "no-store",
@@ -110,15 +125,33 @@
           ...payload,
           requestToken,
           tracking: getTracking()
-        }),
-        signal: controller.signal
+        })
+      }).then(
+        () => ({ ok: true }),
+        error => ({ ok: false, error })
+      );
+
+      const transportFailure = postResult.then(result => {
+        if (result.ok) return new Promise(() => {});
+        return {
+          ok: false,
+          state: "network_error",
+          message: navigator.onLine === false
+            ? "目前處於離線狀態，請恢復網路後再試，或改用 Gmail、複製內容與 LINE 聯絡。"
+            : "網路連線失敗，請改用 Gmail、複製內容與 LINE 聯絡。"
+        };
       });
 
-      const status = await waitForSavedStatus(requestToken);
+      const status = await Promise.race([
+        waitForSavedStatus(requestToken, onStatus),
+        transportFailure
+      ]);
       if (status.ok !== true || status.state !== "saved" || !clean(status.requestId)) {
         return {
           ok: false,
-          code: status.state === "timeout" ? "status_timeout" : "write_error",
+          code: status.state === "timeout"
+            ? "status_timeout"
+            : status.state === "network_error" ? "network_error" : "write_error",
           requestToken,
           message: clean(status.message) || "表單服務未完成寫入，請改用 Gmail 或 LINE 聯絡。"
         };
@@ -131,17 +164,13 @@
         requestToken,
         message: `需求已送出（${clean(status.requestId)}），我們會盡快與您聯絡。`
       };
-    } catch (error) {
-      const timeout = error?.name === "AbortError";
+    } catch (_) {
       return {
         ok: false,
-        code: timeout ? "timeout" : "network_error",
-        message: timeout
-          ? "送出逾時，請改用 Gmail 或 LINE 聯絡。"
-          : "網路或表單服務異常，請改用 Gmail 或 LINE 聯絡。"
+        code: "network_error",
+        requestToken,
+        message: "網路連線失敗，請改用 Gmail、複製內容與 LINE 聯絡。"
       };
-    } finally {
-      window.clearTimeout(timer);
     }
   };
 

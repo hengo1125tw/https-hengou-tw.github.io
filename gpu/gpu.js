@@ -164,7 +164,9 @@
     setBusy(true);
     setFallbackVisible(false);
     setStatus("正在傳送需求資料至需求紀錄…", "info");
-    const response = await client.submit(latestPayload);
+    const response = await client.submit(latestPayload, {
+      onStatus: progress => setStatus(progress.message, "info")
+    });
     submitting = false;
     setBusy(false);
 

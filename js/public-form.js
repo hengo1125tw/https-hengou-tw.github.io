@@ -11,6 +11,7 @@
   const submitButton = form?.querySelector('button[type="submit"]');
   const client = window.HGFormClient;
   let submitting = false;
+  let toastTimer = 0;
 
   if (!form || !client) return;
 
@@ -33,9 +34,10 @@
 
   const showMessage = (message, type = "info") => {
     if (!toast) return;
+    window.clearTimeout(toastTimer);
     toast.textContent = message;
     toast.className = `toast show ${type}`;
-    window.setTimeout(() => { toast.className = "toast"; }, 4600);
+    toastTimer = window.setTimeout(() => { toast.className = "toast"; }, 4600);
   };
 
   const setBusy = busy => {
@@ -135,7 +137,9 @@
     submitting = true;
     trackAutomation("automation_form_submit");
     setBusy(true);
-    const response = await client.submit(payload);
+    const response = await client.submit(payload, {
+      onStatus: status => showMessage(status.message, "info")
+    });
     submitting = false;
     setBusy(false);
 

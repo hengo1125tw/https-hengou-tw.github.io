@@ -7,3 +7,5 @@
 本機瀏覽器渲染首頁、GPU、Automation：390／768／1440 共九組均無水平溢位，圖片載入失敗 0，Console error/warning 0。真實 Sheet、Gmail 與正式三表單未送出，列入人工驗收。
 
 獨立缺陷修正重測新增：lock contention、append 後 update failure、partial row recovery、find/status failure、Gmail 成功但 metadata 失敗、重複 metadata failure、stale processing 空 duration、Sheet boolean 正規化、空 Sheet A1 migration。Polling 測試直接以 VM 載入正式 `js/form-client.js` 並使用虛擬時間執行 5/15/30/45/60 秒、timeout 與 saved stop，不再複製正式常數。
+
+第二輪再驗證 invocation-only LOCK_TIMEOUT 不污染 processing/saved、saved status write failure 與 partial recovery status failure 皆能完成唯一通知、pending/sending/sent/error/metadata_pending 所有權契約，以及 Date/number/numeric string/ISO/invalid timestamp。Polling 整合序列為 processing → 競爭 invocation LOCK_TIMEOUT（不進共享 status）→ saved，前端只看到 processing → saved 成功。

@@ -13,4 +13,8 @@
 
 ## Notification recovery
 
-寄信與 metadata 更新分開處理。寄信失敗為 `NOTIFICATION_SEND_FAILED`；寄信已成功但 metadata 更新失敗為 `sent_metadata_pending / NOTIFICATION_METADATA_UPDATE_FAILED`。後者只能人工核對後補 metadata，不得自動重寄。通知失敗狀態本身寫入失敗則為 `NOTIFICATION_ERROR_METADATA_UPDATE_FAILED`。
+寄信與 metadata 更新分開處理。寄信失敗為 `NOTIFICATION_SEND_FAILED`；寄信已成功但 metadata 更新失敗為 `metadata_pending / NOTIFICATION_METADATA_UPDATE_FAILED`。後者只能人工核對後補 metadata，不得自動重寄。通知失敗狀態本身寫入失敗則為 `NOTIFICATION_ERROR_METADATA_UPDATE_FAILED`。
+
+通知所有權狀態為 `pending → sending → sent`，寄送失敗為 `error`，已寄送但 metadata 待補為 `metadata_pending`。只有在 ScriptLock 內將 pending 原子更新為 sending 的 invocation 可以在解鎖後寄信；看到 sending、sent 或 metadata_pending 的重送一律不得寄信。即使 saved status store 寫入失敗，已取得所有權的 invocation 仍完成唯一一次寄送。
+
+Lock acquisition timeout 是 invocation-only error，只回傳 `LOCK_TIMEOUT`，不得呼叫共享 `putStatus`，因此不會覆蓋同 token 的 received、processing 或 saved。

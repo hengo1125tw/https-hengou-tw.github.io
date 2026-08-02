@@ -5,9 +5,9 @@ import vm from "node:vm";
 const clientSource = readFileSync(new URL("../js/form-client.js", import.meta.url), "utf8");
 const ENDPOINT = "https://script.google.com/macros/s/REDACTED_TEST_DEPLOYMENT/exec";
 
-async function runActualClient(savedAtMs) {
+async function runActualClient(savedAtMs, statusResolver) {
   let now = 0, nextTimer = 1, settled = false, result;
-  const timers = new Map(), statusUrls = [], posts = [];
+  const timers = new Map(), statusUrls = [], posts = [], progressStates = [];
   class FakeDate extends Date { static now() { return now; } }
   const setTimeoutFake = (callback, delay = 0) => { const id = nextTimer++; timers.set(id, { at: now + Math.max(0, Number(delay)), callback }); return id; };
   const clearTimeoutFake = id => timers.delete(id);
@@ -22,12 +22,13 @@ async function runActualClient(savedAtMs) {
     createElement() { return { remove() {} }; },
     head: { appendChild(script) {
       const url = new URL(script.src); statusUrls.push({ at: now, url });
-      queueMicrotask(() => window[url.searchParams.get("prefix")]({ ok: now >= savedAtMs, state: now >= savedAtMs ? "saved" : "processing", requestId: now >= savedAtMs ? "HG-ACTUAL-1" : "" }));
+      const status = statusResolver ? statusResolver(now, statusUrls.length) : { ok: now >= savedAtMs, state: now >= savedAtMs ? "saved" : "processing", requestId: now >= savedAtMs ? "HG-ACTUAL-1" : "" };
+      queueMicrotask(() => window[url.searchParams.get("prefix")](status));
     } }
   };
   const fetch = (_url, options) => { posts.push(JSON.parse(options.body)); return new Promise(() => {}); };
   vm.runInNewContext(clientSource, { window, document, navigator: { userAgent: "test", language: "zh-TW", onLine: true }, Intl, URLSearchParams, URL, fetch, Date: FakeDate, Math });
-  window.HGFormClient.submit({ formType: "general" }).then(value => { settled = true; result = value; });
+  window.HGFormClient.submit({ formType: "general" }, { onStatus: status => progressStates.push(status.state) }).then(value => { settled = true; result = value; });
   let idleTurns = 0;
   for (let guard = 0; !settled && guard < 2000; guard += 1) {
     await Promise.resolve(); await Promise.resolve();
@@ -38,7 +39,7 @@ async function runActualClient(savedAtMs) {
     timers.delete(pending[0]); now = pending[1].at; pending[1].callback();
   }
   assert.ok(settled, "actual client did not settle");
-  return { result, statusUrls, posts };
+  return { result, statusUrls, posts, progressStates };
 }
 
 for (const seconds of [5, 15, 30, 45, 60]) {
@@ -62,4 +63,14 @@ assert.equal(timeout.statusUrls.length, before, "settled timeout must stop polli
 
 const earlySaved = await runActualClient(5000);
 assert.equal(earlySaved.statusUrls.filter(item => item.at > earlySaved.statusUrls.at(-1).at).length, 0, "saved must stop polling");
+
+const competingInvocation = { state: "invocation_error", code: "LOCK_TIMEOUT", invocationOnly: true };
+const contentionIntegration = await runActualClient(800, (time, pollNumber) => pollNumber === 1
+  ? { ok: false, state: "processing", requestId: "" }
+  : { ok: true, state: "saved", requestId: "HG-ACTUAL-1" });
+assert.equal(competingInvocation.code, "LOCK_TIMEOUT");
+assert.deepEqual(contentionIntegration.progressStates, ["processing", "processing"]);
+assert.equal(contentionIntegration.result.ok, true);
+assert.equal(contentionIntegration.result.requestId, "HG-ACTUAL-1");
+assert.equal(contentionIntegration.progressStates.includes("error"), false, "invocation-only lock timeout must not reach frontend status polling");
 console.log("PR7 actual form-client polling checks passed (5/15/30/45/60/timeout)");

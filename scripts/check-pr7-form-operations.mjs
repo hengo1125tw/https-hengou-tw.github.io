@@ -33,8 +33,8 @@ function harness(failures = {}) {
     findByRequestId(id) { return rows.find(row => row.requestId === id); },
     createRequestId() { return `HG-TEST-${String(rows.length + 1).padStart(4, "0")}`; },
     appendRequest(payload, operations, requestId) { fail("appendRequest"); rows.push({ payload, operations: { ...operations }, requestId }); },
-    updateRequest(id, patch) { fail("updateRequest"); const row = rows.find(item => item.requestId === id); if (!row) throw new Error("row missing"); Object.assign(row.operations, patch); },
-    putStatus(token, value) { fail("putStatus"); const prior = statuses.get(token); if (prior?.state === "saved" && value.state !== "saved") throw new Error("status regression"); statuses.set(token, { ...value }); },
+    updateRequest(id, patch) { fail("updateRequest"); const row = rows.find(item => item.requestId === id); if (!row) throw new Error("row missing"); Object.assign(row.operations, patch); if (patch.notification_status === "sending") failures.onSending?.(); },
+    putStatus(token, value) { fail("putStatus"); const prior = statuses.get(token); if (prior?.state === "saved" && value.state !== "saved") throw new Error("status regression"); statuses.set(token, { ...value }); if (value.state === "processing") failures.onProcessing?.(); },
     sendNotification(id) { fail("sendNotification"); mail.push(id); }
   };
   return { deps, rows, statuses, mail, events, failures, counts };
@@ -45,6 +45,10 @@ assert.equal(context.pr7ValidateRequestToken_("bad").code, "REQUEST_TOKEN_INVALI
 assert.deepEqual([0, 15001, 30001, 60001].map(context.pr7ProcessingHealth_), ["normal", "slow", "observe", "abnormal"]);
 for (const value of [true, "true", "TRUE", 1]) assert.equal(context.pr7Boolean_(value), true);
 for (const value of [false, "false", "FALSE", 0, ""]) assert.equal(context.pr7Boolean_(value), false);
+const timestampCases = [[new Date(1234), 1234], [1234, 1234], ["1234", 1234], ["2026-08-02T00:00:00Z", Date.parse("2026-08-02T00:00:00Z")]];
+for (const [value, expected] of timestampCases) assert.deepEqual(JSON.parse(JSON.stringify(context.pr7TimestampMs_(value))), { ok: true, value: expected });
+assert.equal(context.pr7TimestampMs_("").code, "TIMESTAMP_EMPTY");
+assert.equal(context.pr7TimestampMs_("invalid").code, "TIMESTAMP_INVALID");
 
 const normal = harness();
 const first = context.pr7ProcessSubmission_(normal.deps, { requestToken: TOKEN });
@@ -57,7 +61,7 @@ const findFailure = harness({ findByToken: true });
 assert.equal(context.pr7ProcessSubmission_(findFailure.deps, { requestToken: TOKEN }).code, "SHEET_READ_FAILED");
 assert.equal(findFailure.rows.length, 0); assert.equal(findFailure.mail.length, 0);
 
-const statusFailure = harness({ putStatus: true });
+const statusFailure = harness({ putStatus: [1] });
 assert.equal(context.pr7ProcessSubmission_(statusFailure.deps, { requestToken: TOKEN }).code, "STATUS_WRITE_FAILED");
 assert.equal(statusFailure.rows.length, 0);
 
@@ -75,31 +79,66 @@ assert.equal(context.pr7ProcessSubmission_(repeatedPartial.deps, { requestToken:
 assert.equal(context.pr7ProcessSubmission_(repeatedPartial.deps, { requestToken: TOKEN }).code, "PARTIAL_WRITE_RECOVERY_FAILED");
 assert.equal(repeatedPartial.rows.length, 1); assert.equal(repeatedPartial.mail.length, 0);
 
-const gmailSuccessMetadataFailure = harness({ updateRequest: [2] });
+const gmailSuccessMetadataFailure = harness({ updateRequest: [3] });
 const metadataPending = context.pr7ProcessSubmission_(gmailSuccessMetadataFailure.deps, { requestToken: TOKEN });
 assert.equal(metadataPending.recovery_code, "NOTIFICATION_METADATA_UPDATE_FAILED");
-assert.equal(metadataPending.notification_status, "sent_metadata_pending");
+assert.equal(metadataPending.notification_status, "metadata_pending");
+assert.equal(metadataPending.metadataRecorded, true);
 assert.equal(gmailSuccessMetadataFailure.mail.length, 1);
 const metadataRetry = context.pr7ProcessSubmission_(gmailSuccessMetadataFailure.deps, { requestToken: TOKEN });
 assert.equal(metadataRetry.state, "already_saved");
 assert.equal(gmailSuccessMetadataFailure.mail.length, 1, "metadata recovery must never resend an already-sent Gmail");
 
-const gmailFailureMetadataFailure = harness({ sendNotification: true, updateRequest: [2] });
+const repeatedMetadataFailure = harness({ updateRequest: [3, 4] });
+const repeatedMetadataPending = context.pr7ProcessSubmission_(repeatedMetadataFailure.deps, { requestToken: TOKEN });
+assert.equal(repeatedMetadataPending.metadataRecorded, false);
+assert.equal(repeatedMetadataFailure.mail.length, 1);
+context.pr7ProcessSubmission_(repeatedMetadataFailure.deps, { requestToken: TOKEN });
+assert.equal(repeatedMetadataFailure.mail.length, 1, "repeated metadata failure must not resend Gmail");
+
+const gmailFailureMetadataFailure = harness({ sendNotification: true, updateRequest: [3] });
 const unknownNotification = context.pr7ProcessSubmission_(gmailFailureMetadataFailure.deps, { requestToken: TOKEN });
 assert.equal(unknownNotification.recovery_code, "NOTIFICATION_ERROR_METADATA_UPDATE_FAILED");
 assert.equal(gmailFailureMetadataFailure.mail.length, 0);
 
-let secondWhileLocked;
+let secondWhileLocked, middleStatus;
 const contention = harness();
-contention.failures.onLock = () => { if (!secondWhileLocked) secondWhileLocked = context.pr7ProcessSubmission_(contention.deps, { requestToken: TOKEN }); };
+contention.failures.onProcessing = () => { if (!secondWhileLocked) { middleStatus = contention.statuses.get(TOKEN); secondWhileLocked = context.pr7ProcessSubmission_(contention.deps, { requestToken: TOKEN }); } };
 const contentionFirst = context.pr7ProcessSubmission_(contention.deps, { requestToken: TOKEN });
-delete contention.failures.onLock;
+delete contention.failures.onProcessing;
 const contentionRetry = context.pr7ProcessSubmission_(contention.deps, { requestToken: TOKEN });
 assert.equal(secondWhileLocked.code, "LOCK_TIMEOUT");
+assert.equal(secondWhileLocked.invocationOnly, true);
+assert.equal(middleStatus.state, "processing");
 assert.ok(contention.events.includes("lock-acquired"));
 assert.equal(contention.rows.length, 1); assert.equal(contention.mail.length, 1);
 assert.equal(contentionFirst.requestId, contentionRetry.requestId);
 assert.equal(contention.statuses.get(TOKEN).state, "saved");
+
+const savedStatusFailure = harness({ putStatus: [3] });
+const savedDespiteStatusFailure = context.pr7ProcessSubmission_(savedStatusFailure.deps, { requestToken: TOKEN });
+assert.equal(savedDespiteStatusFailure.state, "saved"); assert.equal(savedStatusFailure.mail.length, 1);
+const savedStatusRetry = context.pr7ProcessSubmission_(savedStatusFailure.deps, { requestToken: TOKEN });
+assert.equal(savedStatusRetry.requestId, savedDespiteStatusFailure.requestId); assert.equal(savedStatusFailure.mail.length, 1);
+
+const partialStatusFailure = harness({ updateRequest: [1], putStatus: [4] });
+const partialBeforeRetry = context.pr7ProcessSubmission_(partialStatusFailure.deps, { requestToken: TOKEN });
+assert.equal(partialBeforeRetry.code, "PARTIAL_WRITE_PENDING");
+const partialAfterRetry = context.pr7ProcessSubmission_(partialStatusFailure.deps, { requestToken: TOKEN });
+assert.equal(partialAfterRetry.state, "saved"); assert.equal(partialStatusFailure.mail.length, 1);
+context.pr7ProcessSubmission_(partialStatusFailure.deps, { requestToken: TOKEN });
+assert.equal(partialStatusFailure.rows.length, 1); assert.equal(partialStatusFailure.mail.length, 1);
+
+let ownershipCompetitor;
+const ownership = harness();
+ownership.failures.onSending = () => { if (!ownershipCompetitor) ownershipCompetitor = context.pr7ProcessSubmission_(ownership.deps, { requestToken: TOKEN }); };
+const ownershipWinner = context.pr7ProcessSubmission_(ownership.deps, { requestToken: TOKEN });
+delete ownership.failures.onSending;
+assert.equal(ownershipCompetitor.code, "LOCK_TIMEOUT"); assert.equal(ownershipWinner.state, "saved");
+assert.equal(ownership.rows.length, 1); assert.equal(ownership.mail.length, 1);
+ownership.rows[0].operations.notification_status = "sending";
+context.pr7ProcessSubmission_(ownership.deps, { requestToken: TOKEN });
+assert.equal(ownership.mail.length, 1, "sending ownership must block a second Gmail");
 
 const testLead = harness();
 context.pr7ProcessSubmission_(testLead.deps, { requestToken: TOKEN, is_test: "TRUE" });
@@ -110,6 +149,8 @@ const auditNow = Date.parse("2026-08-02T00:02:00Z");
 const audit = context.auditStage2FormOperationsPr7([{ request_token: TOKEN, requestId: "HG-1", final_status: "processing", processing_started_at: "2026-08-02T00:00:00Z", processing_duration_ms: "", is_test: "TRUE", excluded_from_pipeline: "false", source: "x", email: "a@b.co", note: "x" }], [], auditNow);
 assert.ok(audit.findings.some(item => item.code === "PROCESSING_OVER_60S"));
 assert.ok(audit.findings.some(item => item.code === "TEST_IN_PIPELINE"));
+const numericAudit = context.auditStage2FormOperationsPr7([{ requestId: "HG-2", final_status: "processing", processing_started_at: String(auditNow - 61000), source: "x", email: "a@b.co", note: "x" }], [], auditNow);
+assert.ok(numericAudit.findings.some(item => item.code === "PROCESSING_OVER_60S"));
 
 function migrationHarness(initial) {
   const headers = initial.slice(), writes = [];

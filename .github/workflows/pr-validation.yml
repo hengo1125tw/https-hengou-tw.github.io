@@ -26,12 +26,18 @@ jobs:
           node --check scripts/check-pr7-polling-performance.mjs
           node --check scripts/check-pr7-adapter-integration.mjs
           node --check scripts/check-pr7-sensitive.mjs
+          node --check scripts/check-pr7-runtime-emulator.mjs
+          node --check scripts/check-pr7-browser-e2e.mjs
       - name: PR7 operations
         run: npm run check:pr7-operations
       - name: PR7 polling
         run: npm run check:pr7-polling
       - name: PR7 adapter integration
         run: npm run check:pr7-adapter
+      - name: PR7 Apps Script runtime emulator
+        run: npm run check:pr7-runtime
+      - name: PR7 deterministic browser harness
+        run: npm run check:pr7-browser
       - name: Stage 2
         run: npm run check:stage2-form
       - name: Automation

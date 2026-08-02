@@ -55,6 +55,9 @@
     "check:pr7-operations": "node scripts/check-pr7-form-operations.mjs",
     "check:pr7-polling": "node scripts/check-pr7-polling-performance.mjs",
     "check:pr7-adapter": "node scripts/check-pr7-adapter-integration.mjs",
-    "check:pr7-sensitive": "node scripts/check-pr7-sensitive.mjs"
+    "check:pr7-sensitive": "node scripts/check-pr7-sensitive.mjs",
+    "check:pr7-runtime": "node scripts/check-pr7-runtime-emulator.mjs",
+    "check:pr7-browser": "node scripts/check-pr7-browser-e2e.mjs",
+    "check:pr7-maximum": "npm run check:pr7-operations && npm run check:pr7-polling && npm run check:pr7-adapter && npm run check:pr7-runtime && npm run check:pr7-browser && npm run check:stage2-form && npm run check:automation-page && npm run check:files && npm run check:rc6 && npm run check:pr7-sensitive"
   }
 }

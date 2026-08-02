@@ -75,9 +75,36 @@ const verifyHoneypotSanitizer = (name, source) => {
 verifyHoneypotSanitizer("Home", homeForm);
 verifyHoneypotSanitizer("GPU", gpuForm);
 
+const createDeterministicClock = () => {
+  let now = 0;
+  let nextTimerId = 1;
+  const timers = new Map();
+
+  return {
+    now: () => now,
+    setTimeout(callback, timeoutMs = 0) {
+      const timerId = nextTimerId++;
+      const dueAt = now + Math.max(0, Number(timeoutMs) || 0);
+      timers.set(timerId, { callback, dueAt });
+      setImmediate(() => {
+        const timer = timers.get(timerId);
+        if (!timer) return;
+        timers.delete(timerId);
+        now = Math.max(now, timer.dueAt);
+        timer.callback();
+      });
+      return timerId;
+    },
+    clearTimeout(timerId) {
+      timers.delete(timerId);
+    }
+  };
+};
+
 const loadClient = ({ fetch, statuses = [], online = true, configOverrides = {} }) => {
   let statusIndex = 0;
   const statusUrls = [];
+  const clock = createDeterministicClock();
   const window = {
     HG_FORM_CONFIG: {
       ENDPOINT: expectedEndpoint,
@@ -91,8 +118,8 @@ const loadClient = ({ fetch, statuses = [], online = true, configOverrides = {} 
       ...configOverrides
     },
     location: { search: "", href: "https://example.test/", assign() {} },
-    setTimeout,
-    clearTimeout,
+    setTimeout: clock.setTimeout,
+    clearTimeout: clock.clearTimeout,
     open() { return {}; },
     crypto: { randomUUID: () => "12345678-1234-4234-8234-123456789abc" }
   };
@@ -122,7 +149,7 @@ const loadClient = ({ fetch, statuses = [], online = true, configOverrides = {} 
     URLSearchParams,
     URL,
     fetch,
-    Date,
+    Date: { now: clock.now },
     Math
   });
   return {

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import vm from "node:vm";
 
 const source = readFileSync(new URL("../backend/google-apps-script/PR7FormOperations.gs", import.meta.url), "utf8");
@@ -79,4 +79,5 @@ const m2 = ops.migrateStage2FormOperationsPr7(fixture); assert.equal(m2.added.le
 const empty = { rows: [], getLastRow() { return this.rows.length; }, getLastColumn() { return 0; }, getRange(row, column, rowCount = 1, columnCount = 1) { const sheet = this; return { getDisplayValues: () => [[]], setValues(values) { values.forEach((line, r) => line.forEach((value, c) => { sheet.rows[row - 1 + r] ||= []; sheet.rows[row - 1 + r][column - 1 + c] = value; })); } }; } };
 ops.migrateStage2FormOperationsPr7(empty); assert.ok(empty.rows[0][0]);
 
-console.log(JSON.stringify({ result: "PR7_RUNTIME_EMULATOR_PASS", assertions: 29, migrationAdded: m1.added.length, migrationSecondAdded: m2.added.length, legacyFingerprint: before.slice(0, 12), ledger }));
+const summary = { status: "PASS", result: "PR7_RUNTIME_EMULATOR_PASS", assertions: 29, migrationAdded: m1.added.length, migrationSecondAdded: m2.added.length, legacyFingerprint: before.slice(0, 12), ledger };
+mkdirSync("test-results", { recursive: true }); writeFileSync("test-results/pr7-runtime-summary.json", JSON.stringify(summary, null, 2)); console.log(JSON.stringify(summary));

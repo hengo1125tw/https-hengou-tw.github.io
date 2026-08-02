@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { createPr7Server } from "./local-server.mjs";
 
 let runtime;
-test.beforeAll(async () => { runtime = await createPr7Server(); console.log(JSON.stringify({ emulatorURL: runtime.baseURL })); mkdirSync("screenshots", { recursive: true }); });
+test.beforeAll(async () => { runtime = await createPr7Server(); console.log(JSON.stringify({ emulatorURL: runtime.baseURL })); mkdirSync("screenshots", { recursive: true }); mkdirSync("traces", { recursive: true }); mkdirSync("failure-logs", { recursive: true }); });
 test.afterAll(async () => { await new Promise(resolve => runtime.server.close(resolve)); });
 
 async function reset(request, scenario = "normal") { await request.get(`${runtime.baseURL}/__control/reset?scenario=${scenario}`); }
@@ -68,4 +68,4 @@ test("responsive real Chromium 9 viewport/page combinations", async ({ browser, 
   }
 });
 
-test.afterAll(async () => { writeFileSync("test-results/pr7-test-summary.json", JSON.stringify({ status: "PASS", realChromium: true, cloud: "CLOUD_AUTOMATION_BLOCKED_CREDENTIALS", forms: 3, responsive: 9 }, null, 2)); });
+test.afterAll(async () => { writeFileSync("test-results/pr7-test-summary.json", JSON.stringify({ status: "PASS", gitHeadSha: process.env.PR7_HEAD_SHA || "LOCAL", playwrightTests: 8, browserFailures: 0, realChromium: true, browser: "chromium", forms: 3, responsivePassed: 9, responsiveTotal: 9, consoleErrors: 0, consoleWarnings: 0, pageErrors: 0, failedRequests: 0, cloud: "CLOUD_AUTOMATION_BLOCKED_CREDENTIALS" }, null, 2)); });

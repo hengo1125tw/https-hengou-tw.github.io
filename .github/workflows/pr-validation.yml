@@ -40,6 +40,8 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: PR7 real Chromium E2E and responsive
+        env:
+          PR7_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: npm run check:pr7-browser
       - name: Stage 2
         run: npm run check:stage2-form
@@ -57,11 +59,17 @@ jobs:
         run: |
           git diff -U0 origin/${{ github.base_ref }}...HEAD -- . ':!assets/images/*' > "$PR7_SECURITY_DIFF_FILE"
           npm run check:pr7-sensitive
+      - name: PR7 artifact verifier tests
+        run: npm run check:pr7-artifact-tests
+      - name: PR7 in-CI artifact verification
+        env:
+          PR7_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: npm run check:pr7-artifacts
       - name: Upload PR7 validation artifacts
-        if: ${{ !cancelled() }}
+        if: ${{ always() }}
         uses: actions/upload-artifact@v7
         with:
-          name: pr7-validation-${{ github.sha }}
+          name: pr7-validation-${{ github.event.pull_request.head.sha }}
           retention-days: 14
           if-no-files-found: warn
           path: |
@@ -70,3 +78,8 @@ jobs:
             screenshots/
             traces/
             failure-logs/
+      - name: Post-artifact source cleanliness
+        if: ${{ always() }}
+        run: |
+          git diff --check
+          test -z "$(git status --porcelain --untracked-files=all | grep -vE '^(\?\? )?(playwright-report|test-results|screenshots|traces|failure-logs)/' || true)"

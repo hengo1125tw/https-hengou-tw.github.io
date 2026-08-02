@@ -16,6 +16,7 @@ test-results/
 screenshots/
 traces/
 failure-logs/
+.pr7-verifier-tmp-*/
 
 # Environment
 .env

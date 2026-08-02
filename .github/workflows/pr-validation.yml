@@ -43,6 +43,8 @@ jobs:
         env:
           PR7_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: npm run check:pr7-browser
+      - name: Normalize portable PR7 artifact paths
+        run: npm run normalize:pr7-artifacts
       - name: Stage 2
         run: npm run check:stage2-form
       - name: Automation

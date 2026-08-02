@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, 
 import { join } from "node:path";
 import { unzipSync, zipSync } from "fflate";
 import { verifyArtifactDirectory } from "./check-pr7-artifacts.mjs";
+import { normalizePr7Artifacts } from "./normalize-pr7-artifacts.mjs";
 
 const sourceRoot = process.cwd();
 const tempRoot = mkdtempSync(join(sourceRoot, ".pr7-verifier-tmp-"));
@@ -11,7 +12,8 @@ const artifactDirs = ["test-results", "playwright-report", "screenshots", "trace
 const copyTree = (from, to) => { if (statSync(from).isDirectory()) { mkdirSync(to, { recursive: true }); for (const name of readdirSync(from)) copyTree(join(from, name), join(to, name)); } else writeFileSync(to, readFileSync(from)); };
 const makeFixture = name => { const dir = join(tempRoot, name); mkdirSync(dir, { recursive: true }); for (const source of artifactDirs) { const from = join(sourceRoot, source); if (existsSync(from)) copyTree(from, join(dir, source)); else mkdirSync(join(dir, source), { recursive: true }); } for (const generated of ["pr7-artifact-verification.json", "pr7-artifact-verification.txt", "pr7-artifact-file-list.json", "pr7-artifact-sha256.txt"]) { const file = join(dir, "test-results", generated); if (existsSync(file)) unlinkSync(file); } return dir; };
 const verify = dir => verifyArtifactDirectory(dir, { writeReports: false, gitHeadSha: "FIXTURE" });
-const expectFail = (name, mutate, code) => { const dir = makeFixture(name); mutate(dir); const result = verify(dir); assert.equal(result.overallStatus, "FAIL", name); assert.ok(result.blockers.some(item => item.startsWith(code)), `${name}: ${result.blockers.join(",")}`); return result; };
+const diagnostic = (fixture, result) => ({ fixture, status: result.overallStatus, blockers: result.blockers, findingTypes: [...new Set(result.sensitiveScan.findings.map(item => item.type))], findingPaths: [...new Set(result.sensitiveScan.findings.map(item => item.path))], junitPaths: result.junit.paths, jsonSummaryPaths: result.jsonSummaries.paths, playwrightReportPath: result.playwright.path, screenshotCount: result.screenshots.count });
+const expectFail = (name, mutate, code) => { const dir = makeFixture(name); mutate(dir); const result = verify(dir); console.log(JSON.stringify(diagnostic(name, result))); assert.equal(result.overallStatus, "FAIL", name); assert.ok(result.blockers.some(item => item.startsWith(code)), `${name}: ${result.blockers.join(",")}`); return result; };
 
 const complete = makeFixture("complete"); console.log("fixture: complete"); assert.equal(verify(complete).overallStatus, "PASS");
 expectFail("missing-junit", dir => unlinkSync(join(dir, "test-results/junit.xml")), "PR7_ARTIFACT_JUNIT_MISSING");
@@ -29,5 +31,19 @@ expectFail("failure-log", dir => { mkdirSync(join(dir, "failure-logs"), { recurs
 const deterministic = makeFixture("deterministic"); assert.equal(verify(deterministic).bundleSha256, verify(deterministic).bundleSha256);
 expectFail("absolute-path", dir => { mkdirSync(join(dir, "failure-logs"), { recursive: true }); writeFileSync(join(dir, "failure-logs/path.txt"), "C:\\Users\\RealUser\\private.txt"); }, "PR7_ARTIFACT_SENSITIVE_LEAK");
 
+const injectHtmlMetadata = (dir, value) => { const path = join(dir, "playwright-report/index.html"); const html = readFileSync(path, "utf8"); const match = html.match(/data:application\/zip;base64,([A-Za-z0-9+/=]+)/); assert.ok(match); const archive = unzipSync(Buffer.from(match[1], "base64")); const report = JSON.parse(Buffer.from(archive["report.json"]).toString("utf8")); report.metadata = { ...(report.metadata || {}), fixturePath: value }; archive["report.json"] = Buffer.from(JSON.stringify(report)); writeFileSync(path, html.replace(match[1], Buffer.from(zipSync(archive)).toString("base64"))); };
+const linuxWorkspace = "/home/runner/work/example/example";
+const linuxFixture = makeFixture("linux-workspace-normalization");
+for (const file of ["junit.xml", "playwright-results.json", "pr7-test-summary.json"]) { const path = join(linuxFixture, "test-results", file); const content = readFileSync(path, "utf8"); writeFileSync(path, file.endsWith(".xml") ? content.replace("classname=\"", `classname=\"${linuxWorkspace}/`) : JSON.stringify({ ...JSON.parse(content), fixturePath: `${linuxWorkspace}/tests/pr7-browser/forms.spec.mjs` })); }
+injectHtmlMetadata(linuxFixture, `${linuxWorkspace}/tests/pr7-browser/forms.spec.mjs`);
+assert.equal(verify(linuxFixture).overallStatus, "FAIL");
+const linuxNormalized = normalizePr7Artifacts(linuxFixture, { workspace: linuxWorkspace, checkoutRoot: linuxWorkspace });
+assert.ok(linuxNormalized.replacements >= 4); assert.equal(verify(linuxFixture).overallStatus, "PASS");
+for (const file of ["junit.xml", "playwright-results.json", "pr7-test-summary.json"]) assert.ok(readFileSync(join(linuxFixture, "test-results", file), "utf8").includes("<WORKSPACE>"));
+const normalizedAgain = normalizePr7Artifacts(linuxFixture, { workspace: linuxWorkspace, checkoutRoot: linuxWorkspace }); assert.equal(normalizedAgain.replacements, 0); assert.equal(normalizedAgain.fingerprint, linuxNormalized.fingerprint);
+
+const runnerTempFixture = makeFixture("runner-temp-normalization"); const runnerTempPath = join(runnerTempFixture, "test-results/pr7-test-summary.json"); const runnerTempJson = JSON.parse(readFileSync(runnerTempPath)); runnerTempJson.fixturePath = "/home/runner/work/_temp/pr7/output.json"; writeFileSync(runnerTempPath, JSON.stringify(runnerTempJson)); normalizePr7Artifacts(runnerTempFixture, { runnerTemp: "/home/runner/work/_temp" }); assert.equal(verify(runnerTempFixture).overallStatus, "PASS"); assert.ok(readFileSync(runnerTempPath, "utf8").includes("<RUNNER_TEMP>"));
+expectFail("arbitrary-runner-private-path", dir => { const path = join(dir, "test-results/pr7-test-summary.json"); const value = JSON.parse(readFileSync(path)); value.fixturePath = "/home/runner/private/customer.txt"; writeFileSync(path, JSON.stringify(value)); normalizePr7Artifacts(dir, { workspace: linuxWorkspace, runnerTemp: "/home/runner/work/_temp" }); }, "PR7_ARTIFACT_SENSITIVE_LEAK");
+
 rmSync(tempRoot, { recursive: true, force: true });
-console.log(JSON.stringify({ result: "PR7_ARTIFACT_VERIFIER_TESTS_PASS", cases: 15 }));
+console.log(JSON.stringify({ result: "PR7_ARTIFACT_VERIFIER_TESTS_PASS", cases: 19 }));

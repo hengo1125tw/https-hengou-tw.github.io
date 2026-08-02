@@ -36,10 +36,10 @@ function harness(failures = {}) {
     appendRequest(payload, operations, requestId) { fail("appendRequest"); rows.push({ payload, operations: { ...operations }, requestId }); },
     updateRequest(id, patch) { fail("updateRequest"); const row = rows.find(item => item.requestId === id); if (!row) throw new Error("row missing"); Object.assign(row.operations, patch); if (patch.notification_status === "sending") failures.onSending?.(); },
     putStatus(token, value) { fail("putStatus"); const prior = statuses.get(token); if (prior?.state === "saved" && value.state !== "saved") throw new Error("status regression"); statuses.set(token, { ...value }); if (value.state === "processing") failures.onProcessing?.(); },
-    getStatus(token) { return statuses.get(token); },
+    getStatus(token) { fail("getStatus"); return statuses.get(token); },
     recordWarning(warning) { warnings.push({ ...warning }); },
     beforeNotificationSend(id) { failures.beforeNotificationSend?.(id); },
-    sendNotification(id) { fail("sendNotification"); mail.push(id); }
+    sendNotification(id, payload, subject) { fail("sendNotification"); mail.push({ id, payload, subject }); }
   };
   return { deps, rows, statuses, mail, events, failures, counts, warnings };
 }
@@ -60,6 +60,25 @@ const duplicate = context.pr7ProcessSubmission_(normal.deps, { requestToken: TOK
 assert.equal(normal.rows.length, 1); assert.equal(normal.mail.length, 1);
 assert.equal(first.requestId, duplicate.requestId); assert.equal(duplicate.state, "already_saved");
 assert.equal(normal.statuses.get(TOKEN).state, "saved");
+assert.match(normal.mail[0].subject, /^\[HG-REQUEST:HG-TEST-0001\]/);
+assert.equal(context.pr7NotificationSubjectHasMarker_(normal.mail[0].subject, "HG-TEST-0001"), true);
+assert.equal(context.pr7NotificationSubjectHasMarker_("一般通知", "HG-TEST-0001"), false, "subject without marker must fail the adapter contract");
+assert.equal(context.pr7NotificationSubject_("HG-ONE", { notificationSubject: "[HG-REQUEST:ATTACK] Custom" }).startsWith("[HG-REQUEST:HG-ONE]"), true);
+assert.notEqual(context.pr7NotificationSubjectMarker_("HG-ONE"), context.pr7NotificationSubjectMarker_("HG-TWO"));
+
+const uppercase = harness();
+const uppercaseSaved = context.pr7ProcessSubmission_(uppercase.deps, { requestToken: TOKEN.toUpperCase() });
+const uppercaseStatus = context.pr7ResolveStatus_(uppercase.deps, TOKEN.toUpperCase());
+assert.equal(uppercaseStatus.state, "saved"); assert.equal(uppercaseStatus.requestId, uppercaseSaved.requestId);
+context.pr7ProcessSubmission_(uppercase.deps, { requestToken: `  ${TOKEN.toUpperCase()}  ` });
+assert.equal(uppercase.rows.length, 1); assert.equal(uppercase.rows[0].operations.request_token, TOKEN);
+
+for (const [invalidToken, code] of [["", "REQUEST_TOKEN_REQUIRED"], ["invalid", "REQUEST_TOKEN_INVALID"]]) {
+  const invalid = harness();
+  const invalidResult = context.pr7ResolveStatus_(invalid.deps, invalidToken);
+  assert.equal(invalidResult.code, code);
+  assert.equal(invalid.counts.getStatus || 0, 0); assert.equal(invalid.counts.findByToken || 0, 0);
+}
 
 const findFailure = harness({ findByToken: true });
 assert.equal(context.pr7ProcessSubmission_(findFailure.deps, { requestToken: TOKEN }).code, "SHEET_READ_FAILED");
@@ -179,6 +198,19 @@ const staleAudit = context.auditStage2FormOperationsPr7(crashAfterClaim.rows.map
 assert.ok(staleAudit.findings.some(item => item.code === "STALE_NOTIFICATION_CLAIM"));
 const recoveryPlan = context.pr7NotificationRecoveryPlan_(crashAfterClaim.rows[0], staleNow);
 assert.equal(recoveryPlan.action, "manual_reconcile_gmail_sent"); assert.match(recoveryPlan.subjectMarker, new RegExp(crashRequestId));
+assert.equal(recoveryPlan.subjectMarker, context.pr7NotificationSubjectMarker_(crashRequestId));
+
+for (const [claimedAt, timestampCode] of [["", "TIMESTAMP_EMPTY"], ["invalid", "TIMESTAMP_INVALID"]]) {
+  const invalidClaimRow = { requestId: "HG-CLAIM-1", operations: { notification_status: "sending", notification_claimed_at: claimedAt } };
+  const plan = context.pr7NotificationRecoveryPlan_(invalidClaimRow, staleNow);
+  assert.equal(plan.required, true); assert.equal(plan.action, "manual_reconcile_gmail_sent");
+  assert.equal(plan.code, "INVALID_NOTIFICATION_CLAIM_TIMESTAMP"); assert.equal(plan.timestampCode, timestampCode);
+  assert.equal(plan.requestId, "HG-CLAIM-1"); assert.equal(plan.subjectMarker, "[HG-REQUEST:HG-CLAIM-1]");
+  const claimAudit = context.auditStage2FormOperationsPr7([{ ...invalidClaimRow.operations, requestId: invalidClaimRow.requestId, source: "x", email: "a@b.co", note: "x" }], [], staleNow);
+  assert.ok(claimAudit.findings.some(item => item.code === "INVALID_NOTIFICATION_CLAIM_TIMESTAMP"));
+}
+const activePlan = context.pr7NotificationRecoveryPlan_({ requestId: "HG-ACTIVE", operations: { notification_status: "sending", notification_claimed_at: staleNow - 1000 } }, staleNow);
+assert.equal(activePlan.required, false); assert.equal(activePlan.code, "CLAIM_ACTIVE");
 
 const testLead = harness();
 context.pr7ProcessSubmission_(testLead.deps, { requestToken: TOKEN, is_test: "TRUE" });

@@ -76,22 +76,25 @@ function pr7PutSavedStatus_(deps, token, requestId, warning) {
 
 /** doGet status adapter 使用：status store 不可信時唯讀回查 Sheet，不修改資料或寄信。 */
 function pr7ResolveStatus_(deps, token) {
+  var tokenResult = pr7ValidateRequestToken_(token);
+  if (!tokenResult.ok) return { ok: false, state: "error", requestId: "", message: tokenResult.code, code: tokenResult.code };
+  var canonicalToken = tokenResult.value;
   var stored = null;
-  try { stored = deps.getStatus(token); } catch (_) { pr7RecordWarning_(deps, token, "STATUS_STORE_READ_FAILED", ""); }
+  try { stored = deps.getStatus(canonicalToken); } catch (_) { pr7RecordWarning_(deps, canonicalToken, "STATUS_STORE_READ_FAILED", ""); }
   if (stored && stored.ok === true && stored.state === "saved" && String(stored.requestId || "")) return pr7SafeStatusResponse_(stored);
   var shouldReconcile = !stored || ["received", "processing", "pending", "not_found"].indexOf(String(stored.state || "")) !== -1 || stored.code === "SAVED_STATUS_PERSISTENCE_FAILED";
   if (!shouldReconcile && stored) return pr7SafeStatusResponse_(stored);
   try {
-    var row = deps.findByToken(token);
+    var row = deps.findByToken(canonicalToken);
     var requestId = String(row && row.requestId || "");
     var finalStatus = String(row && row.operations && row.operations.final_status || "");
     if (row && requestId && ["saved", "notification_sent", "notification_error"].indexOf(finalStatus) !== -1) {
       var notificationStatus = String(row.operations.notification_status || "");
       var warning = ["error", "sending", "metadata_pending", "pending"].indexOf(notificationStatus) !== -1 ? "NOTIFICATION_" + notificationStatus.toUpperCase() : "";
-      pr7RecordWarning_(deps, token, "STATUS_RECONCILED_FROM_SHEET", requestId);
+      pr7RecordWarning_(deps, canonicalToken, "STATUS_RECONCILED_FROM_SHEET", requestId);
       return { ok: true, state: "saved", requestId: requestId, message: warning };
     }
-  } catch (_) { pr7RecordWarning_(deps, token, "STATUS_SHEET_RECONCILIATION_FAILED", ""); }
+  } catch (_) { pr7RecordWarning_(deps, canonicalToken, "STATUS_SHEET_RECONCILIATION_FAILED", ""); }
   return pr7SafeStatusResponse_(stored || { ok: false, state: "not_found", requestId: "", message: "" });
 }
 
@@ -101,8 +104,25 @@ function pr7NotificationRecoveryPlan_(row, currentTimeMs) {
   if (status !== "sending") return { required: false, action: "none" };
   var claimed = pr7TimestampMs_(operations.notification_claimed_at);
   var nowResult = pr7TimestampMs_(currentTimeMs);
-  if (!claimed.ok || !nowResult.ok || nowResult.value - claimed.value <= 300000) return { required: false, action: "wait", code: claimed.ok ? "CLAIM_ACTIVE" : claimed.code };
-  return { required: true, action: "manual_reconcile_gmail_sent", code: "STALE_NOTIFICATION_CLAIM", requestId: String(row.requestId || ""), subjectMarker: "[HG-REQUEST:" + String(row.requestId || "") + "]" };
+  var requestId = String(row.requestId || "");
+  var marker = pr7NotificationSubjectMarker_(requestId);
+  if (!claimed.ok) return { required: true, action: "manual_reconcile_gmail_sent", code: "INVALID_NOTIFICATION_CLAIM_TIMESTAMP", timestampCode: claimed.code, requestId: requestId, subjectMarker: marker };
+  if (!nowResult.ok || nowResult.value - claimed.value <= 300000) return { required: false, action: "wait", code: nowResult.ok ? "CLAIM_ACTIVE" : nowResult.code, requestId: requestId, subjectMarker: marker };
+  return { required: true, action: "manual_reconcile_gmail_sent", code: "STALE_NOTIFICATION_CLAIM", requestId: requestId, subjectMarker: marker };
+}
+
+function pr7NotificationSubjectMarker_(requestId) {
+  return "[HG-REQUEST:" + String(requestId || "").trim() + "]";
+}
+
+function pr7NotificationSubject_(requestId, payload) {
+  var marker = pr7NotificationSubjectMarker_(requestId);
+  var requested = String(payload && payload.notificationSubject || "").replace(/\[HG-REQUEST:[^\]]*\]/g, "").trim();
+  return marker + (requested ? " " + requested : " 恒構企業社網站需求通知");
+}
+
+function pr7NotificationSubjectHasMarker_(subject, requestId) {
+  return String(subject || "").indexOf(pr7NotificationSubjectMarker_(requestId)) !== -1;
 }
 
 function pr7OperationalDefaults_(payload) {
@@ -246,7 +266,7 @@ function pr7ProcessSubmission_(deps, payload) {
   var notificationSentAt;
   if (typeof deps.beforeNotificationSend === "function") deps.beforeNotificationSend(lockedResult.requestId);
   try {
-    deps.sendNotification(lockedResult.requestId, payload);
+    deps.sendNotification(lockedResult.requestId, payload, pr7NotificationSubject_(lockedResult.requestId, payload));
     notificationSentAt = deps.now();
   } catch (error) {
     var sendFailedAt = deps.now();
@@ -320,6 +340,7 @@ function auditStage2FormOperationsPr7(rows, notificationRecords, currentTimeMs) 
     if (row.notification_status && row.notification_status !== "sent") findings.push({ row: number, code: "NOTIFICATION_NOT_SENT" });
     var recoveryPlan = pr7NotificationRecoveryPlan_(row, auditNow);
     if (recoveryPlan.code === "STALE_NOTIFICATION_CLAIM") findings.push({ row: number, code: "STALE_NOTIFICATION_CLAIM", requestId: id, action: recoveryPlan.action });
+    if (recoveryPlan.code === "INVALID_NOTIFICATION_CLAIM_TIMESTAMP") findings.push({ row: number, code: "INVALID_NOTIFICATION_CLAIM_TIMESTAMP", timestampCode: recoveryPlan.timestampCode, requestId: id, action: recoveryPlan.action });
     var processingStarted = pr7TimestampMs_(row.processing_started_at);
     if (row.final_status === "processing" && processingStarted.ok && auditNow - processingStarted.value > 60000) findings.push({ row: number, code: "PROCESSING_OVER_60S" });
     if (row.final_status === "processing" && !processingStarted.ok) findings.push({ row: number, code: processingStarted.code });

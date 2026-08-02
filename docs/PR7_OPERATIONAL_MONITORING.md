@@ -7,3 +7,5 @@
 所有時間解析共用 `pr7TimestampMs_`，接受 Date、epoch milliseconds number、numeric string 與 ISO datetime；成功回傳有限毫秒，空白回傳 `TIMESTAMP_EMPTY`，其他無效值回傳 `TIMESTAMP_INVALID`。Recovery 與 audit 都不得寫入 NaN。
 
 Audit 另報告 `SAVED_STATUS_PERSISTENCE_FAILED`、`NOTIFICATION_OWNERSHIP_FAILED` 與超過 5 分鐘的 `STALE_NOTIFICATION_CLAIM`。後者附帶 `manual_reconcile_gmail_sent` 動作；第一版不自動查 Gmail、不自動重寄或修改正式 Sheet。
+
+sending claim 的 claimed_at 空白或無效時報 `INVALID_NOTIFICATION_CLAIM_TIMESTAMP`，並附 requestId、subjectMarker 與 `manual_reconcile_gmail_sent`；仍維持 at-most-once。

@@ -1,0 +1,50 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: JavaScript syntax
+        run: |
+          node --check js/form-client.js
+          node --check js/public-form.js
+          node --check gpu/gpu.js
+          node --check scripts/check-pr7-form-operations.mjs
+          node --check scripts/check-pr7-polling-performance.mjs
+          node --check scripts/check-pr7-adapter-integration.mjs
+          node --check scripts/check-pr7-sensitive.mjs
+      - name: PR7 operations
+        run: npm run check:pr7-operations
+      - name: PR7 polling
+        run: npm run check:pr7-polling
+      - name: PR7 adapter integration
+        run: npm run check:pr7-adapter
+      - name: Stage 2
+        run: npm run check:stage2-form
+      - name: Automation
+        run: npm run check:automation-page
+      - name: Required files
+        run: npm run check:files
+      - name: RC6
+        run: npm run check:rc6
+      - name: Diff hygiene
+        run: git diff --check origin/main...HEAD
+      - name: Sensitive scan
+        env:
+          PR7_SECURITY_DIFF_FILE: ${{ runner.temp }}/pr7-security.diff
+        run: |
+          git diff -U0 origin/${{ github.base_ref }}...HEAD -- . ':!assets/images/*' > "$PR7_SECURITY_DIFF_FILE"
+          npm run check:pr7-sensitive

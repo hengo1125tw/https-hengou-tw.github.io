@@ -11,3 +11,5 @@
 第二輪再驗證 invocation-only LOCK_TIMEOUT 不污染 processing/saved、saved status write failure 與 partial recovery status failure 皆能完成唯一通知、pending/sending/sent/error/metadata_pending 所有權契約，以及 Date/number/numeric string/ISO/invalid timestamp。Polling 整合序列為 processing → 競爭 invocation LOCK_TIMEOUT（不進共享 status）→ saved，前端只看到 processing → saved 成功。
 
 第三輪新增 adapter-level integration：PR7 process → persistent status/Sheet mock → `pr7ResolveStatus_` JSONP → 正式 `form-client.js`。驗證 saved status 三次失敗仍以 Sheet reconciliation 讓前端成功、ownership metadata failure 回傳 saved+warning 且不寄信、claim 後 runtime termination 留下 sending、stale claim audit 與 at-most-once 人工 Gmail Sent 核對計畫。
+
+第四輪新增 status UUID canonicalization、invalid token 零 adapter call、invalid claim timestamp、實際 Gmail subject marker 與獨立 PR validation workflow。CI 只執行語法、PR7、Stage 2、Automation、Required files、RC6、diff 與 sensitive scan，不含 Pages 或 Apps Script 部署。

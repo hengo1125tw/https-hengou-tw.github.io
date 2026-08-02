@@ -23,6 +23,10 @@ Lock acquisition timeout 是 invocation-only error，只回傳 `LOCK_TIMEOUT`，
 
 Sheet saved 後以 `pr7PutSavedStatus_` 最多嘗試 3 次，只寫 status store，不重新 POST、append 或寄信。三次皆失敗時記錄 `SAVED_STATUS_PERSISTENCE_FAILED` warning。`pr7ResolveStatus_` 作為 doGet status adapter：status 缺失、仍在 processing 或 persistence failure 時，依 requestToken 唯讀回查 Sheet；若 Sheet 已有 saved/requestId，即回傳正式 saved，不修改 Sheet、不寄信。
 
+POST 與 status 查詢都先用 `pr7ValidateRequestToken_`：UUID trim 後轉小寫成 canonical token。空白／格式錯誤直接回 `REQUEST_TOKEN_REQUIRED`／`REQUEST_TOKEN_INVALID`，不得呼叫 status store 或 Sheet adapter。大寫與小寫 UUID 必須映射同一列與 requestId。
+
 ## Crash-after-claim
 
 正式採 **at-most-once**。claim 在鎖內寫入 `notification_status=sending`、唯一 `notification_claim_id`、`notification_claimed_at` 與遞增的 `notification_attempt_count`，Gmail 在解鎖後寄送。sending 超過 5 分鐘列為 `STALE_NOTIFICATION_CLAIM`，不得自動重寄；管理者須以固定 `[HG-REQUEST:<requestId>]` subject marker 搜尋 Gmail Sent，確認已寄或未寄後再依人工程序修復。此契約可能漏信，但避免不確定狀態下重複寄送，不宣稱 GmailApp exactly-once。
+
+實際 `sendNotification(requestId, payload, subject)` adapter contract 的第三參數由 `pr7NotificationSubject_` 產生，必定包含不可由 payload 覆蓋的完整 marker。sending 的 claimed_at 空白或無效時直接報 `INVALID_NOTIFICATION_CLAIM_TIMESTAMP` 並進人工 Gmail Sent reconciliation，不自動寄信或重設 pending。

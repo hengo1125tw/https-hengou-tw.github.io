@@ -11,23 +11,16 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
+      - name: Install dependencies
+        run: npm ci
       - name: JavaScript syntax
-        run: |
-          node --check js/form-client.js
-          node --check js/public-form.js
-          node --check gpu/gpu.js
-          node --check scripts/check-pr7-form-operations.mjs
-          node --check scripts/check-pr7-polling-performance.mjs
-          node --check scripts/check-pr7-adapter-integration.mjs
-          node --check scripts/check-pr7-sensitive.mjs
-          node --check scripts/check-pr7-runtime-emulator.mjs
-          node --check scripts/check-pr7-browser-e2e.mjs
+        run: npm run check:syntax
       - name: PR7 operations
         run: npm run check:pr7-operations
       - name: PR7 polling
@@ -37,6 +30,16 @@ jobs:
       - name: PR7 Apps Script runtime emulator
         run: npm run check:pr7-runtime
       - name: PR7 deterministic browser harness
+        run: npm run check:pr7-browser-harness
+      - name: PR7 controlled concurrency
+        run: npm run check:pr7-concurrency
+      - name: PR7 migration fixtures
+        run: npm run check:pr7-migration
+      - name: PR7 audit fixtures
+        run: npm run check:pr7-audit
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: PR7 real Chromium E2E and responsive
         run: npm run check:pr7-browser
       - name: Stage 2
         run: npm run check:stage2-form
@@ -54,3 +57,16 @@ jobs:
         run: |
           git diff -U0 origin/${{ github.base_ref }}...HEAD -- . ':!assets/images/*' > "$PR7_SECURITY_DIFF_FILE"
           npm run check:pr7-sensitive
+      - name: Upload PR7 validation artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: pr7-validation-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            test-results/
+            playwright-report/
+            screenshots/
+            traces/
+            failure-logs/

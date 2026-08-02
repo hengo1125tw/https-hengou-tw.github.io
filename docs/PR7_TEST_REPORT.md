@@ -1,15 +1,5 @@
 # PR7 測試報告
 
-本地自動測試涵蓋 token 缺失／格式、效能分級、正常保存、循序重複、單列單信、通知失敗仍 saved、Sheet 失敗不寄信、測試商機隔離、安全 JSONP、append-only migration 與唯讀 audit。
+本批新增真實 Chromium E2E、本機 HTTP emulator、8 組 migration fixtures、5 組 audit fixtures、JUnit、JSON summary、HTML report、screenshots、trace 設定與 PR CI artifact 上傳。
 
-本次結果：JavaScript syntax、PR7 operations、PR7 polling 5/15/30/45/60/timeout、Stage 2、Automation、Required files、RC6 全部 PASS。B002–B012 亦 PASS。歷史 RC2 獨立檢查因要求舊 admin 版本標記而在現行 RC6 基線失敗，未修改期待值掩蓋。
-
-本機瀏覽器渲染首頁、GPU、Automation：390／768／1440 共九組均無水平溢位，圖片載入失敗 0，Console error/warning 0。真實 Sheet、Gmail 與正式三表單未送出，列入人工驗收。
-
-獨立缺陷修正重測新增：lock contention、append 後 update failure、partial row recovery、find/status failure、Gmail 成功但 metadata 失敗、重複 metadata failure、stale processing 空 duration、Sheet boolean 正規化、空 Sheet A1 migration。Polling 測試直接以 VM 載入正式 `js/form-client.js` 並使用虛擬時間執行 5/15/30/45/60 秒、timeout 與 saved stop，不再複製正式常數。
-
-第二輪再驗證 invocation-only LOCK_TIMEOUT 不污染 processing/saved、saved status write failure 與 partial recovery status failure 皆能完成唯一通知、pending/sending/sent/error/metadata_pending 所有權契約，以及 Date/number/numeric string/ISO/invalid timestamp。Polling 整合序列為 processing → 競爭 invocation LOCK_TIMEOUT（不進共享 status）→ saved，前端只看到 processing → saved 成功。
-
-第三輪新增 adapter-level integration：PR7 process → persistent status/Sheet mock → `pr7ResolveStatus_` JSONP → 正式 `form-client.js`。驗證 saved status 三次失敗仍以 Sheet reconciliation 讓前端成功、ownership metadata failure 回傳 saved+warning 且不寄信、claim 後 runtime termination 留下 sending、stale claim audit 與 at-most-once 人工 Gmail Sent 核對計畫。
-
-第四輪新增 status UUID canonicalization、invalid token 零 adapter call、invalid claim timestamp、實際 Gmail subject marker 與獨立 PR validation workflow。CI 只執行語法、PR7、Stage 2、Automation、Required files、RC6、diff 與 sensitive scan，不含 Pages 或 Apps Script 部署。
+本機測試使用虛構資料，沒有呼叫正式 Endpoint、Gmail、Spreadsheet 或 Apps Script。Production 未部署、PR 未合併，Google Cloud 驗證仍為 `CLOUD_AUTOMATION_BLOCKED_CREDENTIALS`。

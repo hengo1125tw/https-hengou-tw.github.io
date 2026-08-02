@@ -31,8 +31,18 @@ function pr7ProcessingHealth_(durationMs) {
   return "abnormal";
 }
 
+function pr7Boolean_(value) {
+  if (value === true || value === 1) return true;
+  if (value === false || value === 0 || value === null || value === undefined || value === "") return false;
+  return String(value).trim().toLowerCase() === "true";
+}
+
+function pr7ErrorCode_(error, fallback) {
+  return String(error && (error.code || error.message) || fallback).toUpperCase().replace(/[^A-Z0-9_]/g, "_");
+}
+
 function pr7OperationalDefaults_(payload) {
-  var isTest = payload && payload.is_test === true;
+  var isTest = pr7Boolean_(payload && payload.is_test);
   return {
     lead_status: isTest ? "系統測試" : "新進需求",
     owner: "", next_action: "", next_action_date: "", contacted_at: "",
@@ -53,24 +63,46 @@ function pr7ProcessSubmission_(deps, payload) {
   if (!tokenResult.ok) return { ok: false, state: "error", code: tokenResult.code };
   var token = tokenResult.value;
   var receivedAt = deps.now();
-  deps.putStatus(token, { ok: false, state: "received", requestId: "" });
 
   var lockedResult;
   try {
     lockedResult = deps.withLock(10000, function () {
-      var existing = deps.findByToken(token);
+      var existing;
+      try { existing = deps.findByToken(token); }
+      catch (error) { return { error: true, code: "SHEET_READ_FAILED", message: "無法查核既有需求" }; }
       if (existing) {
         if (existing.requestId) {
-          deps.putStatus(token, { ok: true, state: "saved", requestId: existing.requestId, duplicate: true });
-          return { duplicate: true, requestId: existing.requestId };
+          var existingFinal = String(existing.operations && existing.operations.final_status || "");
+          if (["saved", "notification_sent", "notification_error"].indexOf(existingFinal) === -1) {
+            var recoveredAt = deps.now();
+            try {
+              deps.updateRequest(existing.requestId, {
+                saved_at: existing.operations && existing.operations.saved_at || recoveredAt,
+                processing_duration_ms: Math.max(0, recoveredAt - Number(existing.operations && existing.operations.processing_started_at || recoveredAt)),
+                processing_health: pr7ProcessingHealth_(Math.max(0, recoveredAt - Number(existing.operations && existing.operations.processing_started_at || recoveredAt))),
+                final_status: "saved", error_code: "", error_message: ""
+              });
+            } catch (error) {
+              return { error: true, state: "processing", code: "PARTIAL_WRITE_RECOVERY_FAILED", requestId: existing.requestId, message: "資料列已存在，等待人工或安全重試完成狀態修復" };
+            }
+          }
+          try { deps.putStatus(token, { ok: true, state: "saved", requestId: existing.requestId, duplicate: true }); }
+          catch (error) { return { error: true, state: "saved", code: "STATUS_WRITE_FAILED", requestId: existing.requestId, rowExists: true }; }
+          var wasRecovered = existingFinal !== "saved" && existingFinal !== "notification_sent" && existingFinal !== "notification_error";
+          return { duplicate: !wasRecovered, requestId: existing.requestId, recovered: wasRecovered, savedAt: deps.now() };
         }
         return { error: true, code: "REQUEST_ALREADY_PROCESSING" };
       }
 
       var processingAt = deps.now();
-      deps.putStatus(token, { ok: false, state: "processing", requestId: "" });
+      try { deps.putStatus(token, { ok: false, state: "received", requestId: "" }); }
+      catch (error) { return { error: true, code: "STATUS_WRITE_FAILED", message: "無法建立 received 狀態" }; }
+      try { deps.putStatus(token, { ok: false, state: "processing", requestId: "" }); }
+      catch (error) { return { error: true, code: "STATUS_WRITE_FAILED", message: "無法建立 processing 狀態" }; }
       var requestId = deps.createRequestId();
-      if (!requestId || deps.findByRequestId(requestId)) return { error: true, code: "REQUEST_ID_CONFLICT" };
+      try {
+        if (!requestId || deps.findByRequestId(requestId)) return { error: true, code: "REQUEST_ID_CONFLICT" };
+      } catch (error) { return { error: true, code: "SHEET_READ_FAILED", message: "無法查核需求編號" }; }
       var defaults = pr7OperationalDefaults_(payload);
       var operations = Object.assign({}, defaults, {
         request_token: token,
@@ -85,24 +117,32 @@ function pr7ProcessSubmission_(deps, payload) {
       }
       var savedAt = deps.now();
       var processingMs = savedAt - processingAt;
-      deps.updateRequest(requestId, {
-        saved_at: savedAt,
-        processing_duration_ms: processingMs,
-        processing_health: pr7ProcessingHealth_(processingMs),
-        final_status: "saved"
-      });
-      deps.putStatus(token, { ok: true, state: "saved", requestId: requestId });
+      try {
+        deps.updateRequest(requestId, {
+          saved_at: savedAt,
+          processing_duration_ms: processingMs,
+          processing_health: pr7ProcessingHealth_(processingMs),
+          final_status: "saved"
+        });
+      } catch (error) {
+        return { error: true, state: "processing", code: "PARTIAL_WRITE_PENDING", requestId: requestId, rowExists: true, message: "資料列已建立，等待安全重試完成狀態" };
+      }
+      try { deps.putStatus(token, { ok: true, state: "saved", requestId: requestId }); }
+      catch (error) { return { error: true, state: "saved", code: "STATUS_WRITE_FAILED", requestId: requestId, rowExists: true }; }
       return { duplicate: false, requestId: requestId, savedAt: savedAt };
     });
   } catch (error) {
-    var lockError = { ok: false, state: "error", code: "LOCK_TIMEOUT", message: "系統忙碌，未建立需求資料" };
-    deps.putStatus(token, lockError);
-    return lockError;
+    var caughtCode = pr7ErrorCode_(error, "LOCK_EXECUTION_FAILED");
+    var caught = { ok: false, state: "error", code: caughtCode === "LOCK_TIMEOUT" ? "LOCK_TIMEOUT" : "LOCK_EXECUTION_FAILED", message: caughtCode === "LOCK_TIMEOUT" ? "系統忙碌，未取得處理鎖" : "鎖定區段執行失敗" };
+    try { deps.putStatus(token, caught); } catch (_) { caught.statusWriteFailed = true; }
+    return caught;
   }
 
   if (lockedResult.error) {
-    var failed = { ok: false, state: "error", code: lockedResult.code, message: lockedResult.message || "需求未完成處理" };
-    deps.putStatus(token, failed);
+    var failed = { ok: false, state: lockedResult.state || "error", code: lockedResult.code, message: lockedResult.message || "需求未完成處理" };
+    if (lockedResult.requestId) failed.requestId = lockedResult.requestId;
+    if (lockedResult.rowExists) failed.rowExists = true;
+    try { deps.putStatus(token, failed); } catch (_) { failed.statusWriteFailed = true; }
     return failed;
   }
   if (lockedResult.duplicate) {
@@ -110,9 +150,20 @@ function pr7ProcessSubmission_(deps, payload) {
   }
 
   var notificationStartedAt = deps.now();
+  var notificationSentAt;
   try {
     deps.sendNotification(lockedResult.requestId, payload);
-    var notificationSentAt = deps.now();
+    notificationSentAt = deps.now();
+  } catch (error) {
+    var sendFailedAt = deps.now();
+    try {
+      deps.updateRequest(lockedResult.requestId, { completed_at: sendFailedAt, notification_duration_ms: sendFailedAt - notificationStartedAt, total_duration_ms: sendFailedAt - receivedAt, notification_status: "error", final_status: "notification_error", error_code: "NOTIFICATION_SEND_FAILED", error_message: "通知寄送失敗" });
+    } catch (_) {
+      return { ok: true, state: "saved", requestId: lockedResult.requestId, notification_status: "unknown_metadata_pending", recovery_code: "NOTIFICATION_ERROR_METADATA_UPDATE_FAILED" };
+    }
+    return { ok: true, state: "saved", requestId: lockedResult.requestId, notification_status: "error", recovery_code: "NOTIFICATION_SEND_FAILED" };
+  }
+  try {
     deps.updateRequest(lockedResult.requestId, {
       notification_sent_at: notificationSentAt,
       completed_at: notificationSentAt,
@@ -122,16 +173,7 @@ function pr7ProcessSubmission_(deps, payload) {
       final_status: "notification_sent"
     });
   } catch (error) {
-    var failedAt = deps.now();
-    deps.updateRequest(lockedResult.requestId, {
-      completed_at: failedAt,
-      notification_duration_ms: failedAt - notificationStartedAt,
-      total_duration_ms: failedAt - receivedAt,
-      notification_status: "error",
-      final_status: "notification_error",
-      error_code: "NOTIFICATION_FAILED",
-      error_message: "通知寄送失敗"
-    });
+    return { ok: true, state: "saved", requestId: lockedResult.requestId, notification_status: "sent_metadata_pending", recovery_code: "NOTIFICATION_METADATA_UPDATE_FAILED" };
   }
   return { ok: true, state: "saved", requestId: lockedResult.requestId };
 }
@@ -152,15 +194,15 @@ function pr7JsonpCallbackIsValid_(name) {
 
 /** 可安全重複執行；只在最右側新增缺少欄位，不重排、不覆寫既有欄。 */
 function migrateStage2FormOperationsPr7(sheet) {
-  var lastColumn = Math.max(sheet.getLastColumn(), 1);
-  var existing = sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0].map(String);
+  var lastColumn = Number(sheet.getLastColumn()) || 0;
+  var existing = lastColumn ? sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0].map(String) : [];
   var missing = PR7_OPERATIONAL_HEADERS.filter(function (header) { return existing.indexOf(header) === -1; });
-  if (missing.length) sheet.getRange(1, lastColumn + 1, 1, missing.length).setValues([missing]);
+  if (missing.length) sheet.getRange(1, lastColumn ? lastColumn + 1 : 1, 1, missing.length).setValues([missing]);
   return { added: missing, unchanged: PR7_OPERATIONAL_HEADERS.length - missing.length };
 }
 
 /** 唯讀 audit；不刪除、不寄信、不修改任何資料。 */
-function auditStage2FormOperationsPr7(rows, notificationRecords) {
+function auditStage2FormOperationsPr7(rows, notificationRecords, currentTimeMs) {
   var tokenToIds = {};
   var tokenCounts = {};
   var idCounts = {};
@@ -177,8 +219,10 @@ function auditStage2FormOperationsPr7(rows, notificationRecords) {
     if (row.final_status === "saved" && !id) findings.push({ row: number, code: "SAVED_WITHOUT_REQUEST_ID" });
     if (row.final_status && PR7_FINAL_STATUSES.indexOf(row.final_status) === -1) findings.push({ row: number, code: "INVALID_FINAL_STATUS" });
     if (row.notification_status && row.notification_status !== "sent") findings.push({ row: number, code: "NOTIFICATION_NOT_SENT" });
-    if (row.final_status === "processing" && Number(row.processing_duration_ms) > 60000) findings.push({ row: number, code: "PROCESSING_OVER_60S" });
-    if (row.is_test === true && row.excluded_from_pipeline !== true) findings.push({ row: number, code: "TEST_IN_PIPELINE" });
+    var processingStartedMs = new Date(row.processing_started_at).getTime();
+    var auditNow = Number(currentTimeMs) || Date.now();
+    if (row.final_status === "processing" && isFinite(processingStartedMs) && auditNow - processingStartedMs > 60000) findings.push({ row: number, code: "PROCESSING_OVER_60S" });
+    if (pr7Boolean_(row.is_test) && !pr7Boolean_(row.excluded_from_pipeline)) findings.push({ row: number, code: "TEST_IN_PIPELINE" });
     if (!row.source) findings.push({ row: number, code: "SOURCE_MISSING" });
     if (!row.email && !row.phone) findings.push({ row: number, code: "CONTACT_MISSING" });
     if (!row.note) findings.push({ row: number, code: "NOTE_MISSING" });

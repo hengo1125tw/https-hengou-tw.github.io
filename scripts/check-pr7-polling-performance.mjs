@@ -1,34 +1,65 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import vm from "node:vm";
 
-const FAST_PHASE_MS = 15000;
-const FAST_INTERVAL_MS = 800;
-const SLOW_INTERVAL_MS = 2500;
-const MAX_MS = 60000;
+const clientSource = readFileSync(new URL("../js/form-client.js", import.meta.url), "utf8");
+const ENDPOINT = "https://script.google.com/macros/s/REDACTED_TEST_DEPLOYMENT/exec";
 
-function simulate(savedAtMs) {
-  const polls = [];
-  let now = 0;
-  while (now <= MAX_MS) {
-    polls.push({ at: now, token: "fixed-token", ts: now + polls.length });
-    if (savedAtMs <= now) return { saved: true, polls };
-    if (now === MAX_MS) break;
-    const interval = now < FAST_PHASE_MS ? FAST_INTERVAL_MS : SLOW_INTERVAL_MS;
-    now = Math.min(MAX_MS, now + interval);
+async function runActualClient(savedAtMs) {
+  let now = 0, nextTimer = 1, settled = false, result;
+  const timers = new Map(), statusUrls = [], posts = [];
+  class FakeDate extends Date { static now() { return now; } }
+  const setTimeoutFake = (callback, delay = 0) => { const id = nextTimer++; timers.set(id, { at: now + Math.max(0, Number(delay)), callback }); return id; };
+  const clearTimeoutFake = id => timers.delete(id);
+  const window = {
+    HG_FORM_CONFIG: { ENDPOINT, STATUS_TIMEOUT_MS: 60000, STATUS_REQUEST_TIMEOUT_MS: 5000, STATUS_FAST_PHASE_MS: 15000, STATUS_FAST_POLL_INTERVAL_MS: 800, STATUS_SLOW_POLL_INTERVAL_MS: 2500 },
+    location: { search: "?utm_source=test", href: "https://example.test/", assign() {} },
+    setTimeout: setTimeoutFake, clearTimeout: clearTimeoutFake,
+    open() { return {}; }, crypto: { randomUUID: () => "12345678-1234-4234-8234-123456789abc" }
+  };
+  const document = {
+    referrer: "https://referrer.test/",
+    createElement() { return { remove() {} }; },
+    head: { appendChild(script) {
+      const url = new URL(script.src); statusUrls.push({ at: now, url });
+      queueMicrotask(() => window[url.searchParams.get("prefix")]({ ok: now >= savedAtMs, state: now >= savedAtMs ? "saved" : "processing", requestId: now >= savedAtMs ? "HG-ACTUAL-1" : "" }));
+    } }
+  };
+  const fetch = (_url, options) => { posts.push(JSON.parse(options.body)); return new Promise(() => {}); };
+  vm.runInNewContext(clientSource, { window, document, navigator: { userAgent: "test", language: "zh-TW", onLine: true }, Intl, URLSearchParams, URL, fetch, Date: FakeDate, Math });
+  window.HGFormClient.submit({ formType: "general" }).then(value => { settled = true; result = value; });
+  let idleTurns = 0;
+  for (let guard = 0; !settled && guard < 2000; guard += 1) {
+    await Promise.resolve(); await Promise.resolve();
+    if (settled) break;
+    const pending = [...timers.entries()].sort((a, b) => a[1].at - b[1].at)[0];
+    if (!pending) { idleTurns += 1; assert.ok(idleTurns < 20, "actual client stalled without a timer"); continue; }
+    idleTurns = 0;
+    timers.delete(pending[0]); now = pending[1].at; pending[1].callback();
   }
-  return { saved: false, polls };
+  assert.ok(settled, "actual client did not settle");
+  return { result, statusUrls, posts };
 }
 
 for (const seconds of [5, 15, 30, 45, 60]) {
-  const result = simulate(seconds * 1000);
-  assert.equal(result.saved, true, `${seconds}s saved must be confirmed`);
-  assert.ok(result.polls.length <= 40, `${seconds}s polling must not create a request storm`);
-  assert.equal(new Set(result.polls.map(item => item.token)).size, 1, "requestToken must remain fixed");
-  assert.equal(new Set(result.polls.map(item => item.ts)).size, result.polls.length, "every cache buster must differ");
-  assert.ok(result.polls.at(-1).at >= seconds * 1000, "polling must stop only after saved");
+  const run = await runActualClient(seconds * 1000);
+  assert.equal(run.result.ok, true, `${seconds}s saved must succeed`);
+  assert.equal(run.result.requestId, "HG-ACTUAL-1");
+  assert.equal(run.posts.length, 1, "actual client must POST once");
+  assert.ok(run.statusUrls.length <= 40, "actual client must not create a request storm");
+  assert.equal(new Set(run.statusUrls.map(item => item.url.searchParams.get("requestToken"))).size, 1);
+  assert.equal(new Set(run.statusUrls.map(item => item.url.searchParams.get("_ts"))).size, run.statusUrls.length);
+  assert.equal(run.statusUrls.at(-1).at >= seconds * 1000, true);
 }
 
-const overSixty = simulate(60001);
-assert.equal(overSixty.saved, false);
-assert.equal(overSixty.polls.at(-1).at, 60000);
-assert.ok(overSixty.polls.length <= 40);
-console.log("PR7 polling performance checks passed (5/15/30/45/60/timeout)");
+const timeout = await runActualClient(Number.POSITIVE_INFINITY);
+assert.equal(timeout.result.code, "status_timeout");
+assert.equal(timeout.posts.length, 1, "timeout must not retry POST");
+assert.equal(timeout.statusUrls.at(-1).at, 60000);
+const before = timeout.statusUrls.length;
+await Promise.resolve();
+assert.equal(timeout.statusUrls.length, before, "settled timeout must stop polling");
+
+const earlySaved = await runActualClient(5000);
+assert.equal(earlySaved.statusUrls.filter(item => item.at > earlySaved.statusUrls.at(-1).at).length, 0, "saved must stop polling");
+console.log("PR7 actual form-client polling checks passed (5/15/30/45/60/timeout)");

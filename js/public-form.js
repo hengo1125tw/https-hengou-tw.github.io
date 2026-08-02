@@ -8,10 +8,14 @@
   const overlay = $("#loadingOverlay");
   const fallbackDialog = $("#leadFallbackDialog");
   const fallbackMessage = $("#leadFallbackMessage");
+  const successBox = $("#leadSuccess");
+  const successMessage = $("#leadSuccessMessage");
+  const requestIdOutput = $("#leadRequestId");
   const submitButton = form?.querySelector('button[type="submit"]');
   const client = window.HGFormClient;
   let submitting = false;
   let toastTimer = 0;
+  let savedRequestId = "";
 
   if (!form || !client) return;
 
@@ -138,13 +142,17 @@
     trackAutomation("automation_form_submit");
     setBusy(true);
     const response = await client.submit(payload, {
-      onStatus: status => showMessage(status.message, "info")
+      onStatus: status => showMessage(`${status.message}（已等待 ${status.elapsedSeconds || 0} 秒）`, "info")
     });
     submitting = false;
     setBusy(false);
 
     if (response.ok === true && response.state === "saved" && clean(response.requestId)) {
       form.reset();
+      savedRequestId = clean(response.requestId);
+      if (successBox) successBox.hidden = false;
+      if (successMessage) successMessage.textContent = response.message;
+      if (requestIdOutput) requestIdOutput.textContent = savedRequestId;
       showMessage(response.message, "success");
       trackAutomation("automation_form_success");
       return;
@@ -153,6 +161,11 @@
     showMessage(response.message, "error");
     showFallback(response.message);
     trackAutomation("automation_form_error");
+  });
+
+  $("#leadRequestIdCopy")?.addEventListener("click", async () => {
+    const copied = await client.copyText(savedRequestId);
+    showMessage(copied.ok ? "需求編號已複製。" : `無法自動複製，請手動複製：${copied.text}`, copied.ok ? "success" : "info");
   });
 
   $("[data-lead-dialog-close]")?.addEventListener("click", () => fallbackDialog?.close());
@@ -166,12 +179,8 @@
   });
 
   $("#leadCopyButton")?.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(latestSummary);
-      showMessage("需求內容已複製。", "success");
-    } catch {
-      showMessage("無法自動複製，請改用 Gmail 或 LINE。", "error");
-    }
+    const copied = await client.copyText(latestSummary);
+    showMessage(copied.ok ? "需求內容已複製。" : "無法自動複製，請手動選取內容或改用 Gmail／LINE。", copied.ok ? "success" : "info");
   });
 
   const lineButton = $("#leadLineButton");

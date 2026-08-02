@@ -592,7 +592,7 @@ a{color:inherit}
   }
 }
 
-@media(max-width:720px){
+@media(max-width:820px){
   .site-header{
     align-items:flex-start;
   }
@@ -720,6 +720,7 @@ a{color:inherit}
 .toast.success{background:#166534}
 .toast.error{background:#b91c1c}
 .toast.info{background:#0f172a}
+.form-success{margin-top:14px;padding:14px;border:1px solid #86efac;border-radius:12px;background:#f0fdf4;color:#14532d}.form-success[hidden]{display:none}.form-success code{display:inline-block;margin-left:8px;overflow-wrap:anywhere}
 
 .loading-overlay{
   position:fixed;

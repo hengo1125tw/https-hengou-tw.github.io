@@ -300,6 +300,7 @@
           <label>備註<textarea name="note" rows="4" placeholder="請簡述目前想解決的流程或問題"></textarea></label>
           <button class="btn btn-primary form-button" type="submit">送出服務需求</button>
           <p class="form-note" id="leadFormNote">送出後將寫入需求紀錄並寄送通知；若服務異常，可改用 Gmail 或 LINE 聯絡。</p>
+          <div class="form-success" id="leadSuccess" role="status" hidden><p id="leadSuccessMessage"></p><button class="btn form-dialog-secondary" type="button" id="leadRequestIdCopy">複製需求編號</button><code id="leadRequestId"></code></div>
         </form>
       </div>
     </section>

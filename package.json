@@ -51,6 +51,8 @@
     "check:rc5": "node scripts/check-rc5-ai-actions-init-hotfix.mjs",
     "check:rc6": "node scripts/check-rc6-email-template-hotfix.mjs",
     "check:stage2-form": "node scripts/check-stage2-form.mjs",
-    "check:automation-page": "node scripts/check-automation-page.mjs"
+    "check:automation-page": "node scripts/check-automation-page.mjs",
+    "check:pr7-operations": "node scripts/check-pr7-form-operations.mjs",
+    "check:pr7-polling": "node scripts/check-pr7-polling-performance.mjs"
   }
 }

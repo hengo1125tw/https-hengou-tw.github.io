@@ -1,0 +1,5 @@
+# PR7 營運監控
+
+處理健康分級函式 `pr7ProcessingHealth_`：0–15 秒 normal、16–30 秒 slow、31–60 秒 observe、超過 60 秒 abnormal。
+
+`auditStage2FormOperationsPr7(rows)` 僅讀取並報告：重複 token/requestId、token 對應多 ID、processing 超時、saved 無 ID、非法 final_status、通知未成功、測試混入 pipeline、來源／聯絡／note 缺失。Gmail 有通知但 Sheet 無列需由管理者以 mailbox 與 audit 匯出交叉比對；程式不自動寄信、刪除、合併或修正。

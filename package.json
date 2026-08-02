@@ -53,6 +53,7 @@
     "check:stage2-form": "node scripts/check-stage2-form.mjs",
     "check:automation-page": "node scripts/check-automation-page.mjs",
     "check:pr7-operations": "node scripts/check-pr7-form-operations.mjs",
-    "check:pr7-polling": "node scripts/check-pr7-polling-performance.mjs"
+    "check:pr7-polling": "node scripts/check-pr7-polling-performance.mjs",
+    "check:pr7-adapter": "node scripts/check-pr7-adapter-integration.mjs"
   }
 }

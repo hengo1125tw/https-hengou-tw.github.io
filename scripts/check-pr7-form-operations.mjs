@@ -9,7 +9,7 @@ vm.runInNewContext(source, context, { filename: "PR7FormOperations.gs" });
 const TOKEN = "12345678-1234-4234-8234-123456789abc";
 
 function harness(failures = {}) {
-  const rows = [], statuses = new Map(), mail = [], events = [];
+  const rows = [], statuses = new Map(), mail = [], events = [], warnings = [];
   const counts = {};
   let now = 0, locked = false;
   const fail = name => {
@@ -32,12 +32,16 @@ function harness(failures = {}) {
     findByToken(token) { fail("findByToken"); return rows.find(row => row.operations.request_token === token); },
     findByRequestId(id) { return rows.find(row => row.requestId === id); },
     createRequestId() { return `HG-TEST-${String(rows.length + 1).padStart(4, "0")}`; },
+    createNotificationClaimId(id) { return `${id}-claim-${counts.updateRequest || 0}`; },
     appendRequest(payload, operations, requestId) { fail("appendRequest"); rows.push({ payload, operations: { ...operations }, requestId }); },
     updateRequest(id, patch) { fail("updateRequest"); const row = rows.find(item => item.requestId === id); if (!row) throw new Error("row missing"); Object.assign(row.operations, patch); if (patch.notification_status === "sending") failures.onSending?.(); },
     putStatus(token, value) { fail("putStatus"); const prior = statuses.get(token); if (prior?.state === "saved" && value.state !== "saved") throw new Error("status regression"); statuses.set(token, { ...value }); if (value.state === "processing") failures.onProcessing?.(); },
+    getStatus(token) { return statuses.get(token); },
+    recordWarning(warning) { warnings.push({ ...warning }); },
+    beforeNotificationSend(id) { failures.beforeNotificationSend?.(id); },
     sendNotification(id) { fail("sendNotification"); mail.push(id); }
   };
-  return { deps, rows, statuses, mail, events, failures, counts };
+  return { deps, rows, statuses, mail, events, failures, counts, warnings };
 }
 
 assert.equal(context.pr7ValidateRequestToken_("").code, "REQUEST_TOKEN_REQUIRED");
@@ -120,6 +124,19 @@ const savedDespiteStatusFailure = context.pr7ProcessSubmission_(savedStatusFailu
 assert.equal(savedDespiteStatusFailure.state, "saved"); assert.equal(savedStatusFailure.mail.length, 1);
 const savedStatusRetry = context.pr7ProcessSubmission_(savedStatusFailure.deps, { requestToken: TOKEN });
 assert.equal(savedStatusRetry.requestId, savedDespiteStatusFailure.requestId); assert.equal(savedStatusFailure.mail.length, 1);
+assert.equal(savedStatusFailure.statuses.get(TOKEN).ok, true);
+assert.equal(savedStatusFailure.statuses.get(TOKEN).state, "saved");
+assert.equal(savedStatusFailure.statuses.get(TOKEN).requestId, savedDespiteStatusFailure.requestId);
+
+const persistentStatusFailure = harness({ putStatus: [3, 4, 5] });
+const sheetSavedStatusMissing = context.pr7ProcessSubmission_(persistentStatusFailure.deps, { requestToken: TOKEN });
+assert.equal(persistentStatusFailure.rows[0].operations.final_status, "notification_sent");
+assert.equal(persistentStatusFailure.mail.length, 1);
+assert.equal(persistentStatusFailure.statuses.get(TOKEN).state, "processing");
+const reconciledStatus = context.pr7ResolveStatus_(persistentStatusFailure.deps, TOKEN);
+assert.equal(reconciledStatus.ok, true); assert.equal(reconciledStatus.state, "saved");
+assert.equal(reconciledStatus.requestId, sheetSavedStatusMissing.requestId);
+assert.ok(persistentStatusFailure.warnings.some(item => item.code === "SAVED_STATUS_PERSISTENCE_FAILED"));
 
 const partialStatusFailure = harness({ updateRequest: [1], putStatus: [4] });
 const partialBeforeRetry = context.pr7ProcessSubmission_(partialStatusFailure.deps, { requestToken: TOKEN });
@@ -128,6 +145,15 @@ const partialAfterRetry = context.pr7ProcessSubmission_(partialStatusFailure.dep
 assert.equal(partialAfterRetry.state, "saved"); assert.equal(partialStatusFailure.mail.length, 1);
 context.pr7ProcessSubmission_(partialStatusFailure.deps, { requestToken: TOKEN });
 assert.equal(partialStatusFailure.rows.length, 1); assert.equal(partialStatusFailure.mail.length, 1);
+
+const ownershipFailure = harness({ updateRequest: [2] });
+const savedWithOwnershipWarning = context.pr7ProcessSubmission_(ownershipFailure.deps, { requestToken: TOKEN });
+assert.equal(savedWithOwnershipWarning.ok, true); assert.equal(savedWithOwnershipWarning.state, "saved");
+assert.equal(savedWithOwnershipWarning.warning, "NOTIFICATION_OWNERSHIP_FAILED");
+assert.equal(ownershipFailure.mail.length, 0); assert.equal(ownershipFailure.rows.length, 1);
+assert.equal(context.pr7ResolveStatus_(ownershipFailure.deps, TOKEN).state, "saved");
+const ownershipAudit = context.auditStage2FormOperationsPr7(ownershipFailure.rows.map(row => ({ ...row.operations, requestId: row.requestId, source: "x", email: "a@b.co", note: "x" })), ownershipFailure.warnings, ownershipFailure.deps.now());
+assert.ok(ownershipAudit.findings.some(item => item.code === "NOTIFICATION_OWNERSHIP_FAILED"));
 
 let ownershipCompetitor;
 const ownership = harness();
@@ -139,6 +165,20 @@ assert.equal(ownership.rows.length, 1); assert.equal(ownership.mail.length, 1);
 ownership.rows[0].operations.notification_status = "sending";
 context.pr7ProcessSubmission_(ownership.deps, { requestToken: TOKEN });
 assert.equal(ownership.mail.length, 1, "sending ownership must block a second Gmail");
+
+const crashAfterClaim = harness({ beforeNotificationSend() { const error = new Error("runtime terminated"); error.code = "RUNTIME_TERMINATED"; throw error; } });
+assert.throws(() => context.pr7ProcessSubmission_(crashAfterClaim.deps, { requestToken: TOKEN }), /runtime terminated/);
+assert.equal(crashAfterClaim.rows.length, 1); assert.equal(crashAfterClaim.mail.length, 0);
+assert.equal(crashAfterClaim.rows[0].operations.notification_status, "sending");
+const crashRequestId = crashAfterClaim.rows[0].requestId;
+delete crashAfterClaim.failures.beforeNotificationSend;
+const crashRetry = context.pr7ProcessSubmission_(crashAfterClaim.deps, { requestToken: TOKEN });
+assert.equal(crashRetry.requestId, crashRequestId); assert.equal(crashAfterClaim.mail.length, 0, "at-most-once retry must not blindly resend a stale claim");
+const staleNow = Number(crashAfterClaim.rows[0].operations.notification_claimed_at) + 300001;
+const staleAudit = context.auditStage2FormOperationsPr7(crashAfterClaim.rows.map(row => ({ ...row.operations, requestId: row.requestId, source: "x", email: "a@b.co", note: "x" })), [], staleNow);
+assert.ok(staleAudit.findings.some(item => item.code === "STALE_NOTIFICATION_CLAIM"));
+const recoveryPlan = context.pr7NotificationRecoveryPlan_(crashAfterClaim.rows[0], staleNow);
+assert.equal(recoveryPlan.action, "manual_reconcile_gmail_sent"); assert.match(recoveryPlan.subjectMarker, new RegExp(crashRequestId));
 
 const testLead = harness();
 context.pr7ProcessSubmission_(testLead.deps, { requestToken: TOKEN, is_test: "TRUE" });

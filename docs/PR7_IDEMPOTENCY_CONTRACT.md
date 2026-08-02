@@ -18,3 +18,11 @@
 通知所有權狀態為 `pending → sending → sent`，寄送失敗為 `error`，已寄送但 metadata 待補為 `metadata_pending`。只有在 ScriptLock 內將 pending 原子更新為 sending 的 invocation 可以在解鎖後寄信；看到 sending、sent 或 metadata_pending 的重送一律不得寄信。即使 saved status store 寫入失敗，已取得所有權的 invocation 仍完成唯一一次寄送。
 
 Lock acquisition timeout 是 invocation-only error，只回傳 `LOCK_TIMEOUT`，不得呼叫共享 `putStatus`，因此不會覆蓋同 token 的 received、processing 或 saved。
+
+## Saved status persistence
+
+Sheet saved 後以 `pr7PutSavedStatus_` 最多嘗試 3 次，只寫 status store，不重新 POST、append 或寄信。三次皆失敗時記錄 `SAVED_STATUS_PERSISTENCE_FAILED` warning。`pr7ResolveStatus_` 作為 doGet status adapter：status 缺失、仍在 processing 或 persistence failure 時，依 requestToken 唯讀回查 Sheet；若 Sheet 已有 saved/requestId，即回傳正式 saved，不修改 Sheet、不寄信。
+
+## Crash-after-claim
+
+正式採 **at-most-once**。claim 在鎖內寫入 `notification_status=sending`、唯一 `notification_claim_id`、`notification_claimed_at` 與遞增的 `notification_attempt_count`，Gmail 在解鎖後寄送。sending 超過 5 分鐘列為 `STALE_NOTIFICATION_CLAIM`，不得自動重寄；管理者須以固定 `[HG-REQUEST:<requestId>]` subject marker 搜尋 Gmail Sent，確認已寄或未寄後再依人工程序修復。此契約可能漏信，但避免不確定狀態下重複寄送，不宣稱 GmailApp exactly-once。

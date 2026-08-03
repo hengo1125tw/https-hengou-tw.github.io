@@ -1,6 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
+  captureGitInfo: { commit: false, diff: false },
   testDir: "./tests/pr7-browser",
   timeout: 30_000,
   expect: { timeout: 5_000 },

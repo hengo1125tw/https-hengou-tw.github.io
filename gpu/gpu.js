@@ -12,6 +12,7 @@
   let latestText = "";
   let latestPayload = null;
   let submitting = false;
+  let savedRequestId = "";
 
   if (!form || !client) return;
 
@@ -165,13 +166,16 @@
     setFallbackVisible(false);
     setStatus("正在傳送需求資料至需求紀錄…", "info");
     const response = await client.submit(latestPayload, {
-      onStatus: progress => setStatus(progress.message, "info")
+      onStatus: progress => setStatus(`${progress.message}（已等待 ${progress.elapsedSeconds || 0} 秒）`, "info")
     });
     submitting = false;
     setBusy(false);
 
     if (response.ok === true && response.state === "saved" && clean(response.requestId)) {
       setStatus(response.message, "success");
+      savedRequestId = clean(response.requestId);
+      const copySavedButton = $("#copySavedRequestIdButton");
+      if (copySavedButton) copySavedButton.hidden = false;
       form.reset();
       latestPayload = null;
       showToast(response.message);
@@ -184,18 +188,19 @@
     showToast(response.message);
   });
 
+  $("#copySavedRequestIdButton")?.addEventListener("click", async () => {
+    const copied = await client.copyText(savedRequestId);
+    showToast(copied.ok ? "需求編號已複製。" : `無法自動複製，請手動複製：${copied.text}`);
+  });
+
   $("[data-close]")?.addEventListener("click", () => dialog?.close());
   dialog?.addEventListener("click", event => {
     if (event.target === dialog) dialog.close();
   });
 
   $("#copyRequestButton")?.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(latestText);
-      showToast("需求內容已複製。");
-    } catch {
-      showToast("無法自動複製，請手動選取摘要內容。");
-    }
+    const copied = await client.copyText(latestText);
+    showToast(copied.ok ? "需求內容已複製。" : "無法自動複製，請手動選取摘要內容。");
   });
 
   $("#openEmailButton")?.addEventListener("click", () => {

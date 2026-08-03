@@ -75,9 +75,36 @@ const verifyHoneypotSanitizer = (name, source) => {
 verifyHoneypotSanitizer("Home", homeForm);
 verifyHoneypotSanitizer("GPU", gpuForm);
 
+const createDeterministicClock = () => {
+  let now = 0;
+  let nextTimerId = 1;
+  const timers = new Map();
+
+  return {
+    now: () => now,
+    setTimeout(callback, timeoutMs = 0) {
+      const timerId = nextTimerId++;
+      const dueAt = now + Math.max(0, Number(timeoutMs) || 0);
+      timers.set(timerId, { callback, dueAt });
+      setImmediate(() => {
+        const timer = timers.get(timerId);
+        if (!timer) return;
+        timers.delete(timerId);
+        now = Math.max(now, timer.dueAt);
+        timer.callback();
+      });
+      return timerId;
+    },
+    clearTimeout(timerId) {
+      timers.delete(timerId);
+    }
+  };
+};
+
 const loadClient = ({ fetch, statuses = [], online = true, configOverrides = {} }) => {
   let statusIndex = 0;
   const statusUrls = [];
+  const clock = createDeterministicClock();
   const window = {
     HG_FORM_CONFIG: {
       ENDPOINT: expectedEndpoint,
@@ -91,8 +118,8 @@ const loadClient = ({ fetch, statuses = [], online = true, configOverrides = {} 
       ...configOverrides
     },
     location: { search: "", href: "https://example.test/", assign() {} },
-    setTimeout,
-    clearTimeout,
+    setTimeout: clock.setTimeout,
+    clearTimeout: clock.clearTimeout,
     open() { return {}; },
     crypto: { randomUUID: () => "12345678-1234-4234-8234-123456789abc" }
   };
@@ -122,7 +149,7 @@ const loadClient = ({ fetch, statuses = [], online = true, configOverrides = {} 
     URLSearchParams,
     URL,
     fetch,
-    Date,
+    Date: { now: clock.now },
     Math
   });
   return {
@@ -212,5 +239,9 @@ assert.equal(invalidSaved.code, "status_timeout", "Saved without requestId must 
 
 assert.match(successHarness.client.gmailUrl("subject", "body"), /^https:\/\/mail\.google\.com\/mail\//);
 assert.equal(successHarness.client.lineUrl(), "https://line.me/R/ti/p/@749ivaeq");
+assert.deepEqual(JSON.parse(JSON.stringify(await successHarness.client.copyText("HG-TEST-1"))), { ok: false, text: "HG-TEST-1" }, "Missing Clipboard API must return a manual-copy fallback without throwing");
+assert.match(homeForm, /leadRequestIdCopy[\s\S]*client\.copyText\(savedRequestId\)/, "Home and Automation must support requestId copy");
+assert.match(gpuForm, /copySavedRequestIdButton[\s\S]*client\.copyText\(savedRequestId\)/, "GPU must support requestId copy");
+assert.match(client, /通常需要 30～60 秒[\s\S]*elapsedSeconds/, "Processing UI must explain the wait and expose elapsed seconds");
 
 console.log("Stage 2 form checks passed");

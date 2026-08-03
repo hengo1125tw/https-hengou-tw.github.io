@@ -1,0 +1,87 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm ci
+      - name: JavaScript syntax
+        run: npm run check:syntax
+      - name: PR7 operations
+        run: npm run check:pr7-operations
+      - name: PR7 polling
+        run: npm run check:pr7-polling
+      - name: PR7 adapter integration
+        run: npm run check:pr7-adapter
+      - name: PR7 Apps Script runtime emulator
+        run: npm run check:pr7-runtime
+      - name: PR7 deterministic browser harness
+        run: npm run check:pr7-browser-harness
+      - name: PR7 controlled concurrency
+        run: npm run check:pr7-concurrency
+      - name: PR7 migration fixtures
+        run: npm run check:pr7-migration
+      - name: PR7 audit fixtures
+        run: npm run check:pr7-audit
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: PR7 real Chromium E2E and responsive
+        env:
+          PR7_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: npm run check:pr7-browser
+      - name: Stage 2
+        run: npm run check:stage2-form
+      - name: Automation
+        run: npm run check:automation-page
+      - name: Required files
+        run: npm run check:files
+      - name: RC6
+        run: npm run check:rc6
+      - name: Diff hygiene
+        run: git diff --check origin/main...HEAD
+      - name: Sensitive scan
+        env:
+          PR7_SECURITY_DIFF_FILE: ${{ runner.temp }}/pr7-security.diff
+        run: |
+          git diff -U0 origin/${{ github.base_ref }}...HEAD -- . ':!assets/images/*' > "$PR7_SECURITY_DIFF_FILE"
+          npm run check:pr7-sensitive
+      - name: PR7 artifact verifier tests
+        run: npm run check:pr7-artifact-tests
+      - name: Final portable PR7 artifact normalization
+        run: npm run normalize:pr7-artifacts
+      - name: PR7 in-CI artifact verification
+        env:
+          PR7_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: npm run check:pr7-artifacts
+      - name: Upload PR7 validation artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: pr7-validation-${{ github.event.pull_request.head.sha }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            test-results/
+            playwright-report/
+            screenshots/
+            traces/
+            failure-logs/
+      - name: Post-artifact source cleanliness
+        if: ${{ always() }}
+        run: |
+          git diff --check
+          test -z "$(git status --porcelain --untracked-files=all | grep -vE '^(\?\? )?(playwright-report|test-results|screenshots|traces|failure-logs)/' || true)"

@@ -5,7 +5,8 @@
 
   const createRequestToken = () => {
     if (window.crypto?.randomUUID) return window.crypto.randomUUID();
-    return `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 14)}`;
+    const random = () => Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, "0");
+    return `${random()}-${random().slice(0, 4)}-4${random().slice(1, 4)}-a${random().slice(1, 4)}-${random()}${random().slice(0, 4)}`;
   };
 
   const isConfigured = () => /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec(?:\?.*)?$/.test(clean(config.ENDPOINT));
@@ -25,8 +26,8 @@
   };
 
   const delay = timeoutMs => new Promise(resolve => window.setTimeout(resolve, timeoutMs));
-  const processingMessage = "資料正在處理，請勿重複送出。";
-  const timeoutMessage = "系統可能仍在處理，請勿重複送出；可提供送出時間與聯絡資料供人工確認。";
+  const processingMessage = "資料已收到，系統正在建立需求編號，通常需要 30～60 秒，請勿重新整理或重複送出。";
+  const timeoutMessage = "系統仍在確認，資料可能仍在處理，請勿重複送出。請保留本次查詢碼並提供送出時間與聯絡資料，客服可協助人工確認。";
 
   const readStatus = (requestToken, timeoutMs = 5000) => new Promise((resolve, reject) => {
     const callbackName = `HGFormStatus_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
@@ -61,9 +62,9 @@
     const slowIntervalMs = Number(config.STATUS_SLOW_POLL_INTERVAL_MS) || 2500;
     const startedAt = Date.now();
 
-    while (Date.now() - startedAt < totalTimeoutMs) {
+    while (Date.now() - startedAt <= totalTimeoutMs) {
       try {
-        const remainingMs = totalTimeoutMs - (Date.now() - startedAt);
+        const remainingMs = Math.max(1, totalTimeoutMs - (Date.now() - startedAt));
         const status = await readStatus(
           requestToken,
           Math.min(Number(config.STATUS_REQUEST_TIMEOUT_MS) || 5000, remainingMs)
@@ -79,14 +80,15 @@
           };
         }
         if (["pending", "processing", "not_found"].includes(clean(status?.state))) {
-          onStatus({ state: clean(status.state), message: processingMessage });
+          onStatus({ state: clean(status.state), message: processingMessage, elapsedSeconds: Math.floor((Date.now() - startedAt) / 1000) });
         } else {
-          onStatus({ state: "pending", message: processingMessage });
+          onStatus({ state: "pending", message: processingMessage, elapsedSeconds: Math.floor((Date.now() - startedAt) / 1000) });
         }
       } catch (_) {
-        onStatus({ state: "pending", message: processingMessage });
+        onStatus({ state: "pending", message: processingMessage, elapsedSeconds: Math.floor((Date.now() - startedAt) / 1000) });
       }
       const elapsedMs = Date.now() - startedAt;
+      if (elapsedMs >= totalTimeoutMs) break;
       const intervalMs = elapsedMs < fastPhaseMs ? fastIntervalMs : slowIntervalMs;
       await delay(Math.min(intervalMs, Math.max(0, totalTimeoutMs - elapsedMs)));
     }
@@ -111,7 +113,7 @@
     const onStatus = typeof options.onStatus === "function" ? options.onStatus : () => {};
 
     try {
-      onStatus({ state: "processing", message: processingMessage });
+      onStatus({ state: "processing", message: processingMessage, elapsedSeconds: 0 });
       const postResult = fetch(config.ENDPOINT, {
         method: "POST",
         mode: "no-cors",
@@ -162,7 +164,7 @@
         state: "saved",
         requestId: clean(status.requestId),
         requestToken,
-        message: `需求已送出（${clean(status.requestId)}），我們會盡快與您聯絡。`
+        message: `需求已送出（${clean(status.requestId)}），我們會盡快與您聯絡。請保留此需求編號，以便後續查詢。預計於 1 個工作日內回覆。`
       };
     } catch (_) {
       return {
@@ -186,11 +188,24 @@
 
   const lineUrl = () => clean(config.LINE_URL) || "https://line.me/R/ti/p/@749ivaeq";
 
+  const copyText = async value => {
+    const text = clean(value);
+    if (!text) return { ok: false, text };
+    try {
+      if (!navigator.clipboard?.writeText) return { ok: false, text };
+      await navigator.clipboard.writeText(text);
+      return { ok: true, text };
+    } catch (_) {
+      return { ok: false, text };
+    }
+  };
+
   window.HGFormClient = Object.freeze({
     clean,
     createRequestToken,
     isConfigured,
     submit,
+    copyText,
     gmailUrl,
     openGmail,
     lineUrl

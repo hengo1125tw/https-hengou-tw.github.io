@@ -51,6 +51,34 @@
     "check:rc5": "node scripts/check-rc5-ai-actions-init-hotfix.mjs",
     "check:rc6": "node scripts/check-rc6-email-template-hotfix.mjs",
     "check:stage2-form": "node scripts/check-stage2-form.mjs",
-    "check:automation-page": "node scripts/check-automation-page.mjs"
+    "check:automation-page": "node scripts/check-automation-page.mjs",
+    "check:pr7-operations": "node scripts/check-pr7-form-operations.mjs",
+    "check:pr7-polling": "node scripts/check-pr7-polling-performance.mjs",
+    "check:pr7-adapter": "node scripts/check-pr7-adapter-integration.mjs",
+    "check:pr7-sensitive": "node scripts/check-pr7-sensitive.mjs",
+    "check:pr7-runtime": "node scripts/check-pr7-runtime-emulator.mjs",
+    "check:pr7-browser-harness": "node scripts/check-pr7-browser-e2e.mjs",
+    "check:syntax": "node --check js/form-client.js && node --check js/public-form.js && node --check gpu/gpu.js && node --check scripts/check-pr7-runtime-emulator.mjs && node --check scripts/check-pr7-migration.mjs && node --check scripts/check-pr7-audit.mjs && node --check scripts/check-pr7-artifacts.mjs && node --check scripts/run-pr7-artifact-verifier-ci.mjs && node --check scripts/test-pr7-artifacts.mjs && node --check scripts/check-pr7-responsive-report.mjs && node --check scripts/write-pr7-test-summary.mjs && node --check scripts/normalize-pr7-artifacts.mjs && node --check scripts/pr7-artifact-fixture-builder.mjs && node --check tests/pr7-browser/local-server.mjs && node --check tests/pr7-browser/forms.spec.mjs",
+    "check:pr7-concurrency": "node scripts/check-pr7-form-operations.mjs",
+    "check:pr7-migration": "node scripts/check-pr7-migration.mjs",
+    "check:pr7-audit": "node scripts/check-pr7-audit.mjs",
+    "check:pr7-artifact-tests": "node scripts/test-pr7-artifacts.mjs",
+    "check:pr7-artifacts:core": "node scripts/check-pr7-artifacts.mjs",
+    "check:pr7-artifacts": "node scripts/run-pr7-artifact-verifier-ci.mjs",
+    "normalize:pr7-artifacts": "node scripts/normalize-pr7-artifacts.mjs",
+    "check:pr7-browser": "playwright test && node scripts/write-pr7-test-summary.mjs",
+    "check:responsive": "node scripts/check-pr7-responsive-report.mjs",
+    "check:stage2": "npm run check:stage2-form",
+    "check:automation": "npm run check:automation-page",
+    "check:required": "npm run check:files",
+    "check:sensitive": "npm run check:pr7-sensitive",
+    "check:regression": "npm run check:stage2 && npm run check:automation && npm run check:required && npm run check:rc6",
+    "check:all": "npm run check:syntax && npm run check:pr7-operations && npm run check:pr7-polling && npm run check:pr7-adapter && npm run check:pr7-runtime && npm run check:pr7-concurrency && npm run check:pr7-migration && npm run check:pr7-audit && npm run check:pr7-browser && npm run check:regression && npm run check:sensitive && npm run check:pr7-artifact-tests && npm run normalize:pr7-artifacts && npm run check:pr7-artifacts",
+    "check:pr7-maximum": "npm run check:all"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.1",
+    "fast-xml-parser": "5.10.1",
+    "fflate": "0.8.3"
   }
 }

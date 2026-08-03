@@ -36,6 +36,7 @@ const diagnostic = {
   playwrightJson: report?.playwrightJson || null,
   screenshots: report?.screenshots ? { count: report.screenshots.count, decodedCount: report.screenshots.decodedCount } : null,
   sensitiveLeakCount: report?.sensitiveScan?.leakCount ?? null,
+  sensitiveFindings: Array.isArray(report?.sensitiveScan?.findings) ? report.sensitiveScan.findings.map(item => ({ type: item.type, path: mask(item.path) })) : [],
   stderr: invocationError
 };
 
@@ -47,7 +48,7 @@ try {
   console.error(JSON.stringify({ blocker: "PR7_ARTIFACT_CI_DIAGNOSTIC_WRITE_FAILED", message: mask(error?.message) }));
 }
 
-const summary = { verifierExitCode: exitCode, reportExists: diagnostic.reportExists, reportReadable: diagnostic.reportReadable, overallStatus: diagnostic.overallStatus, blockers: diagnostic.blockers, lifecycle: diagnostic.lifecycle };
+const summary = { verifierExitCode: exitCode, reportExists: diagnostic.reportExists, reportReadable: diagnostic.reportReadable, overallStatus: diagnostic.overallStatus, blockers: diagnostic.blockers, lifecycle: diagnostic.lifecycle, sensitiveLeakCount: diagnostic.sensitiveLeakCount, sensitiveFindings: diagnostic.sensitiveFindings };
 console.log(`PR7_ARTIFACT_CI_DIAGNOSTIC ${JSON.stringify(summary)}`);
 if (exitCode !== 0) console.error(`::error title=PR7 artifact verification failed::${mask(JSON.stringify(summary))}`);
 process.exitCode = exitCode;

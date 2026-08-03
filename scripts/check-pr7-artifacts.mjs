@@ -164,4 +164,52 @@ function writeStepSummary(result) {
   appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## PR7 Artifact Gate\n\n- Head SHA: \`${result.gitHeadSha}\`\n- JUnit: ${result.junit.tests} tests, ${result.junit.failures} failures, ${result.junit.errors} errors\n- Playwright: ${result.playwright.tests} tests, ${result.playwright.failures} failures\n- Responsive: ${result.responsive?.responsivePassed || 0}/${result.responsive?.responsiveTotal || 0}\n- Migration fixtures: ${result.migration?.fixtures?.length || 0}\n- Audit fixtures: ${result.audit?.fixtureCount || 0}\n- Screenshots: ${result.screenshots.count}\n- Traces: ${result.traces.status}\n- Failure logs: ${result.failureLogs.status}\n- Files: ${result.fileCount}\n- Size: ${result.extractedSize}\n- Bundle SHA-256: \`${result.bundleSha256}\`\n- Sensitive leaks: ${result.sensitiveScan.leakCount}\n- Artifact Gate: **${result.overallStatus}**\n`);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) { const result = verifyArtifactDirectory(process.argv[2] || process.cwd()); writeStepSummary(result); console.log(JSON.stringify({ result: result.overallStatus, fileCount: result.fileCount, size: result.extractedSize, bundleSha256: result.bundleSha256, leakCount: result.sensitiveScan.leakCount, blockers: result.blockers })); if (result.overallStatus !== "PASS") process.exitCode = 1; }
+function safeDiagnosticMessage(error) {
+  return String(error?.message || error || "UNKNOWN_VERIFIER_ERROR")
+    .replace(/[A-Za-z]:\\Users\\[^\\\s]+/gi, "<LOCAL_USER>")
+    .replace(/\/home\/runner\/[^\s"']+/gi, "<RUNNER_PATH>")
+    .replace(/https?:\/\/[^\s"']+/gi, "<URL>")
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "<EMAIL>");
+}
+
+function writeEmergencyVerification(root, error) {
+  const verification = {
+    schemaVersion: "1.0",
+    generatedAt: new Date().toISOString(),
+    gitHeadSha: process.env.PR7_HEAD_SHA || "LOCAL",
+    workflowName: "PR Validation",
+    verifierVersion: VERSION,
+    overallStatus: "FAIL",
+    lifecycle: { phase: "verification", errorName: error?.name || "Error", message: safeDiagnosticMessage(error) },
+    sensitiveScan: { leakCount: 0, findings: [] },
+    fileCount: 0,
+    extractedSize: 0,
+    bundleSha256: "",
+    blockers: ["PR7_ARTIFACT_VERIFIER_EXCEPTION"],
+    warnings: []
+  };
+  mkdirSync(join(root, "test-results"), { recursive: true });
+  writeFileSync(join(root, "test-results/pr7-artifact-verification.json"), JSON.stringify(verification, null, 2));
+  writeFileSync(join(root, "test-results/pr7-artifact-verification.txt"), `Artifact Gate: FAIL\nBlockers: PR7_ARTIFACT_VERIFIER_EXCEPTION\nLifecycle phase: verification\nError: ${verification.lifecycle.message}\n`);
+  return verification;
+}
+
+export function runArtifactVerifierCli(inputRoot = process.cwd()) {
+  const root = resolve(inputRoot);
+  let result;
+  try {
+    result = verifyArtifactDirectory(root);
+  } catch (error) {
+    try {
+      result = writeEmergencyVerification(root, error);
+    } catch (reportError) {
+      console.error(JSON.stringify({ result: "FAIL", blocker: "PR7_ARTIFACT_REPORT_WRITE_FAILED", verifierError: safeDiagnosticMessage(error), reportError: safeDiagnosticMessage(reportError) }));
+      return 1;
+    }
+  }
+  try { writeStepSummary(result); } catch (error) { console.error(JSON.stringify({ warning: "PR7_ARTIFACT_STEP_SUMMARY_WRITE_FAILED", message: safeDiagnosticMessage(error) })); }
+  console.log(JSON.stringify({ result: result.overallStatus, fileCount: result.fileCount, size: result.extractedSize, bundleSha256: result.bundleSha256, leakCount: result.sensitiveScan?.leakCount ?? 0, blockers: result.blockers }));
+  return result.overallStatus === "PASS" ? 0 : 1;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) process.exitCode = runArtifactVerifierCli(process.argv[2] || process.cwd());

@@ -1,0 +1,1 @@
+{"sheetNamePattern":"^TEST_ONLY_REQUESTS_PR7T-","migration":"append-only","headers":["requestToken","requestId","status","processingTimestamp","savedTimestamp","notificationStatus","notificationClaim","notificationTimestamp","testRunId","errorCode","errorMessage","createdAt"],"invariants":{"secondRunAdded":0,"oldDataChanged":0,"formulaChanged":0,"rowDelta":0}}

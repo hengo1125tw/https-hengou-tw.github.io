@@ -59,7 +59,7 @@ export function createPr7Server() {
     if (pathname === "/gpu/") pathname = "/gpu/index.html";
     if (pathname === "/js/form-config.js") {
       res.writeHead(200, { "content-type": mime[".js"], "cache-control": "no-store" });
-      res.end(`window.HG_FORM_CONFIG={ENDPOINT:"https://script.google.com/macros/s/PR7_LOCAL_EMULATOR/exec",NOTIFY_EMAIL:"test@example.invalid",STATUS_TIMEOUT_MS:1400,STATUS_REQUEST_TIMEOUT_MS:300,STATUS_FAST_PHASE_MS:700,STATUS_FAST_POLL_INTERVAL_MS:100,STATUS_SLOW_POLL_INTERVAL_MS:200};`); return;
+      res.end(`window.HG_FORM_CONFIG={ENDPOINT:"https://script.google.com/macros/s/PR7_LOCAL_EMULATOR/exec",NOTIFY_EMAIL:"test@example.invalid",STATUS_TIMEOUT_MS:1400,STATUS_REQUEST_TIMEOUT_MS:1000,STATUS_FAST_PHASE_MS:700,STATUS_FAST_POLL_INTERVAL_MS:100,STATUS_SLOW_POLL_INTERVAL_MS:200};`); return;
     }
     const relative = normalize(pathname).replace(/^([/\\])+/, ""); const file = join(rootPath, relative);
     try { if (!statSync(file).isFile()) throw new Error("not file"); res.writeHead(200, { "content-type": mime[extname(file).toLowerCase()] || "application/octet-stream" }); res.end(readFileSync(file)); } catch { res.writeHead(404); res.end("not found"); }

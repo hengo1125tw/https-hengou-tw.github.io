@@ -74,7 +74,14 @@
     "check:sensitive": "npm run check:pr7-sensitive",
     "check:regression": "npm run check:stage2 && npm run check:automation && npm run check:required && npm run check:rc6",
     "check:all": "npm run check:syntax && npm run check:pr7-operations && npm run check:pr7-polling && npm run check:pr7-adapter && npm run check:pr7-runtime && npm run check:pr7-concurrency && npm run check:pr7-migration && npm run check:pr7-audit && npm run check:pr7-browser && npm run check:regression && npm run check:sensitive && npm run check:pr7-artifact-tests && npm run normalize:pr7-artifacts && npm run check:pr7-artifacts",
-    "check:pr7-maximum": "npm run check:all"
+    "check:pr7-maximum": "npm run check:all",
+    "check:pr8-cloud-offline": "node scripts/check-pr7-cloud-offline.mjs",
+    "check:pr8-cloud-isolation": "node scripts/check-pr7-cloud-isolation.mjs",
+    "check:pr8-cloud-cleanup": "node scripts/check-pr7-cloud-offline.mjs",
+    "check:pr8-cloud-evidence": "node scripts/run-pr7-cloud-validation.mjs --mode offline --output test-results/PR8_OFFLINE_CLOUD_EVIDENCE",
+    "check:pr8-cloud-resume": "node scripts/resume-pr7-cloud-validation.mjs",
+    "check:pr8-cloud-network": "node scripts/check-pr8-cloud-network.mjs",
+    "check:pr8": "npm run check:pr8-cloud-offline && npm run check:pr8-cloud-isolation && npm run check:pr8-cloud-network && npm run check:pr8-cloud-evidence && npm run check:pr8-cloud-resume"
   },
   "devDependencies": {
     "@playwright/test": "1.61.1",

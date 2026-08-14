@@ -1,0 +1,33 @@
+name: PR8 Offline Validation
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  offline-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run check:pr8
+      - run: npm run check:all
+      - name: Upload offline evidence summaries
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pr8-offline-validation-${{ github.sha }}
+          path: |
+            test-results/PR8_OFFLINE_CLOUD_EVIDENCE
+            test-results/pr7-artifact-verification.json
+            test-results/pr7-artifact-verification.txt
+          retention-days: 14
+          if-no-files-found: warn

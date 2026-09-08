@@ -299,7 +299,6 @@ a{color:inherit}
 }
 
 .card,
-.feature-box,
 .about,
 .contact{
   background:var(--surface);
@@ -431,95 +430,6 @@ a{color:inherit}
   text-align:center;
 }
 
-.center{
-  text-align:center;
-}
-
-.product-copy{
-  max-width:860px;
-  margin:18px auto 26px;
-  text-align:center;
-  color:var(--muted);
-}
-
-.feature-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:16px;
-  margin:28px 0;
-}
-
-.feature-box{
-  padding:22px;
-}
-
-.feature-box h4{
-  margin:0 0 8px;
-}
-
-.feature-box p{
-  margin:0;
-  color:var(--muted);
-}
-
-.carousel{
-  position:relative;
-  max-width:760px;
-  margin:0 auto 18px;
-  background:#111827;
-  border-radius:var(--radius);
-  overflow:hidden;
-  box-shadow:var(--shadow);
-}
-
-.carousel img{
-  width:100%;
-  height:460px;
-  object-fit:contain;
-  display:block;
-  background:#f3f4f6;
-}
-
-.carousel-btn{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  border:none;
-  background:rgba(0,0,0,.45);
-  color:white;
-  font-size:42px;
-  width:52px;
-  height:72px;
-  cursor:pointer;
-  z-index:2;
-}
-
-.carousel-btn:hover{
-  background:rgba(0,0,0,.65);
-}
-
-.prev{left:0}
-.next{right:0}
-
-.carousel-dots{
-  text-align:center;
-  margin-top:18px;
-}
-
-.dot{
-  display:inline-block;
-  width:10px;
-  height:10px;
-  margin:0 5px;
-  border-radius:50%;
-  background:#cbd5e1;
-  cursor:pointer;
-}
-
-.dot.active{
-  background:var(--primary);
-}
-
 .about{
   padding:36px;
 }
@@ -641,16 +551,6 @@ a{color:inherit}
     grid-template-columns:1fr;
   }
 
-  .carousel img{
-    height:300px;
-  }
-
-  .carousel-btn{
-    width:44px;
-    height:60px;
-    font-size:34px;
-  }
-
   .site-footer{
     flex-direction:column;
   }
@@ -768,7 +668,7 @@ a{color:inherit}
 img{max-width:100%}
 @media(prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.01ms !important}}
 @media(max-width:520px){.hero-actions .btn{width:100%}.section-heading h2{font-size:28px}.lead-form,.waiting-copy,.card,.about,.contact{padding:22px}}
-@media print{.site-header,.site-footer,.hero-actions,.carousel-btn,.carousel-dots{display:none !important}body{background:white;color:black}.section,.hero{padding:20px}}
+@media print{.site-header,.site-footer,.hero-actions{display:none !important}body{background:white;color:black}.section,.hero{padding:20px}}
 
 /* GPU service Stage 1 additions */
 .card-link{margin-top:14px!important}.card-link a{color:var(--primary);font-weight:900;text-decoration:none}.cloud-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}.cloud-secondary{color:#fff;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08)}.inline-service-link{display:inline-flex;margin-top:18px;color:var(--primary);font-weight:900;text-decoration:none}

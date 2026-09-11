@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 視覺檢測案例｜AOI OK/NG、Golden 樣本與尺寸量測驗證｜恒構企業社</title>
+  <meta name="description" content="恒構 AI 視覺檢測工程案例，說明如何從產品照片、Golden 樣本、OK/NG 判定、影像重現性到尺寸與位置量測，逐步建立可驗證的 AOI 視覺檢測流程。" />
+  <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#07111f" />
+  <link rel="canonical" href="https://henggou.tw/cases/ai-vision-inspection/" />
+  <meta property="og:title" content="AI 視覺檢測案例｜AOI OK/NG、Golden 樣本與尺寸量測驗證｜恒構企業社" />
+  <meta property="og:description" content="從工作站 baseline、Golden Sample 與 repeatability 出發，建立可重複驗證的 AI／AOI 判定與量測流程。" />
+  <meta property="og:url" content="https://henggou.tw/cases/ai-vision-inspection/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:locale" content="zh_TW" />
+  <meta property="og:image" content="https://henggou.tw/images/logo/logo.jpg" />
+  <meta property="og:image:alt" content="恒構企業社 AI 視覺檢測工程驗證案例" />
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../../css/style.css" />
+  <link rel="stylesheet" href="../../aoi/aoi.css" />
+  <link rel="stylesheet" href="case.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "AI 視覺檢測工程案例：從產品照片到可驗證的 OK / NG 與量測流程",
+    "description": "恒構 AI 視覺檢測工程案例，說明如何從產品照片、Golden 樣本、OK/NG 判定、影像重現性到尺寸與位置量測，逐步建立可驗證的 AOI 視覺檢測流程。",
+    "mainEntityOfPage": "https://henggou.tw/cases/ai-vision-inspection/",
+    "author": {"@type": "Organization", "name": "恒構企業社"},
+    "publisher": {"@type": "Organization", "name": "恒構企業社", "url": "https://henggou.tw/"}
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "首頁", "item": "https://henggou.tw/"},
+      {"@type": "ListItem", "position": 2, "name": "AI 視覺檢測", "item": "https://henggou.tw/aoi/"},
+      {"@type": "ListItem", "position": 3, "name": "AI 視覺檢測工程案例", "item": "https://henggou.tw/cases/ai-vision-inspection/"}
+    ]
+  }
+  </script>
+</head>
+<body class="aoi-page case-page">
+  <header class="site-header" id="top">
+    <a class="logo" href="../../index.html" aria-label="返回 HengGou AI Platform 首頁"><span class="logo-mark">HG</span><span>HengGou AI</span></a>
+    <button class="nav-toggle" type="button" aria-label="開啟選單" aria-expanded="false">☰</button>
+    <nav class="site-nav" aria-label="AI 視覺檢測案例選單">
+      <a href="../../index.html">首頁</a>
+      <a href="../../aoi/">AI 視覺檢測</a>
+      <a href="#validation-flow">驗證流程</a>
+      <a href="#limitations">影響條件</a>
+      <a href="../../index.html#waiting-list">免費評估</a>
+    </nav>
+  </header>
+
+  <main>
+    <article>
+      <header class="case-hero">
+        <div class="case-hero-inner">
+          <nav class="breadcrumb" aria-label="麵包屑">
+            <a href="../../index.html">首頁</a><span aria-hidden="true">›</span><a href="../../aoi/">AI 視覺檢測</a><span aria-hidden="true">›</span><span aria-current="page">AI 視覺檢測工程案例</span>
+          </nav>
+          <div class="case-labels"><span>工程驗證案例</span><span>非特定客戶公開案例</span></div>
+          <h1>AI 視覺檢測工程案例<br />從產品照片到可驗證的 OK / NG 與量測流程</h1>
+          <p>本案例整理恒構在 AI／AOI 視覺檢測開發中的實際工程驗證方法，包含 Golden 樣本、影像重現性、OK／NG 判定、位置偏移與尺寸量測。</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="../../aoi/">查看 AI 視覺檢測服務</a>
+            <a class="btn btn-secondary" href="../../index.html#waiting-list">評估我的產品</a>
+          </div>
+        </div>
+      </header>
+
+      <section class="section" id="project-question">
+        <div class="section-heading"><span class="eyebrow">ENGINEERING QUESTION</span><h2>這類 AI 視覺檢測真正要解決的問題是什麼？</h2><p>重點不只是「AI 可以辨識產品」，而是整套影像與量測流程能否被重複驗證。</p></div>
+        <ol class="question-grid">
+          <li><b>01</b><p>同一個 OK 樣品重複拍攝，系統結果是否足夠穩定？</p></li>
+          <li><b>02</b><p>產品差異來自產品本身，還是拍攝位置、角度、光線與工作站？</p></li>
+          <li><b>03</b><p>Golden 樣本與待測品的座標基準是否一致？</p></li>
+          <li><b>04</b><p>像素差異能否可靠轉換成實際尺寸？</p></li>
+          <li><b>05</b><p>AI 判定與工程量測是否需要分開處理？</p></li>
+          <li><b>06</b><p>OK／NG 結果能否留下可追蹤的數據？</p></li>
+        </ol>
+      </section>
+
+      <section class="section validation-section" id="validation-flow">
+        <div class="section-heading"><span class="eyebrow">VALIDATION FLOW</span><h2>恒構採用的驗證流程</h2><p>先降低工作站與量測變因，再逐步增加模型與缺陷分類的複雜度。</p></div>
+        <ol class="case-steps">
+          <li><b>01</b><div><h3>建立 Current-Station Baseline</h3><p>固定相機、鏡頭、光源、工作距離、拍攝位置，以及產品治具或基準位置，先確認工作站本身是否穩定。</p></div></li>
+          <li><b>02</b><div><h3>建立 Golden Sample</h3><p>使用確認合格的產品影像作為輪廓、位置、尺寸、特徵與外觀的比較基準。Golden 本身不能直接等同所有 OK 樣品，仍需考慮正常製程變異。</p></div></li>
+          <li><b>03</b><div><h3>OK 樣品 Repeatability</h3><p>同一產品在同一工作站重新放置與拍攝，觀察位置漂移、特徵點漂移、輪廓變化與量測差異，理解系統本身的變異範圍。</p></div></li>
+          <li><b>04</b><div><h3>OK／NG 二元驗證</h3><p>先把問題簡化為 OK 與 NG，不急著細分大量 defect class，確認影像與量測是否真的能把兩類分開。</p></div></li>
+          <li class="concept-step"><b>05</b><div><h3>Golden Offset 與 Repeatability 分離</h3><dl><dt>Repeatability</dt><dd>同一條件下重新放置或拍攝的變異。</dd><dt>Golden Offset</dt><dd>待測品相對 Golden 的位置或特徵偏移。</dd></dl><p>兩者不能混在一起判讀，否則容易把工作站變異誤認為產品差異。</p></div></li>
+          <li><b>06</b><div><h3>px → mm Calibration</h3><p>尺寸量測需要標定基準、穩定視角、固定工作距離、鏡頭畸變評估與工作站一致性，不能直接把 pixel distance 當成實際尺寸。</p></div></li>
+          <li><b>07</b><div><h3>AI + Rule-based Measurement</h3><p>AI 適合不規則瑕疵、外觀特徵與複雜影像 pattern；工程規則適合距離、位置、尺寸、孔位、邊界與幾何量測。實務上可結合 AI classification 與 rule-based measurement。</p></div></li>
+        </ol>
+      </section>
+
+      <section class="section baseline-section" id="baseline-first">
+        <div class="baseline-layout">
+          <div><span class="aoi-kicker">BASELINE FIRST</span><h2>為什麼不能一開始就一直增加模型訓練？</h2><p>如果工作站不穩定、相機或光線改變、Golden 與測試座標不一致，或 px／mm 尚未標定，增加資料也可能只是把量測系統本身的不穩定學進模型。</p></div>
+          <ol class="baseline-flow"><li>工作站穩定</li><li>量測可重複</li><li>Golden 基準一致</li><li>OK／NG 可分</li><li>再增加模型與分類複雜度</li></ol>
+        </div>
+      </section>
+
+      <section class="section" id="data-flow">
+        <div class="section-heading"><span class="eyebrow">TRACEABLE DATA</span><h2>檢測結果不只是一個 OK／NG</h2><p>AI 品質檢測的價值，也在於保留可回查、統計與比較的工程資料。</p></div>
+        <ol class="case-data-flow">
+          <li>產品影像</li><li>影像前處理</li><li>Golden／Baseline 比較</li><li>AI／規則量測</li><li>OK／NG</li><li>缺陷／偏移／尺寸資料</li><li>CSV／Excel／Database</li><li>品質追蹤</li>
+        </ol>
+        <ul class="value-list"><li>回查原始結果</li><li>統計判定資料</li><li>比較不同批次</li><li>追蹤異常原因</li><li>作為製程改善資料</li></ul>
+      </section>
+
+      <section class="section proof-section" id="engineering-findings">
+        <div class="section-heading"><span class="eyebrow">ENGINEERING FINDINGS</span><h2>這個案例真正驗證的是什麼？</h2></div>
+        <ul class="proof-list">
+          <li>AI 視覺檢測需要工程基準，不只是模型。</li><li>Golden Sample 必須搭配工作站 baseline。</li><li>Repeatability 與 Golden offset 必須分開。</li><li>OK／NG 應先做簡單二元驗證。</li><li>尺寸與影像量測需要 calibration。</li><li>AI 與規則量測可以搭配。</li><li>品質資料應被留下來。</li>
+        </ul>
+      </section>
+
+      <section class="section" id="limitations">
+        <div class="section-heading"><span class="eyebrow">LIMITATIONS</span><h2>哪些條件會影響結果？</h2><p>機器視覺與 AOI 瑕疵檢測必須放回實際影像條件評估。</p></div>
+        <ul class="condition-tags"><li>光源</li><li>表面反光</li><li>透明材質</li><li>金屬反射</li><li>相機解析度</li><li>鏡頭</li><li>拍攝角度</li><li>工作距離</li><li>治具定位</li><li>瑕疵尺寸</li><li>樣本數量</li><li>正常產品變異</li></ul>
+        <p class="case-notice">因此正式 AOI 導入前，仍需要針對實際產品進行 PoC 驗證。</p>
+      </section>
+
+      <section class="section audience-section" id="suitable">
+        <div class="section-heading"><span class="eyebrow">SUITABLE SCENARIOS</span><h2>哪些情境值得做這類驗證？</h2></div>
+        <div class="audience-grid"><span>人工目檢重複性高</span><span>OK／NG 判斷依賴經驗</span><span>產品尺寸或位置需要檢查</span><span>有大量產品影像</span><span>NG 原因沒有系統化資料</span><span>希望先低成本驗證 AI 可行性</span><span>不確定是否需要完整 AOI 機台</span></div>
+      </section>
+
+      <section class="section case-cta" id="assessment">
+        <div><span class="aoi-kicker">NEXT STEP</span><h2>先用你的產品做一次可行性評估</h2><p>如果目前有 OK／NG 樣品照片、瑕疵照片、尺寸規格、人工判定標準或現有相機畫面，可以先提供給恒構，確認影像條件與檢測問題是否適合進一步做 PoC。</p></div>
+        <div class="case-cta-actions"><a class="btn btn-primary" href="../../index.html#waiting-list">免費需求評估</a><a class="btn btn-secondary" href="../../aoi/">了解 AI 視覺檢測服務</a></div>
+      </section>
+    </article>
+  </main>
+
+  <footer class="site-footer"><strong>HengGou AI Platform</strong><span>Operated by 恒構企業社</span><a href="../../aoi/">AI 視覺檢測</a><span>© 2026 All Rights Reserved.</span></footer>
+  <script src="../../js/script.js"></script>
+</body>
+</html>

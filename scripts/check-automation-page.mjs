@@ -12,7 +12,7 @@ const sitemap = read("sitemap.xml");
 
 assert.match(page, /<html lang="zh-Hant-TW">/);
 assert.match(page, /<title>製造業流程自動化｜Google Sheet・LINE・表單整合｜恒構企業社<\/title>/);
-assert.match(page, /rel="canonical" href="https:\/\/hengo1125tw\.github\.io\/https-hengou-tw\.github\.io\/automation\.html"/);
+assert.match(page, /rel="canonical" href="https:\/\/henggou\.tw\/automation\.html"/);
 assert.match(page, /property="og:title"/);
 assert.match(page, /property="og:description"/);
 assert.match(page, /property="og:type" content="website"/);
